@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affiliate Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #080a0f;
+  --surface: #0d1018;
+  --surface2: #141820;
+  --surface3: #1a2030;
+  --border: #1c2535;
+  --border2: #243040;
+  --text: #c8d4e8;
+  --muted: #4a5a78;
+  --dim: #2a3a55;
+  --accent: #3d8bff;
+  --accent2: #6c63ff;
+  --green: #22d98a;
+  --yellow: #f0c040;
+  --red: #ff5566;
+  --orange: #ff8c44;
+  --glow: rgba(61,139,255,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+/* ─── UPLOAD SCREEN ─── */
+#uploadScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 32px;
+  position: relative;
+}
+
+#uploadScreen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 40%, rgba(61,139,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.upload-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-logo .dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.upload-zone {
+  border: 1px dashed var(--border2);
+  border-radius: 12px;
+  padding: 48px 64px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 520px;
+  background: var(--surface);
+  position: relative;
+}
+
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(61,139,255,0.04);
+  box-shadow: 0 0 40px rgba(61,139,255,0.06);
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.upload-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.upload-sub {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.upload-sub .hl { color: var(--accent); }
+
+.upload-btn {
+  margin-top: 20px;
+  padding: 10px 28px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.upload-btn:hover { background: #5a9fff; transform: translateY(-1px); }
+
+.upload-format {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.fmt-pill {
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.fmt-pill.active { border-color: var(--accent); color: var(--accent); }
+
+#fileInput { display: none; }
+
+.upload-error {
+  color: var(--red);
+  font-size: 11px;
+  margin-top: 8px;
+  display: none;
+}
+
+/* column mapping */
+.mapping-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 32px;
+  width: 520px;
+  display: none;
+}
+
+.mapping-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.mapping-sub { color: var(--muted); font-size: 11px; margin-bottom: 20px; }
+
+.mapping-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.map-row label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 4px;
+}
+
+.map-row select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.map-row select:focus { border-color: var(--accent); }
+
+.map-pps-row {
+  margin-bottom: 16px;
+}
+
+.map-pps-row label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 4px; }
+.map-pps-row input { background: var(--bg); border: 1px solid var(--border2); border-radius: 5px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 10px; outline: none; width: 100%; }
+.map-pps-row input:focus { border-color: var(--accent); }
+
+.map-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+.btn-secondary {
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+.btn-primary {
+  padding: 8px 18px;
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary:hover { background: #5a9fff; }
+
+/* ─── MAIN APP ─── */
+#appScreen { display: none; height: 100vh; flex-direction: column; }
+
+.top-bar {
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.top-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.top-logo .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
+
+.top-meta { font-size: 11px; color: var(--muted); flex: 1; }
+
+.top-stats { display: flex; gap: 20px; }
+
+.ts { display: flex; flex-direction: column; align-items: flex-end; }
+.ts .v { font-size: 13px; font-weight: 600; color: #fff; }
+.ts .l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+
+.reload-btn {
+  padding: 5px 14px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.reload-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── LEFT PANEL ─── */
+.left-panel {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-hdr {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.panel-hdr h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+
+.count-badge {
+  font-size: 9px;
+  padding: 2px 7px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--muted);
+}
+
+.search-bar {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 5px 9px;
+  outline: none;
+}
+
+.search-bar input:focus { border-color: var(--accent); }
+.search-bar input::placeholder { color: var(--muted); }
+
+.country-list { overflow-y: auto; flex: 1; }
+
+.country-item {
+  padding: 7px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  transition: background 0.1s;
+}
+
+.country-item:hover { background: var(--surface2); }
+
+.country-item.selected {
+  background: rgba(61,139,255,0.07);
+  border-left: 2px solid var(--accent);
+  padding-left: 12px;
+}
+
+.country-code {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .02em;
+}
+
+.bar-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.cbar { height: 2px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
+.cclicks { font-size: 10px; color: var(--muted); }
+.crev { font-size: 10px; color: var(--green); text-align: right; white-space: nowrap; }
+
+/* ─── RIGHT PANEL ─── */
+.right-panel { overflow-y: auto; padding: 20px 22px; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+  color: var(--muted);
+  gap: 10px;
+}
+
+.empty-icon { font-size: 48px; opacity: 0.15; }
+.empty-text { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--dim); }
+
+.country-hdr {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.country-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.stat-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.chip {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+}
+
+.chip .cv { font-size: 14px; font-weight: 700; color: #fff; }
+.chip .cl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
+
+.section-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-lbl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ─── OFFER CARDS ─── */
+.offer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+
+.offer-card:hover { border-color: var(--border2); }
+
+.offer-head {
+  padding: 11px 14px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+  user-select: none;
+  transition: background .1s;
+}
+
+.offer-head:hover { background: var(--surface2); }
+
+.offer-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  line-height: 1.4;
+}
+
+.badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: .05em;
+  flex-shrink: 0;
+}
+
+.badge-pps { background: rgba(255,140,68,.12); color: var(--orange); border: 1px solid rgba(255,140,68,.25); }
+.badge-soi { background: rgba(61,139,255,.1); color: var(--accent); border: 1px solid rgba(61,139,255,.2); }
+
+.offer-kpis {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.kpi { display: flex; flex-direction: column; }
+.kpi .kv { font-size: 11px; font-weight: 600; color: #fff; }
+.kpi .kl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+.offer-metric {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.metric-val { font-size: 14px; font-weight: 700; }
+.metric-lbl { font-size: 9px; color: var(--muted); text-align: right; margin-top: 2px; }
+
+/* ─── PAGES TABLE ─── */
+.pages-wrap { display: none; border-top: 1px solid var(--border); }
+.pages-wrap.open { display: block; }
+
+.pages-hdr {
+  display: grid;
+  padding: 6px 14px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  gap: 4px;
+}
+
+.page-row {
+  display: grid;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  gap: 4px;
+  transition: background .1s;
+}
+
+.page-row:last-child { border-bottom: none; }
+.page-row:hover { background: var(--surface2); }
+.page-row.top-row { background: rgba(61,139,255,0.04); }
+
+.page-name {
+  font-size: 11px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-row.top-row .page-name { color: var(--accent); }
+
+.pnum { font-size: 11px; text-align: right; color: var(--text); }
+
+.rank-badge {
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.r1 { background: rgba(61,139,255,.2); color: var(--accent); }
+.r2 { background: rgba(61,139,255,.12); color: #7ab0e0; }
+.r3 { background: rgba(61,139,255,.07); color: var(--muted); }
+.rn { color: var(--dim); font-size: 8px; }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* anim */
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.offer-card { animation: fadeIn 0.2s ease both; }
+</style>
+</head>
+<body>
+
+<!-- UPLOAD SCREEN -->
+<div id="uploadScreen">
+  <div class="upload-logo"><div class="dot"></div> Affiliate Analytics</div>
+
+  <div class="upload-zone" id="dropZone">
+    <div class="upload-icon">⬆</div>
+    <div class="upload-title">Drop your report file</div>
+    <div class="upload-sub">
+      Supports <span class="hl">.xlsx</span> and <span class="hl">.csv</span> exports<br>
+      Must contain columns: Offer, Clicks, Conversions, Revenue, Offer Page, Country
+    </div>
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+    <div class="upload-error" id="uploadError"></div>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+  </div>
+
+  <div class="upload-format">
+    <span class="fmt-pill active">XLSX</span>
+    <span class="fmt-pill active">XLS</span>
+    <span class="fmt-pill active">CSV</span>
+    <span style="color:var(--dim)">·</span>
+    <span>standard affiliate network exports</span>
+  </div>
+
+  <!-- Column Mapping Card -->
+  <div class="mapping-card" id="mappingCard">
+    <div class="mapping-title">Map Your Columns</div>
+    <div class="mapping-sub" id="mappingSub">Match your file's columns to the required fields</div>
+    <div class="mapping-grid" id="mappingGrid"></div>
+    <div class="map-pps-row">
+      <label>PPS Offer Identifier (keyword in offer name that means Pay-Per-Sale)</label>
+      <input type="text" id="ppsKeyword" value="PPS" placeholder="e.g. PPS, pps, pay-per-sale">
+    </div>
+    <div class="map-actions">
+      <button class="btn-secondary" onclick="resetUpload()">← Back</button>
+      <button class="btn-primary" onclick="buildAndLaunch()">Launch Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appScreen">
+  <div class="top-bar">
+    <div class="top-logo"><div class="dot"></div>Affiliate Analytics</div>
+    <div class="top-meta" id="topMeta"></div>
+    <div class="top-stats" id="topStats"></div>
+    <button class="reload-btn" onclick="resetUpload()">↺ Load New File</button>
+  </div>
+  <div class="main-layout">
+    <div class="left-panel">
+      <div class="panel-hdr">
+        <h2>Countries</h2>
+        <span class="count-badge" id="countBadge">—</span>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search country…">
+      </div>
+      <div class="country-list" id="countryList"></div>
+    </div>
+    <div class="right-panel" id="rightPanel">
+      <div class="empty-state">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">Select a country to explore</div>
+        <div style="color:var(--muted);font-size:11px">Offers ranked by CPC · PPS offers by CR</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let FULL_DATA = {};
+let selectedCountry = null;
+let searchQuery = '';
+let maxClicks = 1;
+let parsedRows = [];
+let detectedColumns = [];
+
+// ── Required fields ──
+const FIELDS = [
+  { key: 'offer_id',   label: 'Offer ID',    optional: true  },
+  { key: 'offer_name', label: 'Offer Name',  optional: false },
+  { key: 'clicks',     label: 'Clicks',      optional: false },
+  { key: 'conversions',label: 'Conversions', optional: false },
+  { key: 'revenue',    label: 'Revenue',     optional: false },
+  { key: 'offer_page', label: 'Offer Page',  optional: false },
+  { key: 'country',    label: 'Country/GEO', optional: false },
+];
+
+const AUTO_MATCH = {
+  offer_id:    ['offer id','offerid','offer_id','id'],
+  offer_name:  ['offer name','offername','offer_name','offer','name','campaign'],
+  clicks:      ['clicks','click','clk'],
+  conversions: ['conversions','conversion','convs','conv','leads','actions'],
+  revenue:     ['revenue','rev','earnings','income','payout','amount'],
+  offer_page:  ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
+  country:     ['country','geo','country code','countrycode','country_code'],
+};
+
+// ── Upload ──
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+function showError(msg) {
+  const el = document.getElementById('uploadError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function resetUpload() {
+  document.getElementById('uploadScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('mappingCard').style.display = 'none';
+  document.getElementById('uploadError').style.display = 'none';
+  fileInput.value = '';
+  parsedRows = [];
+  detectedColumns = [];
+  FULL_DATA = {};
+  selectedCountry = null;
+  searchQuery = '';
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('uploadError').style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      let rows = [];
+      if (ext === 'csv') {
+        rows = parseCSV(e.target.result);
+      } else {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      }
+      if (!rows.length) { showError('File is empty or unreadable.'); return; }
+      parsedRows = rows;
+      detectedColumns = Object.keys(rows[0]);
+      showMappingUI(file.name, rows.length);
+    } catch(err) {
+      showError('Could not parse file: ' + err.message);
+    }
+  };
+  if (ext === 'csv') reader.readAsText(file);
+  else reader.readAsArrayBuffer(file);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] ?? '');
+    return obj;
+  });
+}
+
+function showMappingUI(filename, rowCount) {
+  document.getElementById('mappingSub').textContent = `${filename} · ${rowCount.toLocaleString()} rows · Match columns below`;
+  const grid = document.getElementById('mappingGrid');
+  grid.innerHTML = '';
+
+  FIELDS.forEach(field => {
+    const best = autoDetect(field.key, detectedColumns);
+    const div = document.createElement('div');
+    div.className = 'map-row';
+    div.innerHTML = `
+      <label>${field.label}${field.optional ? ' <em style="color:var(--dim)">(optional)</em>' : ''}</label>
+      <select id="map_${field.key}">
+        ${field.optional ? '<option value="">— skip —</option>' : '<option value="">— select —</option>'}
+        ${detectedColumns.map(c => `<option value="${c}"${c === best ? ' selected' : ''}>${c}</option>`).join('')}
+      </select>`;
+    grid.appendChild(div);
+  });
+
+  document.getElementById('mappingCard').style.display = 'block';
+}
+
+function autoDetect(key, cols) {
+  const hints = AUTO_MATCH[key] || [];
+  for (const hint of hints) {
+    const match = cols.find(c => c.toLowerCase().replace(/[\s_]/g,'').includes(hint.replace(/[\s_]/g,'')));
+    if (match) return match;
+  }
+  return '';
+}
+
+function buildAndLaunch() {
+  const mapping = {};
+  for (const f of FIELDS) {
+    const val = document.getElementById('map_' + f.key).value;
+    if (!f.optional && !val) { showError(`Please map the "${f.label}" column.`); return; }
+    mapping[f.key] = val;
+  }
+  const ppsKw = (document.getElementById('ppsKeyword').value || 'PPS').toLowerCase();
+  buildData(parsedRows, mapping, ppsKw);
+  launchApp();
+}
+
+function buildData(rows, m, ppsKw) {
+  const agg = {};
+
+  rows.forEach(row => {
+    const country = (row[m.country] || 'Unknown').toString().trim() || 'Unknown';
+    const offerName = (row[m.offer_name] || '').toString().trim();
+    const offerId = m.offer_id ? (row[m.offer_id] || 0) : 0;
+    const page = (row[m.offer_page] || '0. Default').toString().trim() || '0. Default';
+    const clicks = parseFloat(row[m.clicks]) || 0;
+    const conversions = parseFloat(row[m.conversions]) || 0;
+    const revenue = parseFloat(row[m.revenue]) || 0;
+    const isPPS = offerName.toLowerCase().includes(ppsKw);
+
+    if (!agg[country]) agg[country] = { clicks:0, conversions:0, revenue:0, offers:{} };
+    const C = agg[country];
+    C.clicks += clicks;
+    C.conversions += conversions;
+    C.revenue += revenue;
+
+    const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
+    if (!C.offers[offerKey]) C.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, pages:{} };
+    const O = C.offers[offerKey];
+    O.clicks += clicks;
+    O.conversions += conversions;
+    O.revenue += revenue;
+
+    if (!O.pages[page]) O.pages[page] = { page, clicks:0, conversions:0, revenue:0 };
+    const P = O.pages[page];
+    P.clicks += clicks;
+    P.conversions += conversions;
+    P.revenue += revenue;
+  });
+
+  // compute CPC/CR, flatten
+  FULL_DATA = {};
+  for (const [country, cdata] of Object.entries(agg)) {
+    const offers = Object.values(cdata.offers).map(o => {
+      const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
+      const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+      const pages = Object.values(o.pages).map(p => {
+        const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
+        const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
+        return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+      });
+      return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+    });
+    FULL_DATA[country] = { ...cdata, offers };
+  }
+
+  maxClicks = Math.max(...Object.values(FULL_DATA).map(d => d.clicks), 1);
+}
+
+function launchApp() {
+  document.getElementById('uploadScreen').style.display = 'none';
+  const app = document.getElementById('appScreen');
+  app.style.display = 'flex';
+
+  // top stats
+  const totalClicks = Object.values(FULL_DATA).reduce((s,d) => s+d.clicks, 0);
+  const totalRev = Object.values(FULL_DATA).reduce((s,d) => s+d.revenue, 0);
+  const totalConvs = Object.values(FULL_DATA).reduce((s,d) => s+d.conversions, 0);
+  const totalCountries = Object.keys(FULL_DATA).length;
+
+  document.getElementById('topMeta').textContent = `${totalCountries} countries · ${Object.values(FULL_DATA).reduce((s,d)=>s+d.offers.length,0)} offer-records`;
+  document.getElementById('topStats').innerHTML = `
+    <div class="ts"><div class="v">${fmtNum(totalClicks)}</div><div class="l">Clicks</div></div>
+    <div class="ts"><div class="v">${totalConvs.toLocaleString()}</div><div class="l">Convs</div></div>
+    <div class="ts"><div class="v" style="color:var(--green)">${totalRev > 0 ? '$'+totalRev.toFixed(2) : '—'}</div><div class="l">Revenue</div></div>
+  `;
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderCountryList();
+  });
+
+  renderCountryList();
+
+  // auto-select top country
+  const top = Object.entries(FULL_DATA).sort((a,b) => b[1].clicks - a[1].clicks)[0];
+  if (top) selectCountry(top[0]);
+}
+
+// ── Helpers ──
+function fmt(n, d=2) { return n === 0 ? '0' : n.toFixed(d); }
+function fmtMoney(n) { return n === 0 ? '$0' : '$' + n.toFixed(2); }
+function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+
+// ── Country List ──
+function renderCountryList() {
+  const q = searchQuery.toLowerCase();
+  const countries = Object.entries(FULL_DATA)
+    .filter(([code]) => !q || code.toLowerCase().includes(q))
+    .sort((a, b) => b[1].clicks - a[1].clicks);
+
+  document.getElementById('countBadge').textContent = countries.length + ' shown';
+
+  document.getElementById('countryList').innerHTML = countries.map(([code, data]) => {
+    const bw = Math.max(2, Math.round((data.clicks / maxClicks) * 72));
+    return `<div class="country-item${code === selectedCountry ? ' selected' : ''}" onclick="selectCountry('${code}')">
+      <div>
+        <div class="country-code">${code}</div>
+        <div class="bar-row">
+          <div class="cbar" style="width:${bw}px"></div>
+          <span class="cclicks">${fmtNum(data.clicks)}</span>
+        </div>
+      </div>
+      <div class="crev">${data.revenue > 0 ? fmtMoney(data.revenue) : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectCountry(code) {
+  selectedCountry = code;
+  renderCountryList();
+  renderRight(code);
+}
+
+// ── Right Panel ──
+function renderRight(code) {
+  const panel = document.getElementById('rightPanel');
+  const data = FULL_DATA[code];
+  if (!data) return;
+
+  const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
+
+  // Sort offers: by CPC desc (non-PPS), then PPS offers appended sorted by CR
+  const nonPPS = data.offers.filter(o => !o.is_pps).sort((a,b) => b.cpc - a.cpc);
+  const pps = data.offers.filter(o => o.is_pps).sort((a,b) => b.cr - a.cr);
+  const offers = [...nonPPS, ...pps];
+
+  const cols = 'grid-template-columns:18px 1fr 52px 52px 64px 64px';
+
+  const cards = offers.map((o, idx) => {
+    const isPPS = o.is_pps;
+    const metricHdr = isPPS ? 'CR %' : 'CPC';
+    const pages = [...o.pages].sort((a,b) => isPPS ? (b.cr - a.cr) : (b.cpc - a.cpc));
+
+    const pageRows = pages.map((p, pi) => {
+      const ri = pi === 0 ? 'r1' : pi === 1 ? 'r2' : pi === 2 ? 'r3' : 'rn';
+      const rLabel = pi < 3 ? (pi+1) : '·';
+      const metricVal = isPPS
+        ? `<span style="color:${p.cr > 0 ? 'var(--yellow)' : 'var(--muted)'}">${fmt(p.cr, 2)}%</span>`
+        : `<span style="color:${p.cpc > 0 ? 'var(--green)' : 'var(--muted)'}">$${fmt(p.cpc, 4)}</span>`;
+      return `<div class="page-row${pi===0?' top-row':''}" style="${cols}">
+        <div class="rank-badge ${ri}">${rLabel}</div>
+        <div class="page-name" title="${p.page}">${p.page}</div>
+        <div class="pnum">${fmtNum(p.clicks)}</div>
+        <div class="pnum">${p.conversions}</div>
+        <div class="pnum" style="color:${p.revenue>0?'var(--green)':'var(--muted)'}">${p.revenue>0?'$'+fmt(p.revenue,2):'—'}</div>
+        <div class="pnum">${metricVal}</div>
+      </div>`;
+    }).join('');
+
+    const topMetricColor = isPPS ? (o.cr > 0 ? 'var(--yellow)' : 'var(--muted)') : (o.cpc > 0 ? 'var(--green)' : 'var(--muted)');
+    const topMetricVal = isPPS ? `${fmt(o.cr, 2)}%` : `$${fmt(o.cpc, 4)}`;
+
+    return `<div class="offer-card" style="animation-delay:${idx*0.03}s">
+      <div class="offer-head" onclick="togglePages(${idx})">
+        <div>
+          <div class="offer-title">
+            <span>${o.offer_name.trim()}</span>
+            <span class="badge ${isPPS?'badge-pps':'badge-soi'}">${isPPS?'PPS':'SOI'}</span>
+          </div>
+          <div class="offer-kpis">
+            <div class="kpi"><span class="kv">${fmtNum(o.clicks)}</span><span class="kl">Clicks</span></div>
+            <div class="kpi"><span class="kv">${o.conversions}</span><span class="kl">Convs</span></div>
+            <div class="kpi"><span class="kv" style="color:var(--green)">${o.revenue>0?'$'+fmt(o.revenue,2):'—'}</span><span class="kl">Rev</span></div>
+            <div class="kpi"><span class="kv" style="color:var(--yellow)">${fmt(o.cr,2)}%</span><span class="kl">CR</span></div>
+            <div class="kpi"><span class="kv" style="color:var(--green)">${o.cpc>0?'$'+fmt(o.cpc,4):'—'}</span><span class="kl">CPC</span></div>
+            ${o.offer_id ? `<div class="kpi"><span class="kv" style="color:var(--muted)">#${o.offer_id}</span><span class="kl">ID</span></div>` : ''}
+          </div>
+        </div>
+        <div class="offer-metric">
+          <div class="metric-val" style="color:${topMetricColor}">${topMetricVal}</div>
+          <div class="metric-lbl">Top ${metricHdr} ▾</div>
+        </div>
+      </div>
+      <div class="pages-wrap" id="pw-${idx}">
+        <div class="pages-hdr" style="${cols}">
+          <div></div><div>PAGE</div>
+          <div style="text-align:right">CLICKS</div>
+          <div style="text-align:right">CONVS</div>
+          <div style="text-align:right">REV</div>
+          <div style="text-align:right">${metricHdr}</div>
+        </div>
+        ${pageRows}
+      </div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="country-hdr">
+      <div class="country-name">${code}</div>
+      <div class="stat-chips">
+        <div class="chip"><div class="cv">${fmtNum(data.clicks)}</div><div class="cl">Clicks</div></div>
+        <div class="chip"><div class="cv">${data.conversions.toLocaleString()}</div><div class="cl">Convs</div></div>
+        <div class="chip"><div class="cv" style="color:var(--green)">${data.revenue > 0 ? fmtMoney(data.revenue) : '$0'}</div><div class="cl">Revenue</div></div>
+        <div class="chip"><div class="cv" style="color:var(--yellow)">${fmt(cr,2)}%</div><div class="cl">CR</div></div>
+        <div class="chip"><div class="cv">${offers.length}</div><div class="cl">Offers</div></div>
+      </div>
+    </div>
+    <div class="section-lbl">Offers — SOI sorted by CPC · PPS sorted by CR</div>
+    ${cards || '<p style="color:var(--muted);padding:20px">No offer data</p>'}
+  `;
+
+  // auto-open first card
+  const fp = document.getElementById('pw-0');
+  if (fp) fp.classList.add('open');
+}
+
+function togglePages(idx) {
+  const el = document.getElementById('pw-' + idx);
+  if (el) el.classList.toggle('open');
+}
+</script>
+</body>
+</html>
