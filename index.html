@@ -299,6 +299,95 @@ body {
 }
 .reload-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ─── AFFILIATE TABS ─── */
+.affiliate-tabs-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 20px;
+  gap: 2px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.affiliate-tabs-bar::-webkit-scrollbar { height: 2px; }
+.affiliate-tabs-bar::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.aff-tab {
+  padding: 8px 16px 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+  position: relative;
+}
+
+.aff-tab:hover { color: var(--text); }
+
+.aff-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.aff-tab .aff-clicks {
+  font-size: 9px;
+  color: var(--dim);
+  margin-left: 5px;
+  font-weight: 400;
+}
+
+.aff-tab.active .aff-clicks { color: rgba(61,139,255,0.5); }
+
+/* ─── FLOW TABS ─── */
+.flow-tabs-bar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 16px;
+  gap: 2px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.flow-tabs-bar::-webkit-scrollbar { height: 2px; }
+.flow-tabs-bar::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.flow-tab {
+  padding: 6px 14px 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.flow-tab:hover { color: var(--text); }
+
+.flow-tab.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+
+.flow-tab .flow-clicks {
+  font-size: 9px;
+  color: var(--dim);
+  margin-left: 4px;
+}
+
+.flow-tab.active .flow-clicks { color: rgba(34,217,138,0.4); }
+
+/* ─── MAIN LAYOUT ─── */
 .main-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -608,7 +697,7 @@ body {
     <div class="upload-title">Drop your report file</div>
     <div class="upload-sub">
       Supports <span class="hl">.xlsx</span> and <span class="hl">.csv</span> exports<br>
-      Must contain columns: Offer, Clicks, Conversions, Revenue, Offer Page, Country
+      Must contain columns: Affiliate Id, Flow Id, Offer, Clicks, Conversions, Revenue, Offer Page, Country
     </div>
     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
     <div class="upload-error" id="uploadError"></div>
@@ -647,6 +736,13 @@ body {
     <div class="top-stats" id="topStats"></div>
     <button class="reload-btn" onclick="resetUpload()">↺ Load New File</button>
   </div>
+
+  <!-- Affiliate tabs -->
+  <div class="affiliate-tabs-bar" id="affiliateTabs"></div>
+
+  <!-- Flow tabs (per affiliate) -->
+  <div class="flow-tabs-bar" id="flowTabs"></div>
+
   <div class="main-layout">
     <div class="left-panel">
       <div class="panel-hdr">
@@ -670,7 +766,10 @@ body {
 
 <script>
 // ── State ──
+// FULL_DATA shape: { affiliateId: { flowId: { countryCode: { clicks, conversions, revenue, offers: [...] } } } }
 let FULL_DATA = {};
+let selectedAffiliate = null;
+let selectedFlow = null;
 let selectedCountry = null;
 let searchQuery = '';
 let maxClicks = 1;
@@ -679,23 +778,27 @@ let detectedColumns = [];
 
 // ── Required fields ──
 const FIELDS = [
-  { key: 'offer_id',   label: 'Offer ID',    optional: true  },
-  { key: 'offer_name', label: 'Offer Name',  optional: false },
-  { key: 'clicks',     label: 'Clicks',      optional: false },
-  { key: 'conversions',label: 'Conversions', optional: false },
-  { key: 'revenue',    label: 'Revenue',     optional: false },
-  { key: 'offer_page', label: 'Offer Page',  optional: false },
-  { key: 'country',    label: 'Country/GEO', optional: false },
+  { key: 'affiliate_id', label: 'Affiliate ID',  optional: false },
+  { key: 'flow_id',      label: 'Flow ID',       optional: false },
+  { key: 'offer_id',     label: 'Offer ID',      optional: true  },
+  { key: 'offer_name',   label: 'Offer Name',    optional: false },
+  { key: 'clicks',       label: 'Clicks',        optional: false },
+  { key: 'conversions',  label: 'Conversions',   optional: false },
+  { key: 'revenue',      label: 'Revenue',       optional: false },
+  { key: 'offer_page',   label: 'Offer Page',    optional: false },
+  { key: 'country',      label: 'Country/GEO',   optional: false },
 ];
 
 const AUTO_MATCH = {
-  offer_id:    ['offer id','offerid','offer_id','id'],
-  offer_name:  ['offer name','offername','offer_name','offer','name','campaign'],
-  clicks:      ['clicks','click','clk'],
-  conversions: ['conversions','conversion','convs','conv','leads','actions'],
-  revenue:     ['revenue','rev','earnings','income','payout','amount'],
-  offer_page:  ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
-  country:     ['country','geo','country code','countrycode','country_code'],
+  affiliate_id: ['affiliate id','affiliateid','affiliate_id','partner id','partnerid','partner'],
+  flow_id:      ['flow id','flowid','flow_id','flow'],
+  offer_id:     ['offer id','offerid','offer_id','id'],
+  offer_name:   ['offer name','offername','offer_name','offer','name','campaign'],
+  clicks:       ['clicks','click','clk','visits'],
+  conversions:  ['conversions','conversion','convs','conv','leads','actions'],
+  revenue:      ['revenue','rev','earnings','income','payout','amount'],
+  offer_page:   ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
+  country:      ['country','geo','country code','countrycode','country_code'],
 };
 
 // ── Upload ──
@@ -726,6 +829,8 @@ function resetUpload() {
   parsedRows = [];
   detectedColumns = [];
   FULL_DATA = {};
+  selectedAffiliate = null;
+  selectedFlow = null;
   selectedCountry = null;
   searchQuery = '';
 }
@@ -813,9 +918,16 @@ function buildAndLaunch() {
 }
 
 function buildData(rows, m, ppsKw) {
+  // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, offers:{} }
   const agg = {};
 
   rows.forEach(row => {
+    const affiliateId = (row[m.affiliate_id] || '').toString().trim();
+    const flowId = (row[m.flow_id] || '').toString().trim();
+
+    // ── Skip rows with no flow ──
+    if (!flowId) return;
+
     const country = (row[m.country] || 'Unknown').toString().trim() || 'Unknown';
     const offerName = (row[m.offer_name] || '').toString().trim();
     const offerId = m.offer_id ? (row[m.offer_id] || 0) : 0;
@@ -825,8 +937,12 @@ function buildData(rows, m, ppsKw) {
     const revenue = parseFloat(row[m.revenue]) || 0;
     const isPPS = offerName.toLowerCase().includes(ppsKw);
 
-    if (!agg[country]) agg[country] = { clicks:0, conversions:0, revenue:0, offers:{} };
-    const C = agg[country];
+    if (!agg[affiliateId]) agg[affiliateId] = {};
+    if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
+    const flowData = agg[affiliateId][flowId];
+
+    if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, offers:{} };
+    const C = flowData[country];
     C.clicks += clicks;
     C.conversions += conversions;
     C.revenue += revenue;
@@ -845,23 +961,49 @@ function buildData(rows, m, ppsKw) {
     P.revenue += revenue;
   });
 
-  // compute CPC/CR, flatten
+  // Flatten pages & compute metrics
   FULL_DATA = {};
-  for (const [country, cdata] of Object.entries(agg)) {
-    const offers = Object.values(cdata.offers).map(o => {
-      const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
-      const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
-      const pages = Object.values(o.pages).map(p => {
-        const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
-        const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-        return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
-      });
-      return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
-    });
-    FULL_DATA[country] = { ...cdata, offers };
+  for (const [affId, flows] of Object.entries(agg)) {
+    FULL_DATA[affId] = {};
+    for (const [flowId, countries] of Object.entries(flows)) {
+      FULL_DATA[affId][flowId] = {};
+      for (const [country, cdata] of Object.entries(countries)) {
+        const offers = Object.values(cdata.offers).map(o => {
+          const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
+          const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+          const pages = Object.values(o.pages).map(p => {
+            const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
+            const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
+            return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+          });
+          return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+        });
+        FULL_DATA[affId][flowId][country] = { ...cdata, offers };
+      }
+    }
   }
+}
 
-  maxClicks = Math.max(...Object.values(FULL_DATA).map(d => d.clicks), 1);
+function getAffiliateStats(affId) {
+  let clicks = 0, conversions = 0, revenue = 0;
+  for (const flowData of Object.values(FULL_DATA[affId])) {
+    for (const cdata of Object.values(flowData)) {
+      clicks += cdata.clicks;
+      conversions += cdata.conversions;
+      revenue += cdata.revenue;
+    }
+  }
+  return { clicks, conversions, revenue };
+}
+
+function getFlowStats(affId, flowId) {
+  let clicks = 0, conversions = 0, revenue = 0;
+  for (const cdata of Object.values(FULL_DATA[affId][flowId])) {
+    clicks += cdata.clicks;
+    conversions += cdata.conversions;
+    revenue += cdata.revenue;
+  }
+  return { clicks, conversions, revenue };
 }
 
 function launchApp() {
@@ -869,17 +1011,21 @@ function launchApp() {
   const app = document.getElementById('appScreen');
   app.style.display = 'flex';
 
-  // top stats
-  const totalClicks = Object.values(FULL_DATA).reduce((s,d) => s+d.clicks, 0);
-  const totalRev = Object.values(FULL_DATA).reduce((s,d) => s+d.revenue, 0);
-  const totalConvs = Object.values(FULL_DATA).reduce((s,d) => s+d.conversions, 0);
-  const totalCountries = Object.keys(FULL_DATA).length;
+  // Totals across everything
+  let totalClicks = 0, totalRevenue = 0, totalConversions = 0;
+  for (const affId of Object.keys(FULL_DATA)) {
+    const s = getAffiliateStats(affId);
+    totalClicks += s.clicks;
+    totalRevenue += s.revenue;
+    totalConversions += s.conversions;
+  }
 
-  document.getElementById('topMeta').textContent = `${totalCountries} countries · ${Object.values(FULL_DATA).reduce((s,d)=>s+d.offers.length,0)} offer-records`;
+  const totalAffiliates = Object.keys(FULL_DATA).length;
+  document.getElementById('topMeta').textContent = `${totalAffiliates} affiliate${totalAffiliates !== 1 ? 's' : ''}`;
   document.getElementById('topStats').innerHTML = `
     <div class="ts"><div class="v">${fmtNum(totalClicks)}</div><div class="l">Clicks</div></div>
-    <div class="ts"><div class="v">${totalConvs.toLocaleString()}</div><div class="l">Convs</div></div>
-    <div class="ts"><div class="v" style="color:var(--green)">${totalRev > 0 ? '$'+totalRev.toFixed(2) : '—'}</div><div class="l">Revenue</div></div>
+    <div class="ts"><div class="v">${totalConversions.toLocaleString()}</div><div class="l">Convs</div></div>
+    <div class="ts"><div class="v" style="color:var(--green)">${totalRevenue > 0 ? '$'+totalRevenue.toFixed(2) : '—'}</div><div class="l">Revenue</div></div>
   `;
 
   document.getElementById('searchInput').addEventListener('input', e => {
@@ -887,11 +1033,67 @@ function launchApp() {
     renderCountryList();
   });
 
+  renderAffiliateTabs();
+
+  // auto-select top affiliate by clicks
+  const topAff = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).clicks - getAffiliateStats(a).clicks)[0];
+  if (topAff) selectAffiliate(topAff);
+}
+
+// ── Affiliate Tabs ──
+function renderAffiliateTabs() {
+  const affiliates = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).clicks - getAffiliateStats(a).clicks);
+  document.getElementById('affiliateTabs').innerHTML = affiliates.map(affId => {
+    const s = getAffiliateStats(affId);
+    return `<div class="aff-tab${affId === selectedAffiliate ? ' active' : ''}" onclick="selectAffiliate('${affId}')">
+      ${affId}<span class="aff-clicks">${fmtNum(s.clicks)}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectAffiliate(affId) {
+  selectedAffiliate = affId;
+  selectedFlow = null;
+  selectedCountry = null;
+  renderAffiliateTabs();
+  renderFlowTabs();
+
+  // auto-select top flow
+  const flows = Object.keys(FULL_DATA[affId]).sort((a, b) => getFlowStats(affId, b).clicks - getFlowStats(affId, a).clicks);
+  if (flows.length) selectFlow(flows[0]);
+}
+
+// ── Flow Tabs ──
+function renderFlowTabs() {
+  if (!selectedAffiliate) { document.getElementById('flowTabs').innerHTML = ''; return; }
+  const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a, b) =>
+    getFlowStats(selectedAffiliate, b).clicks - getFlowStats(selectedAffiliate, a).clicks
+  );
+  document.getElementById('flowTabs').innerHTML = flows.map(flowId => {
+    const s = getFlowStats(selectedAffiliate, flowId);
+    return `<div class="flow-tab${flowId === selectedFlow ? ' active' : ''}" onclick="selectFlow('${flowId}')">
+      ${flowId}<span class="flow-clicks">${fmtNum(s.clicks)}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectFlow(flowId) {
+  selectedFlow = flowId;
+  selectedCountry = null;
+  renderFlowTabs();
+  searchQuery = '';
+  document.getElementById('searchInput').value = '';
+
+  // recompute maxClicks for this flow
+  const flowData = FULL_DATA[selectedAffiliate][selectedFlow];
+  maxClicks = Math.max(...Object.values(flowData).map(d => d.clicks), 1);
+
   renderCountryList();
 
   // auto-select top country
-  const top = Object.entries(FULL_DATA).sort((a,b) => b[1].clicks - a[1].clicks)[0];
-  if (top) selectCountry(top[0]);
+  const topCountry = Object.entries(flowData).sort((a, b) => b[1].clicks - a[1].clicks)[0];
+  if (topCountry) selectCountry(topCountry[0]);
+  else document.getElementById('rightPanel').innerHTML = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No data for this flow</div></div>`;
 }
 
 // ── Helpers ──
@@ -901,8 +1103,10 @@ function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 100
 
 // ── Country List ──
 function renderCountryList() {
+  if (!selectedAffiliate || !selectedFlow) return;
+  const flowData = FULL_DATA[selectedAffiliate][selectedFlow];
   const q = searchQuery.toLowerCase();
-  const countries = Object.entries(FULL_DATA)
+  const countries = Object.entries(flowData)
     .filter(([code]) => !q || code.toLowerCase().includes(q))
     .sort((a, b) => b[1].clicks - a[1].clicks);
 
@@ -932,12 +1136,12 @@ function selectCountry(code) {
 // ── Right Panel ──
 function renderRight(code) {
   const panel = document.getElementById('rightPanel');
-  const data = FULL_DATA[code];
+  if (!selectedAffiliate || !selectedFlow) return;
+  const data = FULL_DATA[selectedAffiliate][selectedFlow][code];
   if (!data) return;
 
   const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
 
-  // Sort offers: by CPC desc (non-PPS), then PPS offers appended sorted by CR
   const nonPPS = data.offers.filter(o => !o.is_pps).sort((a,b) => b.cpc - a.cpc);
   const pps = data.offers.filter(o => o.is_pps).sort((a,b) => b.cr - a.cr);
   const offers = [...nonPPS, ...pps];
@@ -1001,6 +1205,8 @@ function renderRight(code) {
       </div>
     </div>`;
   }).join('');
+
+  const flowStats = getFlowStats(selectedAffiliate, selectedFlow);
 
   panel.innerHTML = `
     <div class="country-hdr">
