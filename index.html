@@ -394,6 +394,14 @@ body {
   font-weight: 400;
 }
 
+.aff-tab .aff-rev {
+  font-size: 9px;
+  color: var(--green);
+  margin-left: 4px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
 .aff-tab.active .aff-clicks { color: rgba(61,139,255,0.5); }
 
 /* ─── FLOW TABS ─── */
@@ -437,7 +445,27 @@ body {
   margin-left: 4px;
 }
 
+.flow-tab .flow-rev {
+  font-size: 9px;
+  color: var(--green);
+  margin-left: 4px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
 .flow-tab.active .flow-clicks { color: rgba(34,217,138,0.4); }
+
+.flow-tab.no-flow-tab {
+  color: var(--muted);
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.flow-tab.no-flow-tab.active {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+  opacity: 1;
+}
 
 /* ─── MAIN LAYOUT ─── */
 .main-layout {
@@ -1001,10 +1029,11 @@ function buildData(rows, m, ppsKw) {
 
   rows.forEach(row => {
     const affiliateId = (row[m.affiliate_id] || '').toString().trim();
-    const flowId = (row[m.flow_id] || '').toString().trim();
+    const rawFlowId = (row[m.flow_id] || '').toString().trim();
+    // Rows without a flow go into a special bucket
+    const flowId = rawFlowId || '__no_flow__';
 
-    // ── Skip rows with no flow ──
-    if (!flowId) return;
+    // ── Skip rows with no flow ── (removed — now handled above)
 
     const country = (row[m.country] || 'Unknown').toString().trim() || 'Unknown';
     const offerName = (row[m.offer_name] || '').toString().trim();
@@ -1113,18 +1142,18 @@ function launchApp() {
 
   renderAffiliateTabs();
 
-  // auto-select top affiliate by clicks
-  const topAff = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).clicks - getAffiliateStats(a).clicks)[0];
+  // auto-select top affiliate by revenue
+  const topAff = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue)[0];
   if (topAff) selectAffiliate(topAff);
 }
 
 // ── Affiliate Tabs ──
 function renderAffiliateTabs() {
-  const affiliates = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).clicks - getAffiliateStats(a).clicks);
+  const affiliates = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue);
   document.getElementById('affiliateTabs').innerHTML = affiliates.map(affId => {
     const s = getAffiliateStats(affId);
     return `<div class="aff-tab${affId === selectedAffiliate ? ' active' : ''}" onclick="selectAffiliate('${affId}')">
-      ${affId}<span class="aff-clicks">${fmtNum(s.clicks)}</span>
+      ${affId}<span class="aff-clicks">${fmtNum(s.clicks)}</span><span class="aff-rev">${s.revenue > 0 ? fmtMoney(s.revenue) : ''}</span>
     </div>`;
   }).join('');
 }
@@ -1136,8 +1165,8 @@ function selectAffiliate(affId) {
   renderAffiliateTabs();
   renderFlowTabs();
 
-  // auto-select top flow
-  const flows = Object.keys(FULL_DATA[affId]).sort((a, b) => getFlowStats(affId, b).clicks - getFlowStats(affId, a).clicks);
+  // auto-select top flow by revenue
+  const flows = Object.keys(FULL_DATA[affId]).sort((a, b) => getFlowStats(affId, b).revenue - getFlowStats(affId, a).revenue);
   if (flows.length) selectFlow(flows[0]);
 }
 
@@ -1145,12 +1174,14 @@ function selectAffiliate(affId) {
 function renderFlowTabs() {
   if (!selectedAffiliate) { document.getElementById('flowTabs').innerHTML = ''; return; }
   const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a, b) =>
-    getFlowStats(selectedAffiliate, b).clicks - getFlowStats(selectedAffiliate, a).clicks
+    getFlowStats(selectedAffiliate, b).revenue - getFlowStats(selectedAffiliate, a).revenue
   );
   document.getElementById('flowTabs').innerHTML = flows.map(flowId => {
     const s = getFlowStats(selectedAffiliate, flowId);
-    return `<div class="flow-tab${flowId === selectedFlow ? ' active' : ''}" onclick="selectFlow('${flowId}')">
-      ${flowId}<span class="flow-clicks">${fmtNum(s.clicks)}</span>
+    const isNoFlow = flowId === '__no_flow__';
+    const label = isNoFlow ? '⊘ No Flow' : flowId;
+    return `<div class="flow-tab${flowId === selectedFlow ? ' active' : ''}${isNoFlow ? ' no-flow-tab' : ''}" onclick="selectFlow('${flowId}')">
+      ${label}<span class="flow-clicks">${fmtNum(s.clicks)}</span><span class="flow-rev">${s.revenue > 0 ? fmtMoney(s.revenue) : ''}</span>
     </div>`;
   }).join('');
 }
@@ -1220,8 +1251,21 @@ function renderRight(code) {
 
   const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
 
-  const nonPPS = data.offers.filter(o => !o.is_pps).sort((a,b) => b.cpc - a.cpc);
-  const pps = data.offers.filter(o => o.is_pps).sort((a,b) => b.cr - a.cr);
+  const nonPPS = data.offers.filter(o => !o.is_pps).sort((a,b) => {
+    // Offers with conversions: sort by CPC desc; offers without: sort by clicks desc
+    const aHasConv = a.conversions > 0;
+    const bHasConv = b.conversions > 0;
+    if (aHasConv && bHasConv) return b.cpc - a.cpc;
+    if (!aHasConv && !bHasConv) return b.clicks - a.clicks;
+    return aHasConv ? -1 : 1; // with conversions first
+  });
+  const pps = data.offers.filter(o => o.is_pps).sort((a,b) => {
+    const aHasConv = a.conversions > 0;
+    const bHasConv = b.conversions > 0;
+    if (aHasConv && bHasConv) return b.cr - a.cr;
+    if (!aHasConv && !bHasConv) return b.clicks - a.clicks;
+    return aHasConv ? -1 : 1;
+  });
   const offers = [...nonPPS, ...pps];
 
   const cols = 'grid-template-columns:18px 1fr 52px 52px 64px 64px';
@@ -1285,6 +1329,7 @@ function renderRight(code) {
   }).join('');
 
   const flowStats = getFlowStats(selectedAffiliate, selectedFlow);
+  const flowLabel = selectedFlow === '__no_flow__' ? '⊘ No Flow' : selectedFlow;
 
   panel.innerHTML = `
     <div class="country-hdr">
@@ -1297,7 +1342,7 @@ function renderRight(code) {
         <div class="chip"><div class="cv">${offers.length}</div><div class="cl">Offers</div></div>
       </div>
     </div>
-    <div class="section-lbl">Offers — SOI sorted by CPC · PPS sorted by CR</div>
+    <div class="section-lbl">Offers — with conversions: SOI by CPC · PPS by CR · without conversions: by Clicks</div>
     ${cards || '<p style="color:var(--muted);padding:20px">No offer data</p>'}
   `;
 
