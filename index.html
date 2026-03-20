@@ -793,6 +793,78 @@ body {
 /* anim */
 @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 .offer-card { animation: fadeIn 0.2s ease both; }
+
+/* ─── DEVICE FILTER ─── */
+.device-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0 14px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.df-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+  color: var(--muted);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.df-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.df-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--border2);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.df-btn {
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.df-btn:hover { border-color: var(--text); color: var(--text); }
+
+.df-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(61,139,255,0.08);
+}
+
+.df-btn.active-os {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  background: rgba(108,99,255,0.08);
+}
+
+.df-filter-note {
+  font-size: 9px;
+  color: var(--orange);
+  margin-left: auto;
+  white-space: nowrap;
+  opacity: 0.85;
+}
 </style>
 </head>
 <body>
@@ -900,6 +972,10 @@ let maxClicks = 1;
 let parsedRows = [];
 let detectedColumns = [];
 
+// Device/OS filter state (null = all / no filter)
+let activeDeviceType = null;
+let activeDeviceOS = null;
+
 // ── Required fields ──
 const FIELDS = [
   { key: 'affiliate_id', label: 'Affiliate ID',  optional: false },
@@ -911,6 +987,8 @@ const FIELDS = [
   { key: 'revenue',      label: 'Revenue',       optional: false },
   { key: 'offer_page',   label: 'Offer Page',    optional: false },
   { key: 'country',      label: 'Country/GEO',   optional: false },
+  { key: 'device_type',  label: 'Device Type',   optional: true  },
+  { key: 'device_os',    label: 'Device OS',     optional: true  },
 ];
 
 const AUTO_MATCH = {
@@ -923,6 +1001,8 @@ const AUTO_MATCH = {
   revenue:      ['revenue','rev','earnings','income','payout','amount'],
   offer_page:   ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
   country:      ['country','geo','country code','countrycode','country_code'],
+  device_type:  ['device type','devicetype','device_type','device','platform type'],
+  device_os:    ['device os','deviceos','device_os','os','operating system','platform os'],
 };
 
 // ── Upload ──
@@ -1120,7 +1200,8 @@ function safeNum(val, fieldName) {
 }
 
 function buildData(rows, m, ppsKw) {
-  // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, offers:{} }
+  // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, offers:{}, deviceData:{} }
+  // deviceData[deviceType][deviceOS] = { clicks, conversions, revenue, offers:{} }
   const agg = Object.create(null);
 
   // Guard against prototype pollution via crafted key names
@@ -1135,6 +1216,9 @@ function buildData(rows, m, ppsKw) {
     const offerName   = (row[m.offer_name]   || '').toString().trim().slice(0, 256);
     const offerId     = m.offer_id ? (row[m.offer_id] || 0) : 0;
     const page        = (row[m.offer_page]   || '0. Default').toString().trim().slice(0, 256) || '0. Default';
+    const deviceType  = m.device_type ? (row[m.device_type] || 'unknown').toString().trim().slice(0, 64) : null;
+    const deviceOS    = m.device_os   ? (row[m.device_os]   || 'unknown').toString().trim().slice(0, 64) : null;
+
     if (!isSafeKey(affiliateId) || !isSafeKey(flowId) || !isSafeKey(country)) return; // skip row
     const clicks = safeNum(row[m.clicks], 'clicks');
     const conversions = safeNum(row[m.conversions], 'conversions');
@@ -1145,11 +1229,37 @@ function buildData(rows, m, ppsKw) {
     if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
     const flowData = agg[affiliateId][flowId];
 
-    if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, offers:{} };
+    if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, offers:{}, deviceData:{} };
     const C = flowData[country];
     C.clicks += clicks;
     C.conversions += conversions;
     C.revenue += revenue;
+
+    // Store device-segmented data
+    if (deviceType !== null) {
+      const dtKey = deviceType || 'unknown';
+      const osKey = deviceOS || 'unknown';
+      if (isSafeKey(dtKey) && isSafeKey(osKey)) {
+        if (!C.deviceData[dtKey]) C.deviceData[dtKey] = {};
+        if (!C.deviceData[dtKey][osKey]) C.deviceData[dtKey][osKey] = { clicks:0, conversions:0, revenue:0, offers:{} };
+        const DD = C.deviceData[dtKey][osKey];
+        DD.clicks += clicks;
+        DD.conversions += conversions;
+        DD.revenue += revenue;
+
+        const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
+        if (!DD.offers[offerKey]) DD.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, pages:{} };
+        const DO = DD.offers[offerKey];
+        DO.clicks += clicks;
+        DO.conversions += conversions;
+        DO.revenue += revenue;
+        if (!DO.pages[page]) DO.pages[page] = { page, clicks:0, conversions:0, revenue:0 };
+        const DP = DO.pages[page];
+        DP.clicks += clicks;
+        DP.conversions += conversions;
+        DP.revenue += revenue;
+      }
+    }
 
     const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
     if (!C.offers[offerKey]) C.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, pages:{} };
@@ -1172,20 +1282,39 @@ function buildData(rows, m, ppsKw) {
     for (const [flowId, countries] of Object.entries(flows)) {
       FULL_DATA[affId][flowId] = {};
       for (const [country, cdata] of Object.entries(countries)) {
-        const offers = Object.values(cdata.offers).map(o => {
-          const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
-          const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
-          const pages = Object.values(o.pages).map(p => {
-            const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
-            const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-            return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
-          });
-          return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
-        });
-        FULL_DATA[affId][flowId][country] = { ...cdata, offers };
+        const offers = flattenOffers(cdata.offers);
+
+        // Flatten device data too
+        const deviceData = {};
+        for (const [dt, osList] of Object.entries(cdata.deviceData || {})) {
+          deviceData[dt] = {};
+          for (const [os, ddData] of Object.entries(osList)) {
+            deviceData[dt][os] = {
+              clicks: ddData.clicks,
+              conversions: ddData.conversions,
+              revenue: ddData.revenue,
+              offers: flattenOffers(ddData.offers),
+            };
+          }
+        }
+
+        FULL_DATA[affId][flowId][country] = { clicks: cdata.clicks, conversions: cdata.conversions, revenue: cdata.revenue, offers, deviceData };
       }
     }
   }
+}
+
+function flattenOffers(offersObj) {
+  return Object.values(offersObj).map(o => {
+    const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
+    const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+    const pages = Object.values(o.pages).map(p => {
+      const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
+      const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
+      return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+    });
+    return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+  });
 }
 
 function getAffiliateStats(affId) {
@@ -1296,6 +1425,8 @@ function selectAffiliate(affId) {
   selectedAffiliate = affId;
   selectedFlow = null;
   selectedCountry = null;
+  activeDeviceType = null;
+  activeDeviceOS = null;
   renderAffiliateTabs();
   renderFlowTabs();
 
@@ -1344,6 +1475,8 @@ function renderFlowTabs() {
 function selectFlow(flowId) {
   selectedFlow = flowId;
   selectedCountry = null;
+  activeDeviceType = null;
+  activeDeviceOS = null;
   renderFlowTabs();
   searchQuery = '';
   document.getElementById('searchInput').value = '';
@@ -1433,15 +1566,173 @@ function renderCountryList() {
 
 function selectCountry(code) {
   selectedCountry = code;
+  activeDeviceType = null;
+  activeDeviceOS = null;
   renderCountryList();
   renderRight(code);
 }
 
 // ── Right Panel ──
+function getFilteredData(code) {
+  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base) return null;
+  if (!activeDeviceType && !activeDeviceOS) return base;
+
+  // Build filtered data from deviceData
+  const deviceData = base.deviceData || {};
+  let filteredOfferMap = {};
+  let filteredClicks = 0, filteredConversions = 0, filteredRevenue = 0;
+
+  const dtKeys = activeDeviceType ? [activeDeviceType] : Object.keys(deviceData);
+  for (const dt of dtKeys) {
+    if (!deviceData[dt]) continue;
+    const osKeys = activeDeviceOS ? [activeDeviceOS] : Object.keys(deviceData[dt]);
+    for (const os of osKeys) {
+      const dd = deviceData[dt][os];
+      if (!dd) continue;
+      filteredClicks += dd.clicks;
+      filteredConversions += dd.conversions;
+      filteredRevenue += dd.revenue;
+      // Merge offers
+      for (const o of dd.offers) {
+        const key = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+        if (!filteredOfferMap[key]) {
+          filteredOfferMap[key] = { ...o, pages: {} };
+          // pages: use page name as key
+          for (const p of o.pages) filteredOfferMap[key].pages[p.page] = { ...p };
+        } else {
+          const fo = filteredOfferMap[key];
+          fo.clicks += o.clicks;
+          fo.conversions += o.conversions;
+          fo.revenue += o.revenue;
+          for (const p of o.pages) {
+            if (!fo.pages[p.page]) fo.pages[p.page] = { ...p };
+            else {
+              fo.pages[p.page].clicks += p.clicks;
+              fo.pages[p.page].conversions += p.conversions;
+              fo.pages[p.page].revenue += p.revenue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Recompute metrics
+  const offers = Object.values(filteredOfferMap).map(o => {
+    const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
+    const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+    const pages = Object.values(o.pages).map(p => {
+      const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
+      const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
+      return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+    });
+    return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+  });
+
+  return { clicks: filteredClicks, conversions: filteredConversions, revenue: filteredRevenue, offers };
+}
+
+function getAvailableDeviceFilters(code) {
+  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return null;
+  const deviceTypes = Object.keys(base.deviceData).sort();
+  const allOS = new Set();
+  for (const dt of deviceTypes) {
+    for (const os of Object.keys(base.deviceData[dt])) allOS.add(os);
+  }
+  return { deviceTypes, allOS: [...allOS].sort() };
+}
+
+function renderDeviceFilterBar(panel, code) {
+  const filters = getAvailableDeviceFilters(code);
+  if (!filters) return;
+
+  const bar = document.createElement('div');
+  bar.className = 'device-filter-bar';
+  bar.id = 'deviceFilterBar';
+
+  const lbl = document.createElement('span');
+  lbl.className = 'df-label';
+  lbl.textContent = 'Filter:';
+  bar.appendChild(lbl);
+
+  // Device type group
+  const dtGroup = document.createElement('div');
+  dtGroup.className = 'df-group';
+
+  const allDtBtn = document.createElement('button');
+  allDtBtn.className = 'df-btn' + (!activeDeviceType ? ' active' : '');
+  allDtBtn.textContent = 'All Devices';
+  allDtBtn.onclick = () => { activeDeviceType = null; activeDeviceOS = null; renderRight(code); };
+  dtGroup.appendChild(allDtBtn);
+
+  for (const dt of filters.deviceTypes) {
+    const btn = document.createElement('button');
+    const label = dt.replace('device_type_', '');
+    btn.className = 'df-btn' + (activeDeviceType === dt ? ' active' : '');
+    btn.textContent = label;
+    btn.title = dt;
+    btn.onclick = () => {
+      activeDeviceType = (activeDeviceType === dt) ? null : dt;
+      activeDeviceOS = null;
+      renderRight(code);
+    };
+    dtGroup.appendChild(btn);
+  }
+  bar.appendChild(dtGroup);
+
+  // OS group (only if there are OS options)
+  if (filters.allOS.length > 1) {
+    const sep = document.createElement('div');
+    sep.className = 'df-sep';
+    bar.appendChild(sep);
+
+    // Determine available OS for current device type filter
+    const availableOS = activeDeviceType
+      ? Object.keys((FULL_DATA[selectedAffiliate][selectedFlow][code].deviceData[activeDeviceType]) || {}).sort()
+      : filters.allOS;
+
+    const osGroup = document.createElement('div');
+    osGroup.className = 'df-group';
+
+    const allOsBtn = document.createElement('button');
+    allOsBtn.className = 'df-btn' + (!activeDeviceOS ? ' active' : '');
+    allOsBtn.textContent = 'All OS';
+    allOsBtn.onclick = () => { activeDeviceOS = null; renderRight(code); };
+    osGroup.appendChild(allOsBtn);
+
+    for (const os of availableOS) {
+      const btn = document.createElement('button');
+      btn.className = 'df-btn' + (activeDeviceOS === os ? ' active-os' : '');
+      btn.textContent = os;
+      btn.onclick = () => {
+        activeDeviceOS = (activeDeviceOS === os) ? null : os;
+        renderRight(code);
+      };
+      osGroup.appendChild(btn);
+    }
+    bar.appendChild(osGroup);
+  }
+
+  // Active filter note
+  if (activeDeviceType || activeDeviceOS) {
+    const note = document.createElement('span');
+    note.className = 'df-filter-note';
+    const parts = [];
+    if (activeDeviceType) parts.push(activeDeviceType.replace('device_type_', ''));
+    if (activeDeviceOS) parts.push(activeDeviceOS);
+    note.textContent = '⚡ ' + parts.join(' · ');
+    bar.appendChild(note);
+  }
+
+  panel.appendChild(bar);
+}
+
 function renderRight(code) {
   const panel = document.getElementById('rightPanel');
   if (!selectedAffiliate || !selectedFlow) return;
-  const data = FULL_DATA[selectedAffiliate][selectedFlow][code];
+  const data = getFilteredData(code);
   if (!data) return;
 
   const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
@@ -1497,6 +1788,9 @@ function renderRight(code) {
   hdr.appendChild(chips);
   panel.appendChild(hdr);
 
+  // ── Device filter bar ──
+  renderDeviceFilterBar(panel, code);
+
   // ── Section label ──
   const sectionLbl = document.createElement('div');
   sectionLbl.className = 'section-lbl';
@@ -1507,7 +1801,7 @@ function renderRight(code) {
     const empty = document.createElement('p');
     empty.style.color = 'var(--muted)';
     empty.style.padding = '20px';
-    empty.textContent = 'No offer data';
+    empty.textContent = 'No offer data for selected filter';
     panel.appendChild(empty);
     return;
   }
