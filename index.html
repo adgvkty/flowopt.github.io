@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
 <title>Affiliate Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -824,7 +829,7 @@ body {
     <div class="mapping-grid" id="mappingGrid"></div>
     <div class="map-pps-row">
       <label>PPS Offer Identifier (keyword in offer name that means Pay-Per-Sale)</label>
-      <input type="text" id="ppsKeyword" value="PPS" placeholder="e.g. PPS, pps, pay-per-sale">
+      <input type="text" id="ppsKeyword" value="PPS" placeholder="e.g. PPS, pps, pay-per-sale" maxlength="64" autocomplete="off" spellcheck="false">
     </div>
     <div class="map-actions">
       <button class="btn-secondary" onclick="resetUpload()">← Back</button>
@@ -856,7 +861,7 @@ body {
         <span class="count-badge" id="countBadge">—</span>
       </div>
       <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search country…">
+        <input type="text" id="searchInput" placeholder="Search country…" maxlength="100" autocomplete="off">
       </div>
       <div class="country-list" id="countryList"></div>
     </div>
@@ -871,6 +876,19 @@ body {
 </div>
 
 <script>
+// ── Security: sanitize helper ──
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str ?? '');
+  return d.innerHTML; // HTML-escaped string safe for innerHTML contexts
+}
+
+function sanitize(str) {
+  return String(str ?? '').replace(/[<>"'`&]/g, c => ({
+    '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;', '`':'&#96;', '&':'&amp;'
+  }[c]));
+}
+
 // ── State ──
 // FULL_DATA shape: { affiliateId: { flowId: { countryCode: { clicks, conversions, revenue, offers: [...] } } } }
 let FULL_DATA = {};
@@ -944,6 +962,18 @@ function resetUpload() {
 function handleFile(file) {
   if (!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
+  const ALLOWED_EXTENSIONS = ['xlsx', 'xls', 'csv'];
+  const ALLOWED_MIME = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel', 'text/csv', 'text/plain', 'application/csv', ''];
+  if (!ALLOWED_EXTENSIONS.includes(ext)) {
+    showError('Invalid file type. Only .xlsx, .xls, and .csv files are accepted.');
+    return;
+  }
+  const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+  if (file.size > MAX_SIZE) {
+    showError('File is too large. Maximum size is 50 MB.');
+    return;
+  }
   document.getElementById('uploadError').style.display = 'none';
 
   const reader = new FileReader();
@@ -958,11 +988,20 @@ function handleFile(file) {
         rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
       }
       if (!rows.length) { showError('File is empty or unreadable.'); return; }
+      const MAX_ROWS = 200_000;
+      if (rows.length > MAX_ROWS) {
+        showError(`File has too many rows (${rows.length.toLocaleString()}). Maximum is ${MAX_ROWS.toLocaleString()}.`);
+        return;
+      }
       parsedRows = rows;
       detectedColumns = Object.keys(rows[0]);
       showMappingUI(file.name, rows.length);
     } catch(err) {
-      showError('Could not parse file: ' + err.message);
+      // Avoid leaking internal error details (file paths, stack traces) to the UI
+      const safeMsg = (err && err.message && err.message.length < 120)
+        ? err.message.replace(/[<>"'`]/g, '')
+        : 'Unexpected error';
+      showError('Could not parse file: ' + safeMsg);
     }
   };
   if (ext === 'csv') reader.readAsText(file);
@@ -970,19 +1009,44 @@ function handleFile(file) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  if (!lines.length) return [];
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  return lines.slice(1).map(line => {
-    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = vals[i] ?? '');
-    return obj;
-  });
+  // RFC 4180-compliant parser: handles quoted fields, embedded commas and newlines
+  const rows = [];
+  let field = '';
+  let inQuotes = false;
+  let currentRow = [];
+  const push = () => { currentRow.push(field); field = ''; };
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+    if (inQuotes) {
+      if (ch === '"' && next === '"') { field += '"'; i++; }       // escaped quote
+      else if (ch === '"') { inQuotes = false; }                   // end of quoted field
+      else { field += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }                         // start quoted field
+      else if (ch === ',') { push(); }                             // field separator
+      else if (ch === '\r' && next === '\n') { push(); rows.push(currentRow); currentRow = []; i++; }
+      else if (ch === '\n' || ch === '\r') { push(); rows.push(currentRow); currentRow = []; }
+      else { field += ch; }
+    }
+  }
+  push();
+  if (currentRow.length > 1 || currentRow[0] !== '') rows.push(currentRow);
+
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1)
+    .filter(cols => cols.some(v => v.trim() !== ''))   // skip blank lines
+    .map(cols => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = (cols[i] ?? '').trim());
+      return obj;
+    });
 }
 
 function showMappingUI(filename, rowCount) {
-  document.getElementById('mappingSub').textContent = `${filename} · ${rowCount.toLocaleString()} rows · Match columns below`;
+  document.getElementById('mappingSub').textContent = `${sanitize(filename)} · ${rowCount.toLocaleString()} rows · Match columns below`;
   const grid = document.getElementById('mappingGrid');
   grid.innerHTML = '';
 
@@ -990,12 +1054,34 @@ function showMappingUI(filename, rowCount) {
     const best = autoDetect(field.key, detectedColumns);
     const div = document.createElement('div');
     div.className = 'map-row';
-    div.innerHTML = `
-      <label>${field.label}${field.optional ? ' <em style="color:var(--dim)">(optional)</em>' : ''}</label>
-      <select id="map_${field.key}">
-        ${field.optional ? '<option value="">— skip —</option>' : '<option value="">— select —</option>'}
-        ${detectedColumns.map(c => `<option value="${c}"${c === best ? ' selected' : ''}>${c}</option>`).join('')}
-      </select>`;
+
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    if (field.optional) {
+      const em = document.createElement('em');
+      em.style.color = 'var(--dim)';
+      em.textContent = ' (optional)';
+      label.appendChild(em);
+    }
+
+    const select = document.createElement('select');
+    select.id = 'map_' + field.key;
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = field.optional ? '— skip —' : '— select —';
+    select.appendChild(placeholder);
+
+    detectedColumns.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      if (c === best) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    div.appendChild(label);
+    div.appendChild(select);
     grid.appendChild(div);
   });
 
@@ -1018,30 +1104,41 @@ function buildAndLaunch() {
     if (!f.optional && !val) { showError(`Please map the "${f.label}" column.`); return; }
     mapping[f.key] = val;
   }
-  const ppsKw = (document.getElementById('ppsKeyword').value || 'PPS').toLowerCase();
+  const rawPpsKw = document.getElementById('ppsKeyword').value || 'PPS';
+  const ppsKw = rawPpsKw.trim().slice(0, 64).replace(/[<>"'`]/g, '').toLowerCase();
+  if (!ppsKw) { showError('PPS keyword cannot be empty.'); return; }
   buildData(parsedRows, mapping, ppsKw);
   launchApp();
 }
 
+function safeNum(val, fieldName) {
+  const n = parseFloat(val);
+  if (isNaN(n)) return 0;
+  if (!isFinite(n)) { console.warn(`Non-finite value for ${fieldName}, coercing to 0`); return 0; }
+  if (n < 0) { console.warn(`Negative value for ${fieldName}, coercing to 0`); return 0; }
+  return n;
+}
+
 function buildData(rows, m, ppsKw) {
   // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, offers:{} }
-  const agg = {};
+  const agg = Object.create(null);
+
+  // Guard against prototype pollution via crafted key names
+  const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype', 'toString', 'valueOf', 'hasOwnProperty']);
+  const isSafeKey = k => k.length > 0 && !FORBIDDEN_KEYS.has(k);
 
   rows.forEach(row => {
-    const affiliateId = (row[m.affiliate_id] || '').toString().trim();
-    const rawFlowId = (row[m.flow_id] || '').toString().trim();
-    // Rows without a flow go into a special bucket
-    const flowId = rawFlowId || '__no_flow__';
-
-    // ── Skip rows with no flow ── (removed — now handled above)
-
-    const country = (row[m.country] || 'Unknown').toString().trim() || 'Unknown';
-    const offerName = (row[m.offer_name] || '').toString().trim();
-    const offerId = m.offer_id ? (row[m.offer_id] || 0) : 0;
-    const page = (row[m.offer_page] || '0. Default').toString().trim() || '0. Default';
-    const clicks = parseFloat(row[m.clicks]) || 0;
-    const conversions = parseFloat(row[m.conversions]) || 0;
-    const revenue = parseFloat(row[m.revenue]) || 0;
+    const affiliateId = (row[m.affiliate_id] || '').toString().trim().slice(0, 128);
+    const rawFlowId   = (row[m.flow_id]      || '').toString().trim().slice(0, 128);
+    const flowId      = rawFlowId || '__no_flow__';
+    const country     = ((row[m.country] || 'Unknown').toString().trim().slice(0, 8)) || 'Unknown';
+    const offerName   = (row[m.offer_name]   || '').toString().trim().slice(0, 256);
+    const offerId     = m.offer_id ? (row[m.offer_id] || 0) : 0;
+    const page        = (row[m.offer_page]   || '0. Default').toString().trim().slice(0, 256) || '0. Default';
+    if (!isSafeKey(affiliateId) || !isSafeKey(flowId) || !isSafeKey(country)) return; // skip row
+    const clicks = safeNum(row[m.clicks], 'clicks');
+    const conversions = safeNum(row[m.conversions], 'conversions');
+    const revenue = safeNum(row[m.revenue], 'revenue');
     const isPPS = offerName.toLowerCase().includes(ppsKw);
 
     if (!agg[affiliateId]) agg[affiliateId] = {};
@@ -1128,15 +1225,33 @@ function launchApp() {
   }
 
   const totalAffiliates = Object.keys(FULL_DATA).length;
-  document.getElementById('topMeta').textContent = `${totalAffiliates} affiliate${totalAffiliates !== 1 ? 's' : ''}`;
-  document.getElementById('topStats').innerHTML = `
-    <div class="ts"><div class="v">${fmtNum(totalClicks)}</div><div class="l">Clicks</div></div>
-    <div class="ts"><div class="v">${totalConversions.toLocaleString()}</div><div class="l">Convs</div></div>
-    <div class="ts"><div class="v" style="color:var(--green)">${totalRevenue > 0 ? '$'+totalRevenue.toFixed(2) : '—'}</div><div class="l">Revenue</div></div>
-  `;
+  const topMeta = document.getElementById('topMeta');
+  topMeta.textContent = `${totalAffiliates} affiliate${totalAffiliates !== 1 ? 's' : ''}`;
+
+  const topStats = document.getElementById('topStats');
+  topStats.innerHTML = '';
+
+  function makeStat(value, label, color) {
+    const ts = document.createElement('div');
+    ts.className = 'ts';
+    const v = document.createElement('div');
+    v.className = 'v';
+    v.textContent = value;
+    if (color) v.style.color = color;
+    const l = document.createElement('div');
+    l.className = 'l';
+    l.textContent = label;
+    ts.appendChild(v);
+    ts.appendChild(l);
+    return ts;
+  }
+
+  topStats.appendChild(makeStat(fmtNum(totalClicks), 'Clicks', null));
+  topStats.appendChild(makeStat(totalConversions.toLocaleString(), 'Convs', null));
+  topStats.appendChild(makeStat(totalRevenue > 0 ? '$' + totalRevenue.toFixed(2) : '—', 'Revenue', 'var(--green)'));
 
   document.getElementById('searchInput').addEventListener('input', e => {
-    searchQuery = e.target.value;
+    searchQuery = e.target.value.slice(0, 100); // cap length
     renderCountryList();
   });
 
@@ -1150,12 +1265,31 @@ function launchApp() {
 // ── Affiliate Tabs ──
 function renderAffiliateTabs() {
   const affiliates = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue);
-  document.getElementById('affiliateTabs').innerHTML = affiliates.map(affId => {
+  const container = document.getElementById('affiliateTabs');
+  container.innerHTML = '';
+  affiliates.forEach(affId => {
     const s = getAffiliateStats(affId);
-    return `<div class="aff-tab${affId === selectedAffiliate ? ' active' : ''}" onclick="selectAffiliate('${affId}')">
-      ${affId}<span class="aff-clicks">${fmtNum(s.clicks)}</span><span class="aff-rev">${s.revenue > 0 ? fmtMoney(s.revenue) : ''}</span>
-    </div>`;
-  }).join('');
+    const div = document.createElement('div');
+    div.className = 'aff-tab' + (affId === selectedAffiliate ? ' active' : '');
+    div.addEventListener('click', () => selectAffiliate(affId));
+
+    const nameNode = document.createTextNode(affId);
+    div.appendChild(nameNode);
+
+    const clk = document.createElement('span');
+    clk.className = 'aff-clicks';
+    clk.textContent = fmtNum(s.clicks);
+    div.appendChild(clk);
+
+    if (s.revenue > 0) {
+      const rev = document.createElement('span');
+      rev.className = 'aff-rev';
+      rev.textContent = fmtMoney(s.revenue);
+      div.appendChild(rev);
+    }
+
+    container.appendChild(div);
+  });
 }
 
 function selectAffiliate(affId) {
@@ -1172,18 +1306,39 @@ function selectAffiliate(affId) {
 
 // ── Flow Tabs ──
 function renderFlowTabs() {
-  if (!selectedAffiliate) { document.getElementById('flowTabs').innerHTML = ''; return; }
+  const container = document.getElementById('flowTabs');
+  container.innerHTML = '';
+  if (!selectedAffiliate) return;
   const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a, b) =>
     getFlowStats(selectedAffiliate, b).revenue - getFlowStats(selectedAffiliate, a).revenue
   );
-  document.getElementById('flowTabs').innerHTML = flows.map(flowId => {
+  flows.forEach(flowId => {
     const s = getFlowStats(selectedAffiliate, flowId);
     const isNoFlow = flowId === '__no_flow__';
-    const label = isNoFlow ? '⊘ No Flow' : flowId;
-    return `<div class="flow-tab${flowId === selectedFlow ? ' active' : ''}${isNoFlow ? ' no-flow-tab' : ''}" onclick="selectFlow('${flowId}')">
-      ${label}<span class="flow-clicks">${fmtNum(s.clicks)}</span><span class="flow-rev">${s.revenue > 0 ? fmtMoney(s.revenue) : ''}</span>
-    </div>`;
-  }).join('');
+    const labelText = isNoFlow ? '⊘ No Flow' : flowId;
+
+    const div = document.createElement('div');
+    div.className = 'flow-tab' +
+      (flowId === selectedFlow ? ' active' : '') +
+      (isNoFlow ? ' no-flow-tab' : '');
+    div.addEventListener('click', () => selectFlow(flowId));
+
+    div.appendChild(document.createTextNode(labelText));
+
+    const clk = document.createElement('span');
+    clk.className = 'flow-clicks';
+    clk.textContent = fmtNum(s.clicks);
+    div.appendChild(clk);
+
+    if (s.revenue > 0) {
+      const rev = document.createElement('span');
+      rev.className = 'flow-rev';
+      rev.textContent = fmtMoney(s.revenue);
+      div.appendChild(rev);
+    }
+
+    container.appendChild(div);
+  });
 }
 
 function selectFlow(flowId) {
@@ -1202,7 +1357,21 @@ function selectFlow(flowId) {
   // auto-select top country
   const topCountry = Object.entries(flowData).sort((a, b) => b[1].clicks - a[1].clicks)[0];
   if (topCountry) selectCountry(topCountry[0]);
-  else document.getElementById('rightPanel').innerHTML = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-text">No data for this flow</div></div>`;
+  else {
+    const rp = document.getElementById('rightPanel');
+    rp.innerHTML = '';
+    const es = document.createElement('div');
+    es.className = 'empty-state';
+    const icon = document.createElement('div');
+    icon.className = 'empty-icon';
+    icon.textContent = '◎';
+    const txt = document.createElement('div');
+    txt.className = 'empty-text';
+    txt.textContent = 'No data for this flow';
+    es.appendChild(icon);
+    es.appendChild(txt);
+    rp.appendChild(es);
+  }
 }
 
 // ── Helpers ──
@@ -1221,19 +1390,45 @@ function renderCountryList() {
 
   document.getElementById('countBadge').textContent = countries.length + ' shown';
 
-  document.getElementById('countryList').innerHTML = countries.map(([code, data]) => {
+  const list = document.getElementById('countryList');
+  list.innerHTML = '';
+
+  countries.forEach(([code, data]) => {
     const bw = Math.max(2, Math.round((data.clicks / maxClicks) * 72));
-    return `<div class="country-item${code === selectedCountry ? ' selected' : ''}" onclick="selectCountry('${code}')">
-      <div>
-        <div class="country-code">${code}</div>
-        <div class="bar-row">
-          <div class="cbar" style="width:${bw}px"></div>
-          <span class="cclicks">${fmtNum(data.clicks)}</span>
-        </div>
-      </div>
-      <div class="crev">${data.revenue > 0 ? fmtMoney(data.revenue) : ''}</div>
-    </div>`;
-  }).join('');
+
+    const item = document.createElement('div');
+    item.className = 'country-item' + (code === selectedCountry ? ' selected' : '');
+    item.addEventListener('click', () => selectCountry(code));
+
+    const left = document.createElement('div');
+
+    const codeEl = document.createElement('div');
+    codeEl.className = 'country-code';
+    codeEl.textContent = code;
+    left.appendChild(codeEl);
+
+    const barRow = document.createElement('div');
+    barRow.className = 'bar-row';
+
+    const bar = document.createElement('div');
+    bar.className = 'cbar';
+    bar.style.width = bw + 'px';
+    barRow.appendChild(bar);
+
+    const clicks = document.createElement('span');
+    clicks.className = 'cclicks';
+    clicks.textContent = fmtNum(data.clicks);
+    barRow.appendChild(clicks);
+    left.appendChild(barRow);
+
+    const revEl = document.createElement('div');
+    revEl.className = 'crev';
+    revEl.textContent = data.revenue > 0 ? fmtMoney(data.revenue) : '';
+
+    item.appendChild(left);
+    item.appendChild(revEl);
+    list.appendChild(item);
+  });
 }
 
 function selectCountry(code) {
@@ -1252,99 +1447,224 @@ function renderRight(code) {
   const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
 
   const nonPPS = data.offers.filter(o => !o.is_pps).sort((a,b) => {
-    // Offers with conversions: sort by CPC desc; offers without: sort by clicks desc
-    const aHasConv = a.conversions > 0;
-    const bHasConv = b.conversions > 0;
+    const aHasConv = a.conversions > 0, bHasConv = b.conversions > 0;
     if (aHasConv && bHasConv) return b.cpc - a.cpc;
     if (!aHasConv && !bHasConv) return b.clicks - a.clicks;
-    return aHasConv ? -1 : 1; // with conversions first
+    return aHasConv ? -1 : 1;
   });
   const pps = data.offers.filter(o => o.is_pps).sort((a,b) => {
-    const aHasConv = a.conversions > 0;
-    const bHasConv = b.conversions > 0;
+    const aHasConv = a.conversions > 0, bHasConv = b.conversions > 0;
     if (aHasConv && bHasConv) return b.cr - a.cr;
     if (!aHasConv && !bHasConv) return b.clicks - a.clicks;
     return aHasConv ? -1 : 1;
   });
   const offers = [...nonPPS, ...pps];
 
+  panel.innerHTML = '';
+
+  // ── Country header ──
+  const hdr = document.createElement('div');
+  hdr.className = 'country-hdr';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'country-name';
+  nameEl.textContent = code;
+  hdr.appendChild(nameEl);
+
+  const chips = document.createElement('div');
+  chips.className = 'stat-chips';
+
+  function makeChip(value, label, color) {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    const cv = document.createElement('div');
+    cv.className = 'cv';
+    cv.textContent = value;
+    if (color) cv.style.color = color;
+    const cl = document.createElement('div');
+    cl.className = 'cl';
+    cl.textContent = label;
+    chip.appendChild(cv);
+    chip.appendChild(cl);
+    return chip;
+  }
+
+  chips.appendChild(makeChip(fmtNum(data.clicks), 'Clicks', null));
+  chips.appendChild(makeChip(data.conversions.toLocaleString(), 'Convs', null));
+  chips.appendChild(makeChip(data.revenue > 0 ? fmtMoney(data.revenue) : '$0', 'Revenue', 'var(--green)'));
+  chips.appendChild(makeChip(fmt(cr,2)+'%', 'CR', 'var(--yellow)'));
+  chips.appendChild(makeChip(offers.length, 'Offers', null));
+  hdr.appendChild(chips);
+  panel.appendChild(hdr);
+
+  // ── Section label ──
+  const sectionLbl = document.createElement('div');
+  sectionLbl.className = 'section-lbl';
+  sectionLbl.textContent = 'Offers — with conversions: SOI by CPC · PPS by CR · without conversions: by Clicks';
+  panel.appendChild(sectionLbl);
+
+  if (!offers.length) {
+    const empty = document.createElement('p');
+    empty.style.color = 'var(--muted)';
+    empty.style.padding = '20px';
+    empty.textContent = 'No offer data';
+    panel.appendChild(empty);
+    return;
+  }
+
   const cols = 'grid-template-columns:18px 1fr 52px 52px 64px 64px';
 
-  const cards = offers.map((o, idx) => {
+  // ── Offer cards ──
+  offers.forEach((o, idx) => {
     const isPPS = o.is_pps;
     const metricHdr = isPPS ? 'CR %' : 'CPC';
     const pages = [...o.pages].sort((a,b) => isPPS ? (b.cr - a.cr) : (b.cpc - a.cpc));
 
-    const pageRows = pages.map((p, pi) => {
-      const ri = pi === 0 ? 'r1' : pi === 1 ? 'r2' : pi === 2 ? 'r3' : 'rn';
-      const rLabel = pi < 3 ? (pi+1) : '·';
-      const metricVal = isPPS
-        ? `<span style="color:${p.cr > 0 ? 'var(--yellow)' : 'var(--muted)'}">${fmt(p.cr, 2)}%</span>`
-        : `<span style="color:${p.cpc > 0 ? 'var(--green)' : 'var(--muted)'}">$${fmt(p.cpc, 4)}</span>`;
-      return `<div class="page-row${pi===0?' top-row':''}" style="${cols}">
-        <div class="rank-badge ${ri}">${rLabel}</div>
-        <div class="page-name" title="${p.page}">${p.page}</div>
-        <div class="pnum">${fmtNum(p.clicks)}</div>
-        <div class="pnum">${p.conversions}</div>
-        <div class="pnum" style="color:${p.revenue>0?'var(--green)':'var(--muted)'}">${p.revenue>0?'$'+fmt(p.revenue,2):'—'}</div>
-        <div class="pnum">${metricVal}</div>
-      </div>`;
-    }).join('');
-
     const topMetricColor = isPPS ? (o.cr > 0 ? 'var(--yellow)' : 'var(--muted)') : (o.cpc > 0 ? 'var(--green)' : 'var(--muted)');
     const topMetricVal = isPPS ? `${fmt(o.cr, 2)}%` : `$${fmt(o.cpc, 4)}`;
 
-    return `<div class="offer-card" style="animation-delay:${idx*0.03}s">
-      <div class="offer-head" onclick="togglePages(${idx})">
-        <div>
-          <div class="offer-title">
-            <span>${o.offer_name.trim()}</span>
-            <span class="badge ${isPPS?'badge-pps':'badge-soi'}">${isPPS?'PPS':'SOI'}</span>
-          </div>
-          <div class="offer-kpis">
-            <div class="kpi"><span class="kv">${fmtNum(o.clicks)}</span><span class="kl">Clicks</span></div>
-            <div class="kpi"><span class="kv">${o.conversions}</span><span class="kl">Convs</span></div>
-            <div class="kpi"><span class="kv" style="color:var(--green)">${o.revenue>0?'$'+fmt(o.revenue,2):'—'}</span><span class="kl">Rev</span></div>
-            <div class="kpi"><span class="kv" style="color:var(--yellow)">${fmt(o.cr,2)}%</span><span class="kl">CR</span></div>
-            <div class="kpi"><span class="kv" style="color:var(--green)">${o.cpc>0?'$'+fmt(o.cpc,4):'—'}</span><span class="kl">CPC</span></div>
-            ${o.offer_id ? `<div class="kpi"><span class="kv" style="color:var(--muted)">#${o.offer_id}</span><span class="kl">ID</span></div>` : ''}
-          </div>
-        </div>
-        <div class="offer-metric">
-          <div class="metric-val" style="color:${topMetricColor}">${topMetricVal}</div>
-          <div class="metric-lbl">Top ${metricHdr} ▾</div>
-        </div>
-      </div>
-      <div class="pages-wrap" id="pw-${idx}">
-        <div class="pages-hdr" style="${cols}">
-          <div></div><div>PAGE</div>
-          <div style="text-align:right">CLICKS</div>
-          <div style="text-align:right">CONVS</div>
-          <div style="text-align:right">REV</div>
-          <div style="text-align:right">${metricHdr}</div>
-        </div>
-        ${pageRows}
-      </div>
-    </div>`;
-  }).join('');
+    const card = document.createElement('div');
+    card.className = 'offer-card';
+    card.style.animationDelay = (idx * 0.03) + 's';
 
-  const flowStats = getFlowStats(selectedAffiliate, selectedFlow);
-  const flowLabel = selectedFlow === '__no_flow__' ? '⊘ No Flow' : selectedFlow;
+    // Head
+    const head = document.createElement('div');
+    head.className = 'offer-head';
+    head.addEventListener('click', () => togglePages(idx));
 
-  panel.innerHTML = `
-    <div class="country-hdr">
-      <div class="country-name">${code}</div>
-      <div class="stat-chips">
-        <div class="chip"><div class="cv">${fmtNum(data.clicks)}</div><div class="cl">Clicks</div></div>
-        <div class="chip"><div class="cv">${data.conversions.toLocaleString()}</div><div class="cl">Convs</div></div>
-        <div class="chip"><div class="cv" style="color:var(--green)">${data.revenue > 0 ? fmtMoney(data.revenue) : '$0'}</div><div class="cl">Revenue</div></div>
-        <div class="chip"><div class="cv" style="color:var(--yellow)">${fmt(cr,2)}%</div><div class="cl">CR</div></div>
-        <div class="chip"><div class="cv">${offers.length}</div><div class="cl">Offers</div></div>
-      </div>
-    </div>
-    <div class="section-lbl">Offers — with conversions: SOI by CPC · PPS by CR · without conversions: by Clicks</div>
-    ${cards || '<p style="color:var(--muted);padding:20px">No offer data</p>'}
-  `;
+    const headLeft = document.createElement('div');
+
+    const titleRow = document.createElement('div');
+    titleRow.className = 'offer-title';
+    const titleText = document.createElement('span');
+    titleText.textContent = o.offer_name.trim();
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + (isPPS ? 'badge-pps' : 'badge-soi');
+    badge.textContent = isPPS ? 'PPS' : 'SOI';
+    titleRow.appendChild(titleText);
+    titleRow.appendChild(badge);
+    headLeft.appendChild(titleRow);
+
+    // KPIs
+    const kpisRow = document.createElement('div');
+    kpisRow.className = 'offer-kpis';
+
+    function makeKpi(value, label, color) {
+      const kpi = document.createElement('div');
+      kpi.className = 'kpi';
+      const kv = document.createElement('span');
+      kv.className = 'kv';
+      kv.textContent = value;
+      if (color) kv.style.color = color;
+      const kl = document.createElement('span');
+      kl.className = 'kl';
+      kl.textContent = label;
+      kpi.appendChild(kv);
+      kpi.appendChild(kl);
+      return kpi;
+    }
+
+    kpisRow.appendChild(makeKpi(fmtNum(o.clicks), 'Clicks', null));
+    kpisRow.appendChild(makeKpi(o.conversions, 'Convs', null));
+    kpisRow.appendChild(makeKpi(o.revenue > 0 ? '$'+fmt(o.revenue,2) : '—', 'Rev', 'var(--green)'));
+    kpisRow.appendChild(makeKpi(fmt(o.cr,2)+'%', 'CR', 'var(--yellow)'));
+    kpisRow.appendChild(makeKpi(o.cpc > 0 ? '$'+fmt(o.cpc,4) : '—', 'CPC', 'var(--green)'));
+    if (o.offer_id) {
+      kpisRow.appendChild(makeKpi('#'+o.offer_id, 'ID', 'var(--muted)'));
+    }
+    headLeft.appendChild(kpisRow);
+
+    // Right metric summary
+    const metricDiv = document.createElement('div');
+    metricDiv.className = 'offer-metric';
+    const metricVal = document.createElement('div');
+    metricVal.className = 'metric-val';
+    metricVal.style.color = topMetricColor;
+    metricVal.textContent = topMetricVal;
+    const metricLbl = document.createElement('div');
+    metricLbl.className = 'metric-lbl';
+    metricLbl.textContent = `Top ${metricHdr} ▾`;
+    metricDiv.appendChild(metricVal);
+    metricDiv.appendChild(metricLbl);
+
+    head.appendChild(headLeft);
+    head.appendChild(metricDiv);
+    card.appendChild(head);
+
+    // Pages wrap
+    const pagesWrap = document.createElement('div');
+    pagesWrap.className = 'pages-wrap';
+    pagesWrap.id = 'pw-' + idx;
+
+    // Pages header
+    const pagesHdr = document.createElement('div');
+    pagesHdr.className = 'pages-hdr';
+    pagesHdr.setAttribute('style', cols);
+
+    ['', 'PAGE', 'CLICKS', 'CONVS', 'REV', metricHdr].forEach((txt, i) => {
+      const cell = document.createElement('div');
+      cell.textContent = txt;
+      if (i >= 2) cell.style.textAlign = 'right';
+      pagesHdr.appendChild(cell);
+    });
+    pagesWrap.appendChild(pagesHdr);
+
+    // Page rows
+    pages.forEach((p, pi) => {
+      const ri = pi === 0 ? 'r1' : pi === 1 ? 'r2' : pi === 2 ? 'r3' : 'rn';
+      const rLabel = pi < 3 ? (pi+1) : '·';
+      const metricValText = isPPS
+        ? fmt(p.cr, 2) + '%'
+        : '$' + fmt(p.cpc, 4);
+      const metricColor = isPPS
+        ? (p.cr > 0 ? 'var(--yellow)' : 'var(--muted)')
+        : (p.cpc > 0 ? 'var(--green)' : 'var(--muted)');
+
+      const row = document.createElement('div');
+      row.className = 'page-row' + (pi === 0 ? ' top-row' : '');
+      row.setAttribute('style', cols);
+
+      const rankBadge = document.createElement('div');
+      rankBadge.className = 'rank-badge ' + ri;
+      rankBadge.textContent = rLabel;
+      row.appendChild(rankBadge);
+
+      const pageName = document.createElement('div');
+      pageName.className = 'page-name';
+      pageName.title = p.page;
+      pageName.textContent = p.page;
+      row.appendChild(pageName);
+
+      const clicksCell = document.createElement('div');
+      clicksCell.className = 'pnum';
+      clicksCell.textContent = fmtNum(p.clicks);
+      row.appendChild(clicksCell);
+
+      const convsCell = document.createElement('div');
+      convsCell.className = 'pnum';
+      convsCell.textContent = p.conversions;
+      row.appendChild(convsCell);
+
+      const revCell = document.createElement('div');
+      revCell.className = 'pnum';
+      revCell.style.color = p.revenue > 0 ? 'var(--green)' : 'var(--muted)';
+      revCell.textContent = p.revenue > 0 ? '$' + fmt(p.revenue, 2) : '—';
+      row.appendChild(revCell);
+
+      const metricCell = document.createElement('div');
+      metricCell.className = 'pnum';
+      const metricSpan = document.createElement('span');
+      metricSpan.style.color = metricColor;
+      metricSpan.textContent = metricValText;
+      metricCell.appendChild(metricSpan);
+      row.appendChild(metricCell);
+
+      pagesWrap.appendChild(row);
+    });
+
+    card.appendChild(pagesWrap);
+    panel.appendChild(card);
+  });
 
   // auto-open first card
   const fp = document.getElementById('pw-0');
