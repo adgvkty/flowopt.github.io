@@ -25,6 +25,58 @@
   --red: #ff5566;
   --orange: #ff8c44;
   --glow: rgba(61,139,255,0.08);
+  --logo-color: #fff;
+  --chip-val: #fff;
+  --kv-color: #fff;
+  --country-code-color: #fff;
+}
+
+[data-theme="light"] {
+  --bg: #f0f2f7;
+  --surface: #ffffff;
+  --surface2: #f5f7fb;
+  --surface3: #eaecf4;
+  --border: #dde2ee;
+  --border2: #c8cfdf;
+  --text: #2a3550;
+  --muted: #7a8baa;
+  --dim: #a0aec0;
+  --accent: #2678f0;
+  --accent2: #5a52e0;
+  --green: #16a865;
+  --yellow: #c89010;
+  --red: #e03048;
+  --orange: #d06020;
+  --glow: rgba(38,120,240,0.06);
+  --logo-color: #0f1a30;
+  --chip-val: #0f1a30;
+  --kv-color: #0f1a30;
+  --country-code-color: #0f1a30;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f0f2f7;
+    --surface: #ffffff;
+    --surface2: #f5f7fb;
+    --surface3: #eaecf4;
+    --border: #dde2ee;
+    --border2: #c8cfdf;
+    --text: #2a3550;
+    --muted: #7a8baa;
+    --dim: #a0aec0;
+    --accent: #2678f0;
+    --accent2: #5a52e0;
+    --green: #16a865;
+    --yellow: #c89010;
+    --red: #e03048;
+    --orange: #d06020;
+    --glow: rgba(38,120,240,0.06);
+    --logo-color: #0f1a30;
+    --chip-val: #0f1a30;
+    --kv-color: #0f1a30;
+    --country-code-color: #0f1a30;
+  }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,7 +115,7 @@ body {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--logo-color);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -104,7 +156,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
+  color: var(--logo-color);
   margin-bottom: 8px;
 }
 
@@ -173,7 +225,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--logo-color);
   margin-bottom: 4px;
 }
 
@@ -268,7 +320,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 15px;
   font-weight: 800;
-  color: #fff;
+  color: var(--logo-color);
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
@@ -282,7 +334,7 @@ body {
 .top-stats { display: flex; gap: 20px; }
 
 .ts { display: flex; flex-direction: column; align-items: flex-end; }
-.ts .v { font-size: 13px; font-weight: 600; color: #fff; }
+.ts .v { font-size: 13px; font-weight: 600; color: var(--logo-color); }
 .ts .l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
 
 .reload-btn {
@@ -477,7 +529,7 @@ body {
 .country-code {
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--logo-color);
   letter-spacing: .02em;
 }
 
@@ -516,7 +568,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 26px;
   font-weight: 800;
-  color: #fff;
+  color: var(--logo-color);
   letter-spacing: -0.02em;
 }
 
@@ -533,7 +585,7 @@ body {
   min-width: 64px;
 }
 
-.chip .cv { font-size: 14px; font-weight: 700; color: #fff; }
+.chip .cv { font-size: 14px; font-weight: 700; color: var(--logo-color); }
 .chip .cl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
 
 .section-lbl {
@@ -606,7 +658,7 @@ body {
 }
 
 .kpi { display: flex; flex-direction: column; }
-.kpi .kv { font-size: 11px; font-weight: 600; color: #fff; }
+.kpi .kv { font-size: 11px; font-weight: 600; color: var(--logo-color); }
 .kpi .kl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 
 .offer-metric {
@@ -676,7 +728,31 @@ body {
 .r3 { background: rgba(61,139,255,.07); color: var(--muted); }
 .rn { color: var(--dim); font-size: 8px; }
 
-/* scrollbars */
+/* ─── THEME TOGGLE ─── */
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: all .15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.upload-theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -690,6 +766,7 @@ body {
 
 <!-- UPLOAD SCREEN -->
 <div id="uploadScreen">
+  <button class="theme-toggle upload-theme-toggle" id="uploadThemeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
   <div class="upload-logo"><div class="dot"></div> Affiliate Analytics</div>
 
   <div class="upload-zone" id="dropZone">
@@ -735,6 +812,7 @@ body {
     <div class="top-meta" id="topMeta"></div>
     <div class="top-stats" id="topStats"></div>
     <button class="reload-btn" onclick="resetUpload()">↺ Load New File</button>
+    <button class="theme-toggle" id="appThemeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
   </div>
 
   <!-- Affiliate tabs -->
@@ -1232,6 +1310,41 @@ function togglePages(idx) {
   const el = document.getElementById('pw-' + idx);
   if (el) el.classList.toggle('open');
 }
+
+// ── Theme ──
+function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = theme === 'light' ? '☾' : '☀';
+  const title = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+  ['uploadThemeBtn', 'appThemeBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.textContent = icon; btn.title = title; }
+  });
+  localStorage.setItem('aa-theme', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || getSystemTheme();
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// Init: respect saved preference, otherwise follow system
+(function initTheme() {
+  const saved = localStorage.getItem('aa-theme');
+  const theme = saved || getSystemTheme();
+  applyTheme(theme);
+
+  // Also respond to system theme changes if no preference saved
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if (!localStorage.getItem('aa-theme')) {
+      applyTheme(e.matches ? 'light' : 'dark');
+    }
+  });
+}());
 </script>
 </body>
 </html>
