@@ -427,7 +427,7 @@ body {
 .flow-tab {
   padding: 6px 14px 5px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
   cursor: pointer;
@@ -435,6 +435,9 @@ body {
   white-space: nowrap;
   transition: all 0.15s;
   user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .flow-tab:hover { color: var(--text); }
@@ -470,6 +473,37 @@ body {
   color: var(--orange);
   border-bottom-color: var(--orange);
   opacity: 1;
+}
+
+.flow-tab-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all .12s;
+  vertical-align: middle;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.flow-tab-copy-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(61,139,255,0.08);
+}
+
+.flow-tab-copy-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(34,217,138,0.08);
 }
 
 /* ─── MAIN LAYOUT ─── */
@@ -864,6 +898,93 @@ body {
   margin-left: auto;
   white-space: nowrap;
   opacity: 0.85;
+}
+
+/* Device/OS breakdown row in geo header */
+.device-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+.db-segment {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 4px 9px;
+}
+
+.db-icon {
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.db-icon svg { display: block; }
+
+.db-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--logo-color);
+}
+
+.db-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.db-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding-left: 6px;
+  border-left: 1px solid var(--border2);
+}
+
+.db-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.db-sub-item .db-sub-pct {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Device winner badges on landing page rows */
+.device-winner-icons {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.dw-icon {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  opacity: 0.9;
+  cursor: help;
+}
+
+.dw-icon svg {
+  display: block;
 }
 </style>
 </head>
@@ -1456,6 +1577,35 @@ function renderFlowTabs() {
 
     div.appendChild(document.createTextNode(labelText));
 
+    if (!isNoFlow) {
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'flow-tab-copy-btn';
+      copyBtn.title = 'Copy Flow ID';
+      copyBtn.textContent = '⎘';
+      copyBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(flowId).then(() => {
+          copyBtn.textContent = '✓';
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.textContent = '⎘'; copyBtn.classList.remove('copied'); }, 1200);
+        }).catch(() => {
+          // Fallback for older browsers
+          const ta = document.createElement('textarea');
+          ta.value = flowId;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          copyBtn.textContent = '✓';
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.textContent = '⎘'; copyBtn.classList.remove('copied'); }, 1200);
+        });
+      });
+      div.appendChild(copyBtn);
+    }
+
     const clk = document.createElement('span');
     clk.className = 'flow-clicks';
     clk.textContent = fmtNum(s.clicks);
@@ -1636,12 +1786,26 @@ function getFilteredData(code) {
 function getAvailableDeviceFilters(code) {
   const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
   if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return null;
-  const deviceTypes = Object.keys(base.deviceData).sort();
+
+  function sortDimension(arr, priority) {
+    return arr.slice().sort((a, b) => {
+      const an = a.toLowerCase(), bn = b.toLowerCase();
+      const ai = priority.findIndex(p => an.includes(p));
+      const bi = priority.findIndex(p => bn.includes(p));
+      const ar = ai === -1 ? priority.length : ai;
+      const br = bi === -1 ? priority.length : bi;
+      if (ar !== br) return ar - br;
+      return a.localeCompare(b);
+    });
+  }
+
+  const deviceTypes = sortDimension(Object.keys(base.deviceData), ['mobile', 'desktop']);
   const allOS = new Set();
   for (const dt of deviceTypes) {
     for (const os of Object.keys(base.deviceData[dt])) allOS.add(os);
   }
-  return { deviceTypes, allOS: [...allOS].sort() };
+  const sortedOS = sortDimension([...allOS], ['android', 'ios']);
+  return { deviceTypes, allOS: sortedOS };
 }
 
 function renderDeviceFilterBar(panel, code) {
@@ -1689,9 +1853,18 @@ function renderDeviceFilterBar(panel, code) {
     bar.appendChild(sep);
 
     // Determine available OS for current device type filter
-    const availableOS = activeDeviceType
-      ? Object.keys((FULL_DATA[selectedAffiliate][selectedFlow][code].deviceData[activeDeviceType]) || {}).sort()
+    const rawOS = activeDeviceType
+      ? Object.keys((FULL_DATA[selectedAffiliate][selectedFlow][code].deviceData[activeDeviceType]) || {})
       : filters.allOS;
+    const availableOS = rawOS.slice().sort((a, b) => {
+      const priority = ['android', 'ios'];
+      const ai = priority.findIndex(p => a.toLowerCase().includes(p));
+      const bi = priority.findIndex(p => b.toLowerCase().includes(p));
+      const ar = ai === -1 ? priority.length : ai;
+      const br = bi === -1 ? priority.length : bi;
+      if (ar !== br) return ar - br;
+      return a.localeCompare(b);
+    });
 
     const osGroup = document.createElement('div');
     osGroup.className = 'df-group';
@@ -1727,6 +1900,158 @@ function renderDeviceFilterBar(panel, code) {
   }
 
   panel.appendChild(bar);
+}
+
+// SVG icon strings for device winner badges
+const DW_SVGS = {
+  desktop: {
+    label: 'Desktop',
+    color: 'var(--accent)',
+    svg: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>`
+  },
+  mobile: {
+    label: 'Mobile',
+    color: 'var(--accent2)',
+    svg: `<svg width="10" height="14" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="5" cy="12.5" r="0.85" fill="currentColor"/>
+    </svg>`
+  },
+  ios: {
+    label: 'iOS',
+    color: '#a0b4d0',
+    svg: `<svg width="12" height="14" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8.5" cy="2" r="1.2" fill="currentColor" opacity="0.7"/>
+      <path d="M8.5 0.8 C8.5 0.8 8.5 2.8 6.5 3.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M6 4 C3.8 4 2 6 2 8.2 C2 11 3.8 14 6 14 C7 14 7.6 13.5 8.2 13.5 C8.8 13.5 9.4 14 10.5 14 C11.3 12.8 11.8 10.8 11 9.1 C10.5 8.1 9.6 7.4 8.5 7.4 C7.8 7.4 7.2 7.9 6.6 7.9 C6.2 7.9 6 4 6 4 Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" fill="none"/>
+    </svg>`
+  },
+  android: {
+    label: 'Android',
+    color: '#78c878',
+    svg: `<svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0.8 5 L0.8 9.5 C0.8 10.1 1.3 10.6 1.9 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M12.2 5 L12.2 9.5 C12.2 10.1 11.7 10.6 11.1 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <rect x="2.2" y="4.5" width="8.6" height="8" rx="1.4" stroke="currentColor" stroke-width="1.3"/>
+      <circle cx="4.8" cy="8" r="0.75" fill="currentColor"/>
+      <circle cx="8.2" cy="8" r="0.75" fill="currentColor"/>
+      <path d="M3.5 4.5 L2 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M9.5 4.5 L11 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>`
+  }
+};
+
+function getDeviceWinnerPages(code, offerKey) {
+  // For each recognized device type (mobile/desktop), find the single best landing page
+  // by CPC across all OS segments for that device type.
+  // Returns map: pageName -> array of DW_SVGS entries
+  if (activeDeviceType || activeDeviceOS) return {};
+
+  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return {};
+
+  function normDT(k) { return k.toLowerCase().replace(/[\s_\-]/g, ''); }
+
+  // For each device type key, aggregate all pages across its OS segments for this offer
+  const bestPerDeviceType = {}; // 'mobile'|'desktop' -> { page, cpc }
+
+  for (const [dt, osList] of Object.entries(base.deviceData)) {
+    const dtNorm = normDT(dt);
+    const dtKey = dtNorm.includes('mobile') ? 'mobile' : dtNorm.includes('desktop') ? 'desktop' : null;
+    if (!dtKey) continue;
+
+    // Aggregate page CPC across all OS segments for this device type
+    const pageAgg = {}; // pageName -> { clicks, revenue }
+    for (const [, ddData] of Object.entries(osList)) {
+      const offerObj = ddData.offers.find(o => {
+        const key = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+        return key === offerKey;
+      });
+      if (!offerObj) continue;
+      for (const p of offerObj.pages) {
+        if (!pageAgg[p.page]) pageAgg[p.page] = { clicks: 0, revenue: 0 };
+        pageAgg[p.page].clicks  += p.clicks;
+        pageAgg[p.page].revenue += p.revenue;
+      }
+    }
+
+    // Find best page by CPC for this device type
+    let best = null;
+    for (const [pageName, agg] of Object.entries(pageAgg)) {
+      const cpc = agg.clicks > 0 ? agg.revenue / agg.clicks : 0;
+      if (cpc <= 0) continue;
+      if (!best || cpc > best.cpc) best = { page: pageName, cpc };
+    }
+    if (!best) continue;
+
+    // Keep the single best across all processing (shouldn't conflict since dtKey is unique)
+    if (!bestPerDeviceType[dtKey] || best.cpc > bestPerDeviceType[dtKey].cpc) {
+      bestPerDeviceType[dtKey] = best;
+    }
+  }
+
+  // Build result map
+  const pageWinners = {};
+  for (const [dtKey, { page }] of Object.entries(bestPerDeviceType)) {
+    const def = DW_SVGS[dtKey];
+    if (!def) continue;
+    if (!pageWinners[page]) pageWinners[page] = [];
+    if (!pageWinners[page].find(e => e.label === def.label)) {
+      pageWinners[page].push(def);
+    }
+  }
+  return pageWinners;
+}
+
+function getDeviceBreakdown(code) {
+  // Returns { mobile: {clicks, pct, android: {clicks,pct}, ios: {clicks,pct}},
+  //           desktop: {clicks, pct}, total }
+  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return null;
+
+  function normDT(k) { return k.toLowerCase().replace(/[\s_\-]/g, ''); }
+
+  let totalClicks = 0;
+  const byDevice = {}; // 'mobile'|'desktop'|other -> { clicks, os:{} }
+
+  for (const [dt, osList] of Object.entries(base.deviceData)) {
+    const dtNorm = normDT(dt);
+    const dtKey = dtNorm.includes('mobile') ? 'mobile' : dtNorm.includes('desktop') ? 'desktop' : 'other';
+    if (!byDevice[dtKey]) byDevice[dtKey] = { clicks: 0, os: {} };
+
+    for (const [os, ddData] of Object.entries(osList)) {
+      byDevice[dtKey].clicks += ddData.clicks;
+      totalClicks += ddData.clicks;
+
+      const osNorm = normDT(os);
+      const osKey = osNorm.includes('android') ? 'android' : osNorm.includes('ios') ? 'ios' : 'other';
+      if (!byDevice[dtKey].os[osKey]) byDevice[dtKey].os[osKey] = 0;
+      byDevice[dtKey].os[osKey] += ddData.clicks;
+    }
+  }
+
+  if (totalClicks === 0) return null;
+
+  const result = { total: totalClicks };
+  for (const [dtKey, d] of Object.entries(byDevice)) {
+    result[dtKey] = {
+      clicks: d.clicks,
+      pct: d.clicks / totalClicks * 100,
+      os: {}
+    };
+    for (const [osKey, osClicks] of Object.entries(d.os)) {
+      result[dtKey].os[osKey] = {
+        clicks: osClicks,
+        pct: d.clicks > 0 ? osClicks / d.clicks * 100 : 0
+      };
+    }
+  }
+  return result;
 }
 
 function renderRight(code) {
@@ -1786,6 +2111,91 @@ function renderRight(code) {
   chips.appendChild(makeChip(fmt(cr,2)+'%', 'CR', 'var(--yellow)'));
   chips.appendChild(makeChip(offers.length, 'Offers', null));
   hdr.appendChild(chips);
+
+  // ── Device breakdown row ──
+  const breakdown = getDeviceBreakdown(code);
+  if (breakdown) {
+    const dbRow = document.createElement('div');
+    dbRow.className = 'device-breakdown-row';
+
+    const DEVICE_ORDER = ['mobile', 'desktop'];
+    const OS_ORDER = ['android', 'ios'];
+
+    const DEVICE_DEFS = {
+      mobile: {
+        label: 'Mobile',
+        color: 'var(--accent2)',
+        svg: `<svg width="9" height="12" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`
+      },
+      desktop: {
+        label: 'Desktop',
+        color: 'var(--accent)',
+        svg: `<svg width="13" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
+      }
+    };
+
+    const OS_DEFS = {
+      android: { label: 'And' },
+      ios:     { label: 'iOS' }
+    };
+
+    const devicesPresent = DEVICE_ORDER.filter(k => breakdown[k]);
+
+    devicesPresent.forEach(dtKey => {
+      const d = breakdown[dtKey];
+      const def = DEVICE_DEFS[dtKey];
+      if (!def) return;
+
+      const seg = document.createElement('div');
+      seg.className = 'db-segment';
+
+      const ico = document.createElement('span');
+      ico.className = 'db-icon';
+      ico.style.color = def.color;
+      ico.innerHTML = def.svg;
+      seg.appendChild(ico);
+
+      const pctEl = document.createElement('span');
+      pctEl.className = 'db-pct';
+      pctEl.style.color = def.color;
+      pctEl.textContent = Math.round(d.pct) + '%';
+      seg.appendChild(pctEl);
+
+      const lbl = document.createElement('span');
+      lbl.className = 'db-label';
+      lbl.textContent = def.label;
+      seg.appendChild(lbl);
+
+      // OS sub-breakdown (only for mobile, only if data exists)
+      if (dtKey === 'mobile' && d.os) {
+        const osPresentOrdered = OS_ORDER.filter(k => d.os[k]);
+        if (osPresentOrdered.length > 0) {
+          const sub = document.createElement('div');
+          sub.className = 'db-sub';
+          osPresentOrdered.forEach(osKey => {
+            const osData = d.os[osKey];
+            const osDef = OS_DEFS[osKey];
+            const item = document.createElement('span');
+            item.className = 'db-sub-item';
+            const pct = document.createElement('span');
+            pct.className = 'db-sub-pct';
+            pct.textContent = Math.round(osData.pct) + '%';
+            const osLbl = document.createElement('span');
+            osLbl.textContent = osDef.label;
+            item.appendChild(pct);
+            item.appendChild(osLbl);
+            sub.appendChild(item);
+          });
+          seg.appendChild(sub);
+        }
+      }
+
+      dbRow.appendChild(seg);
+    });
+
+    hdr.appendChild(dbRow);
+  }
+
   panel.appendChild(hdr);
 
   // ── Device filter bar ──
@@ -1890,6 +2300,10 @@ function renderRight(code) {
     pagesWrap.className = 'pages-wrap';
     pagesWrap.id = 'pw-' + idx;
 
+    // Compute device winner pages for this offer (only when all devices + all OS selected)
+    const offerKey = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+    const deviceWinners = (!activeDeviceType && !activeDeviceOS) ? getDeviceWinnerPages(code, offerKey) : {};
+
     // Pages header
     const pagesHdr = document.createElement('div');
     pagesHdr.className = 'pages-hdr';
@@ -1927,6 +2341,23 @@ function renderRight(code) {
       pageName.className = 'page-name';
       pageName.title = p.page;
       pageName.textContent = p.page;
+
+      // Device winner icons
+      const winners = deviceWinners[p.page];
+      if (winners && winners.length > 0) {
+        const iconsWrap = document.createElement('span');
+        iconsWrap.className = 'device-winner-icons';
+        winners.forEach(w => {
+          const ico = document.createElement('span');
+          ico.className = 'dw-icon';
+          ico.title = `Best CPC: ${w.label}`;
+          ico.style.color = w.color;
+          ico.innerHTML = w.svg;
+          iconsWrap.appendChild(ico);
+        });
+        pageName.appendChild(iconsWrap);
+      }
+
       row.appendChild(pageName);
 
       const clicksCell = document.createElement('div');
