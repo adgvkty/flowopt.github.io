@@ -1090,8 +1090,10 @@ let selectedFlow = null;
 let selectedCountry = null;
 let searchQuery = '';
 let maxClicks = 1;
+let maxRevenue = 1;
 let parsedRows = [];
 let detectedColumns = [];
+let geoSortMode = 'revenue'; // 'revenue' | 'clicks'
 
 // Device/OS filter state (null = all / no filter)
 let activeDeviceType = null;
@@ -1110,6 +1112,7 @@ const FIELDS = [
   { key: 'country',      label: 'Country/GEO',   optional: false },
   { key: 'device_type',  label: 'Device Type',   optional: true  },
   { key: 'device_os',    label: 'Device OS',     optional: true  },
+  { key: 'goal',         label: 'Goal',          optional: true  },
 ];
 
 const AUTO_MATCH = {
@@ -1124,6 +1127,7 @@ const AUTO_MATCH = {
   country:      ['country','geo','country code','countrycode','country_code'],
   device_type:  ['device type','devicetype','device_type','device','platform type'],
   device_os:    ['device os','deviceos','device_os','os','operating system','platform os'],
+  goal:         ['goal','goal name','goalname','goal_name','conversion type','action type'],
 };
 
 // ── Upload ──
@@ -1321,13 +1325,18 @@ function safeNum(val, fieldName) {
 }
 
 function buildData(rows, m, ppsKw) {
-  // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, offers:{}, deviceData:{} }
-  // deviceData[deviceType][deviceOS] = { clicks, conversions, revenue, offers:{} }
+  // FULL_DATA[affiliateId][flowId][country] = { clicks, conversions, revenue, sales, cpl_convs, offers:{}, deviceData:{} }
+  // deviceData[deviceType][deviceOS] = { clicks, conversions, revenue, sales, cpl_convs, offers:{} }
   const agg = Object.create(null);
+  const hasGoal = !!m.goal;
 
   // Guard against prototype pollution via crafted key names
   const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype', 'toString', 'valueOf', 'hasOwnProperty']);
   const isSafeKey = k => k.length > 0 && !FORBIDDEN_KEYS.has(k);
+
+  function isSaleGoal(goalStr) {
+    return goalStr.toLowerCase().replace(/\s+/g,'') === 'sale' || goalStr.toLowerCase().trim() === 'sale';
+  }
 
   rows.forEach(row => {
     const affiliateId = (row[m.affiliate_id] || '').toString().trim().slice(0, 128);
@@ -1339,6 +1348,7 @@ function buildData(rows, m, ppsKw) {
     const page        = (row[m.offer_page]   || '0. Default').toString().trim().slice(0, 256) || '0. Default';
     const deviceType  = m.device_type ? (row[m.device_type] || 'unknown').toString().trim().slice(0, 64) : null;
     const deviceOS    = m.device_os   ? (row[m.device_os]   || 'unknown').toString().trim().slice(0, 64) : null;
+    const goalRaw     = hasGoal ? (row[m.goal] || '').toString().trim().slice(0, 128) : '';
 
     if (!isSafeKey(affiliateId) || !isSafeKey(flowId) || !isSafeKey(country)) return; // skip row
     const clicks = safeNum(row[m.clicks], 'clicks');
@@ -1346,15 +1356,21 @@ function buildData(rows, m, ppsKw) {
     const revenue = safeNum(row[m.revenue], 'revenue');
     const isPPS = offerName.toLowerCase().includes(ppsKw);
 
+    // Determine if this row represents a sale goal or CPL goal
+    const isSale = hasGoal && goalRaw && isSaleGoal(goalRaw);
+    const isCPL = hasGoal && goalRaw && !isSaleGoal(goalRaw);
+
     if (!agg[affiliateId]) agg[affiliateId] = {};
     if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
     const flowData = agg[affiliateId][flowId];
 
-    if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, offers:{}, deviceData:{} };
+    if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, offers:{}, deviceData:{} };
     const C = flowData[country];
     C.clicks += clicks;
     C.conversions += conversions;
     C.revenue += revenue;
+    if (isSale) C.sales += conversions;
+    if (isCPL) C.cpl_convs += conversions;
 
     // Store device-segmented data
     if (deviceType !== null) {
@@ -1362,38 +1378,48 @@ function buildData(rows, m, ppsKw) {
       const osKey = deviceOS || 'unknown';
       if (isSafeKey(dtKey) && isSafeKey(osKey)) {
         if (!C.deviceData[dtKey]) C.deviceData[dtKey] = {};
-        if (!C.deviceData[dtKey][osKey]) C.deviceData[dtKey][osKey] = { clicks:0, conversions:0, revenue:0, offers:{} };
+        if (!C.deviceData[dtKey][osKey]) C.deviceData[dtKey][osKey] = { clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, offers:{} };
         const DD = C.deviceData[dtKey][osKey];
         DD.clicks += clicks;
         DD.conversions += conversions;
         DD.revenue += revenue;
+        if (isSale) DD.sales += conversions;
+        if (isCPL) DD.cpl_convs += conversions;
 
         const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
-        if (!DD.offers[offerKey]) DD.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, pages:{} };
+        if (!DD.offers[offerKey]) DD.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, has_goal_data:hasGoal, pages:{} };
         const DO = DD.offers[offerKey];
         DO.clicks += clicks;
         DO.conversions += conversions;
         DO.revenue += revenue;
-        if (!DO.pages[page]) DO.pages[page] = { page, clicks:0, conversions:0, revenue:0 };
+        if (isSale) DO.sales += conversions;
+        if (isCPL) DO.cpl_convs += conversions;
+        if (!DO.pages[page]) DO.pages[page] = { page, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0 };
         const DP = DO.pages[page];
         DP.clicks += clicks;
         DP.conversions += conversions;
         DP.revenue += revenue;
+        if (isSale) DP.sales += conversions;
+        if (isCPL) DP.cpl_convs += conversions;
       }
     }
 
     const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
-    if (!C.offers[offerKey]) C.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, pages:{} };
+    if (!C.offers[offerKey]) C.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, has_goal_data:hasGoal, pages:{} };
     const O = C.offers[offerKey];
     O.clicks += clicks;
     O.conversions += conversions;
     O.revenue += revenue;
+    if (isSale) O.sales += conversions;
+    if (isCPL) O.cpl_convs += conversions;
 
-    if (!O.pages[page]) O.pages[page] = { page, clicks:0, conversions:0, revenue:0 };
+    if (!O.pages[page]) O.pages[page] = { page, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0 };
     const P = O.pages[page];
     P.clicks += clicks;
     P.conversions += conversions;
     P.revenue += revenue;
+    if (isSale) P.sales += conversions;
+    if (isCPL) P.cpl_convs += conversions;
   });
 
   // Flatten pages & compute metrics
@@ -1414,12 +1440,22 @@ function buildData(rows, m, ppsKw) {
               clicks: ddData.clicks,
               conversions: ddData.conversions,
               revenue: ddData.revenue,
+              sales: ddData.sales || 0,
+              cpl_convs: ddData.cpl_convs || 0,
               offers: flattenOffers(ddData.offers),
             };
           }
         }
 
-        FULL_DATA[affId][flowId][country] = { clicks: cdata.clicks, conversions: cdata.conversions, revenue: cdata.revenue, offers, deviceData };
+        FULL_DATA[affId][flowId][country] = {
+          clicks: cdata.clicks,
+          conversions: cdata.conversions,
+          revenue: cdata.revenue,
+          sales: cdata.sales || 0,
+          cpl_convs: cdata.cpl_convs || 0,
+          offers,
+          deviceData
+        };
       }
     }
   }
@@ -1429,12 +1465,45 @@ function flattenOffers(offersObj) {
   return Object.values(offersObj).map(o => {
     const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
     const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+    const sales = o.sales || 0;
+    const cpl_convs = o.cpl_convs || 0;
+    const sale_cr = o.clicks > 0 && sales > 0 ? (sales / o.clicks * 100) : 0;
+    const cpl_cr = o.clicks > 0 && cpl_convs > 0 ? (cpl_convs / o.clicks * 100) : 0;
+    const cps = sales > 0 ? (o.revenue / sales) : 0;
+    const cpl = cpl_convs > 0 ? (o.revenue / cpl_convs) : 0;
     const pages = Object.values(o.pages).map(p => {
       const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
       const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-      return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+      const p_sales = p.sales || 0;
+      const p_cpl_convs = p.cpl_convs || 0;
+      const p_sale_cr = p.clicks > 0 && p_sales > 0 ? (p_sales / p.clicks * 100) : 0;
+      const p_cpl_cr = p.clicks > 0 && p_cpl_convs > 0 ? (p_cpl_convs / p.clicks * 100) : 0;
+      const p_cps = p_sales > 0 ? (p.revenue / p_sales) : 0;
+      const p_cpl = p_cpl_convs > 0 ? (p.revenue / p_cpl_convs) : 0;
+      return {
+        ...p,
+        cr: parseFloat(pcr.toFixed(4)),
+        cpc: parseFloat(pcpc.toFixed(6)),
+        sales: p_sales,
+        cpl_convs: p_cpl_convs,
+        sale_cr: parseFloat(p_sale_cr.toFixed(4)),
+        cpl_cr: parseFloat(p_cpl_cr.toFixed(4)),
+        cps: parseFloat(p_cps.toFixed(4)),
+        cpl: parseFloat(p_cpl.toFixed(4)),
+      };
     });
-    return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+    return {
+      ...o,
+      pages,
+      cr: parseFloat(cr.toFixed(4)),
+      cpc: parseFloat(cpc.toFixed(6)),
+      sales,
+      cpl_convs,
+      sale_cr: parseFloat(sale_cr.toFixed(4)),
+      cpl_cr: parseFloat(cpl_cr.toFixed(4)),
+      cps: parseFloat(cps.toFixed(4)),
+      cpl: parseFloat(cpl.toFixed(4)),
+    };
   });
 }
 
@@ -1631,14 +1700,17 @@ function selectFlow(flowId) {
   searchQuery = '';
   document.getElementById('searchInput').value = '';
 
-  // recompute maxClicks for this flow
+  // recompute maxClicks and maxRevenue for this flow
   const flowData = FULL_DATA[selectedAffiliate][selectedFlow];
   maxClicks = Math.max(...Object.values(flowData).map(d => d.clicks), 1);
+  maxRevenue = Math.max(...Object.values(flowData).map(d => d.revenue), 1);
 
   renderCountryList();
 
-  // auto-select top country
-  const topCountry = Object.entries(flowData).sort((a, b) => b[1].clicks - a[1].clicks)[0];
+  // auto-select top country by current sort mode (default: revenue)
+  const topCountry = Object.entries(flowData).sort((a, b) =>
+    geoSortMode === 'revenue' ? b[1].revenue - a[1].revenue : b[1].clicks - a[1].clicks
+  )[0];
   if (topCountry) selectCountry(topCountry[0]);
   else {
     const rp = document.getElementById('rightPanel');
@@ -1669,15 +1741,56 @@ function renderCountryList() {
   const q = searchQuery.toLowerCase();
   const countries = Object.entries(flowData)
     .filter(([code]) => !q || code.toLowerCase().includes(q))
-    .sort((a, b) => b[1].clicks - a[1].clicks);
+    .sort((a, b) => geoSortMode === 'revenue' ? b[1].revenue - a[1].revenue : b[1].clicks - a[1].clicks);
 
   document.getElementById('countBadge').textContent = countries.length + ' shown';
+
+  // Render sort toggle in panel header
+  let sortToggle = document.getElementById('geoSortToggle');
+  if (!sortToggle) {
+    const hdr = document.querySelector('.panel-hdr');
+    if (hdr) {
+      sortToggle = document.createElement('div');
+      sortToggle.id = 'geoSortToggle';
+      sortToggle.style.cssText = 'display:flex;gap:3px;margin-left:auto;margin-right:6px;';
+      const btnRev = document.createElement('button');
+      btnRev.id = 'geoSortRevBtn';
+      btnRev.title = 'Sort by Revenue';
+      btnRev.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
+      btnRev.textContent = '$';
+      btnRev.onclick = () => { geoSortMode = 'revenue'; renderCountryList(); };
+      const btnClk = document.createElement('button');
+      btnClk.id = 'geoSortClkBtn';
+      btnClk.title = 'Sort by Clicks';
+      btnClk.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
+      btnClk.textContent = '↗';
+      btnClk.onclick = () => { geoSortMode = 'clicks'; renderCountryList(); };
+      sortToggle.appendChild(btnRev);
+      sortToggle.appendChild(btnClk);
+      // Insert before the count badge
+      const badge = hdr.querySelector('.count-badge');
+      if (badge) hdr.insertBefore(sortToggle, badge);
+      else hdr.appendChild(sortToggle);
+    }
+  }
+  // Update toggle active states
+  const btnRev = document.getElementById('geoSortRevBtn');
+  const btnClk = document.getElementById('geoSortClkBtn');
+  if (btnRev && btnClk) {
+    const activeStyle = 'background:var(--surface3);color:var(--accent);border-color:var(--accent);';
+    const inactiveStyle = 'background:transparent;color:var(--muted);border-color:var(--border2);';
+    btnRev.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;' + (geoSortMode === 'revenue' ? activeStyle : inactiveStyle);
+    btnClk.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;' + (geoSortMode === 'clicks' ? activeStyle : inactiveStyle);
+  }
+
+  const maxVal = geoSortMode === 'revenue' ? maxRevenue : maxClicks;
 
   const list = document.getElementById('countryList');
   list.innerHTML = '';
 
   countries.forEach(([code, data]) => {
-    const bw = Math.max(2, Math.round((data.clicks / maxClicks) * 72));
+    const sortVal = geoSortMode === 'revenue' ? data.revenue : data.clicks;
+    const bw = Math.max(2, Math.round((sortVal / maxVal) * 72));
 
     const item = document.createElement('div');
     item.className = 'country-item' + (code === selectedCountry ? ' selected' : '');
@@ -1732,6 +1845,7 @@ function getFilteredData(code) {
   const deviceData = base.deviceData || {};
   let filteredOfferMap = {};
   let filteredClicks = 0, filteredConversions = 0, filteredRevenue = 0;
+  let filteredSales = 0, filteredCplConvs = 0;
 
   const dtKeys = activeDeviceType ? [activeDeviceType] : Object.keys(deviceData);
   for (const dt of dtKeys) {
@@ -1743,6 +1857,8 @@ function getFilteredData(code) {
       filteredClicks += dd.clicks;
       filteredConversions += dd.conversions;
       filteredRevenue += dd.revenue;
+      filteredSales += dd.sales || 0;
+      filteredCplConvs += dd.cpl_convs || 0;
       // Merge offers
       for (const o of dd.offers) {
         const key = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
@@ -1755,12 +1871,16 @@ function getFilteredData(code) {
           fo.clicks += o.clicks;
           fo.conversions += o.conversions;
           fo.revenue += o.revenue;
+          fo.sales = (fo.sales || 0) + (o.sales || 0);
+          fo.cpl_convs = (fo.cpl_convs || 0) + (o.cpl_convs || 0);
           for (const p of o.pages) {
             if (!fo.pages[p.page]) fo.pages[p.page] = { ...p };
             else {
               fo.pages[p.page].clicks += p.clicks;
               fo.pages[p.page].conversions += p.conversions;
               fo.pages[p.page].revenue += p.revenue;
+              fo.pages[p.page].sales = (fo.pages[p.page].sales || 0) + (p.sales || 0);
+              fo.pages[p.page].cpl_convs = (fo.pages[p.page].cpl_convs || 0) + (p.cpl_convs || 0);
             }
           }
         }
@@ -1772,15 +1892,46 @@ function getFilteredData(code) {
   const offers = Object.values(filteredOfferMap).map(o => {
     const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
     const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
+    const sales = o.sales || 0;
+    const cpl_convs = o.cpl_convs || 0;
+    const sale_cr = o.clicks > 0 && sales > 0 ? (sales / o.clicks * 100) : 0;
+    const cpl_cr = o.clicks > 0 && cpl_convs > 0 ? (cpl_convs / o.clicks * 100) : 0;
+    const cps = sales > 0 ? (o.revenue / sales) : 0;
+    const cpl = cpl_convs > 0 ? (o.revenue / cpl_convs) : 0;
     const pages = Object.values(o.pages).map(p => {
       const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
       const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-      return { ...p, cr: parseFloat(pcr.toFixed(4)), cpc: parseFloat(pcpc.toFixed(6)) };
+      const p_sales = p.sales || 0;
+      const p_cpl_convs = p.cpl_convs || 0;
+      const p_sale_cr = p.clicks > 0 && p_sales > 0 ? (p_sales / p.clicks * 100) : 0;
+      const p_cpl_cr = p.clicks > 0 && p_cpl_convs > 0 ? (p_cpl_convs / p.clicks * 100) : 0;
+      const p_cps = p_sales > 0 ? (p.revenue / p_sales) : 0;
+      const p_cpl = p_cpl_convs > 0 ? (p.revenue / p_cpl_convs) : 0;
+      return {
+        ...p,
+        cr: parseFloat(pcr.toFixed(4)),
+        cpc: parseFloat(pcpc.toFixed(6)),
+        sales: p_sales, cpl_convs: p_cpl_convs,
+        sale_cr: parseFloat(p_sale_cr.toFixed(4)),
+        cpl_cr: parseFloat(p_cpl_cr.toFixed(4)),
+        cps: parseFloat(p_cps.toFixed(4)),
+        cpl: parseFloat(p_cpl.toFixed(4)),
+      };
     });
-    return { ...o, pages, cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)) };
+    return {
+      ...o, pages,
+      cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)),
+      sales, cpl_convs,
+      sale_cr: parseFloat(sale_cr.toFixed(4)), cpl_cr: parseFloat(cpl_cr.toFixed(4)),
+      cps: parseFloat(cps.toFixed(4)), cpl: parseFloat(cpl.toFixed(4)),
+    };
   });
 
-  return { clicks: filteredClicks, conversions: filteredConversions, revenue: filteredRevenue, offers };
+  return {
+    clicks: filteredClicks, conversions: filteredConversions, revenue: filteredRevenue,
+    sales: filteredSales, cpl_convs: filteredCplConvs,
+    offers
+  };
 }
 
 function getAvailableDeviceFilters(code) {
@@ -2070,7 +2221,7 @@ function renderRight(code) {
   });
   const pps = data.offers.filter(o => o.is_pps).sort((a,b) => {
     const aHasConv = a.conversions > 0, bHasConv = b.conversions > 0;
-    if (aHasConv && bHasConv) return b.cr - a.cr;
+    if (aHasConv && bHasConv) return b.cpc - a.cpc;
     if (!aHasConv && !bHasConv) return b.clicks - a.clicks;
     return aHasConv ? -1 : 1;
   });
@@ -2109,6 +2260,17 @@ function renderRight(code) {
   chips.appendChild(makeChip(data.conversions.toLocaleString(), 'Convs', null));
   chips.appendChild(makeChip(data.revenue > 0 ? fmtMoney(data.revenue) : '$0', 'Revenue', 'var(--green)'));
   chips.appendChild(makeChip(fmt(cr,2)+'%', 'CR', 'var(--yellow)'));
+  // Show CPS and CPL chips when goal data is available
+  if (data.sales > 0) {
+    const cps = data.revenue > 0 ? data.revenue / data.sales : 0;
+    chips.appendChild(makeChip(data.sales.toLocaleString(), 'Sales', 'var(--orange)'));
+    chips.appendChild(makeChip('$'+fmt(cps,2), 'CPS', 'var(--orange)'));
+  }
+  if (data.cpl_convs > 0) {
+    const cpl = data.revenue > 0 ? data.revenue / data.cpl_convs : 0;
+    chips.appendChild(makeChip(data.cpl_convs.toLocaleString(), 'CPL Convs', 'var(--accent2)'));
+    chips.appendChild(makeChip('$'+fmt(cpl,2), 'CPL', 'var(--accent2)'));
+  }
   chips.appendChild(makeChip(offers.length, 'Offers', null));
   hdr.appendChild(chips);
 
@@ -2204,7 +2366,7 @@ function renderRight(code) {
   // ── Section label ──
   const sectionLbl = document.createElement('div');
   sectionLbl.className = 'section-lbl';
-  sectionLbl.textContent = 'Offers — with conversions: SOI by CPC · PPS by CR · without conversions: by Clicks';
+  sectionLbl.textContent = 'Offers — with conversions: sorted by EPC · PPS shows CR · without conversions: by Clicks';
   panel.appendChild(sectionLbl);
 
   if (!offers.length) {
@@ -2216,16 +2378,15 @@ function renderRight(code) {
     return;
   }
 
-  const cols = 'grid-template-columns:18px 1fr 52px 52px 64px 64px';
-
-  // ── Offer cards ──
   offers.forEach((o, idx) => {
     const isPPS = o.is_pps;
-    const metricHdr = isPPS ? 'CR %' : 'CPC';
-    const pages = [...o.pages].sort((a,b) => isPPS ? (b.cr - a.cr) : (b.cpc - a.cpc));
+    const hasGoalData = o.has_goal_data && (o.sales > 0 || o.cpl_convs > 0);
+    // PPS: top metric is EPC (same as SOI), but we also show CR
+    const metricHdr = 'EPC';
+    const pages = [...o.pages].sort((a,b) => b.cpc - a.cpc);
 
-    const topMetricColor = isPPS ? (o.cr > 0 ? 'var(--yellow)' : 'var(--muted)') : (o.cpc > 0 ? 'var(--green)' : 'var(--muted)');
-    const topMetricVal = isPPS ? `${fmt(o.cr, 2)}%` : `$${fmt(o.cpc, 4)}`;
+    const topMetricColor = o.cpc > 0 ? 'var(--green)' : 'var(--muted)';
+    const topMetricVal = o.cpc > 0 ? `$${fmt(o.cpc, 4)}` : '—';
 
     const card = document.createElement('div');
     card.className = 'offer-card';
@@ -2272,13 +2433,24 @@ function renderRight(code) {
     kpisRow.appendChild(makeKpi(o.conversions, 'Convs', null));
     kpisRow.appendChild(makeKpi(o.revenue > 0 ? '$'+fmt(o.revenue,2) : '—', 'Rev', 'var(--green)'));
     kpisRow.appendChild(makeKpi(fmt(o.cr,2)+'%', 'CR', 'var(--yellow)'));
-    kpisRow.appendChild(makeKpi(o.cpc > 0 ? '$'+fmt(o.cpc,4) : '—', 'CPC', 'var(--green)'));
+    kpisRow.appendChild(makeKpi(o.cpc > 0 ? '$'+fmt(o.cpc,4) : '—', 'EPC', 'var(--green)'));
+    // CPS/CPL metrics when goal data is present
+    if (hasGoalData) {
+      if (o.sales > 0) {
+        kpisRow.appendChild(makeKpi(fmt(o.sale_cr,2)+'%', 'Sale CR', 'var(--orange)'));
+        kpisRow.appendChild(makeKpi('$'+fmt(o.cps,2), 'CPS', 'var(--orange)'));
+      }
+      if (o.cpl_convs > 0) {
+        kpisRow.appendChild(makeKpi(fmt(o.cpl_cr,2)+'%', 'CPL CR', 'var(--accent2)'));
+        kpisRow.appendChild(makeKpi('$'+fmt(o.cpl,2), 'CPL', 'var(--accent2)'));
+      }
+    }
     if (o.offer_id) {
       kpisRow.appendChild(makeKpi('#'+o.offer_id, 'ID', 'var(--muted)'));
     }
     headLeft.appendChild(kpisRow);
 
-    // Right metric summary
+    // Right metric summary — EPC for all offers; PPS also shows CR below
     const metricDiv = document.createElement('div');
     metricDiv.className = 'offer-metric';
     const metricVal = document.createElement('div');
@@ -2287,8 +2459,15 @@ function renderRight(code) {
     metricVal.textContent = topMetricVal;
     const metricLbl = document.createElement('div');
     metricLbl.className = 'metric-lbl';
-    metricLbl.textContent = `Top ${metricHdr} ▾`;
+    metricLbl.textContent = `Top EPC ▾`;
     metricDiv.appendChild(metricVal);
+    // For PPS offers, add CR as a secondary metric
+    if (isPPS && o.cr > 0) {
+      const crLine = document.createElement('div');
+      crLine.style.cssText = 'font-size:10px;color:var(--yellow);margin-top:2px;font-weight:600;';
+      crLine.textContent = fmt(o.cr,2)+'% CR';
+      metricDiv.appendChild(crLine);
+    }
     metricDiv.appendChild(metricLbl);
 
     head.appendChild(headLeft);
@@ -2304,12 +2483,24 @@ function renderRight(code) {
     const offerKey = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
     const deviceWinners = (!activeDeviceType && !activeDeviceOS) ? getDeviceWinnerPages(code, offerKey) : {};
 
-    // Pages header
+    // Pages header — always show EPC; for PPS also show CR; for goal data show CPS or CPL
+    const hasSaleGoalInPages = hasGoalData && o.pages.some(p => p.sales > 0);
+    const hasCplGoalInPages  = hasGoalData && o.pages.some(p => p.cpl_convs > 0);
+    const extraColCount = (isPPS ? 1 : 0) + (hasSaleGoalInPages ? 2 : 0) + (hasCplGoalInPages ? 2 : 0);
+    const baseCols = '18px 1fr 52px 52px 64px 64px';
+    const extraCols = extraColCount > 0 ? (' ' + Array(extraColCount).fill('58px').join(' ')) : '';
+    const cols = `grid-template-columns:${baseCols}${extraCols}`;
+
     const pagesHdr = document.createElement('div');
     pagesHdr.className = 'pages-hdr';
     pagesHdr.setAttribute('style', cols);
 
-    ['', 'PAGE', 'CLICKS', 'CONVS', 'REV', metricHdr].forEach((txt, i) => {
+    const hdrCells = ['', 'PAGE', 'CLICKS', 'CONVS', 'REV', 'EPC'];
+    if (isPPS) hdrCells.push('CR %');
+    if (hasSaleGoalInPages) { hdrCells.push('SALE CR'); hdrCells.push('CPS'); }
+    if (hasCplGoalInPages)  { hdrCells.push('CPL CR'); hdrCells.push('CPL'); }
+
+    hdrCells.forEach((txt, i) => {
       const cell = document.createElement('div');
       cell.textContent = txt;
       if (i >= 2) cell.style.textAlign = 'right';
@@ -2321,12 +2512,6 @@ function renderRight(code) {
     pages.forEach((p, pi) => {
       const ri = pi === 0 ? 'r1' : pi === 1 ? 'r2' : pi === 2 ? 'r3' : 'rn';
       const rLabel = pi < 3 ? (pi+1) : '·';
-      const metricValText = isPPS
-        ? fmt(p.cr, 2) + '%'
-        : '$' + fmt(p.cpc, 4);
-      const metricColor = isPPS
-        ? (p.cr > 0 ? 'var(--yellow)' : 'var(--muted)')
-        : (p.cpc > 0 ? 'var(--green)' : 'var(--muted)');
 
       const row = document.createElement('div');
       row.className = 'page-row' + (pi === 0 ? ' top-row' : '');
@@ -2350,7 +2535,7 @@ function renderRight(code) {
         winners.forEach(w => {
           const ico = document.createElement('span');
           ico.className = 'dw-icon';
-          ico.title = `Best CPC: ${w.label}`;
+          ico.title = `Best EPC: ${w.label}`;
           ico.style.color = w.color;
           ico.innerHTML = w.svg;
           iconsWrap.appendChild(ico);
@@ -2376,13 +2561,63 @@ function renderRight(code) {
       revCell.textContent = p.revenue > 0 ? '$' + fmt(p.revenue, 2) : '—';
       row.appendChild(revCell);
 
-      const metricCell = document.createElement('div');
-      metricCell.className = 'pnum';
-      const metricSpan = document.createElement('span');
-      metricSpan.style.color = metricColor;
-      metricSpan.textContent = metricValText;
-      metricCell.appendChild(metricSpan);
-      row.appendChild(metricCell);
+      // EPC column (always)
+      const epcCell = document.createElement('div');
+      epcCell.className = 'pnum';
+      const epcSpan = document.createElement('span');
+      epcSpan.style.color = p.cpc > 0 ? 'var(--green)' : 'var(--muted)';
+      epcSpan.textContent = p.cpc > 0 ? '$' + fmt(p.cpc, 4) : '—';
+      epcCell.appendChild(epcSpan);
+      row.appendChild(epcCell);
+
+      // CR % column for PPS
+      if (isPPS) {
+        const crCell = document.createElement('div');
+        crCell.className = 'pnum';
+        const crSpan = document.createElement('span');
+        crSpan.style.color = p.cr > 0 ? 'var(--yellow)' : 'var(--muted)';
+        crSpan.textContent = p.cr > 0 ? fmt(p.cr, 2) + '%' : '—';
+        crCell.appendChild(crSpan);
+        row.appendChild(crCell);
+      }
+
+      // Sale CR + CPS columns
+      if (hasSaleGoalInPages) {
+        const saleCrCell = document.createElement('div');
+        saleCrCell.className = 'pnum';
+        const saleCrSpan = document.createElement('span');
+        saleCrSpan.style.color = p.sale_cr > 0 ? 'var(--orange)' : 'var(--muted)';
+        saleCrSpan.textContent = p.sale_cr > 0 ? fmt(p.sale_cr, 2) + '%' : '—';
+        saleCrCell.appendChild(saleCrSpan);
+        row.appendChild(saleCrCell);
+
+        const cpsCell = document.createElement('div');
+        cpsCell.className = 'pnum';
+        const cpsSpan = document.createElement('span');
+        cpsSpan.style.color = p.cps > 0 ? 'var(--orange)' : 'var(--muted)';
+        cpsSpan.textContent = p.cps > 0 ? '$' + fmt(p.cps, 2) : '—';
+        cpsCell.appendChild(cpsSpan);
+        row.appendChild(cpsCell);
+      }
+
+      // CPL CR + CPL columns
+      if (hasCplGoalInPages) {
+        const cplCrCell = document.createElement('div');
+        cplCrCell.className = 'pnum';
+        const cplCrSpan = document.createElement('span');
+        cplCrSpan.style.color = p.cpl_cr > 0 ? 'var(--accent2)' : 'var(--muted)';
+        cplCrSpan.textContent = p.cpl_cr > 0 ? fmt(p.cpl_cr, 2) + '%' : '—';
+        cplCrCell.appendChild(cplCrSpan);
+        row.appendChild(cplCrCell);
+
+        const cplCell = document.createElement('div');
+        cplCell.className = 'pnum';
+        const cplSpan = document.createElement('span');
+        cplSpan.style.color = p.cpl > 0 ? 'var(--accent2)' : 'var(--muted)';
+        cplSpan.textContent = p.cpl > 0 ? '$' + fmt(p.cpl, 2) : '—';
+        cplCell.appendChild(cplSpan);
+        row.appendChild(cplCell);
+      }
 
       pagesWrap.appendChild(row);
     });
