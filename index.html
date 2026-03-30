@@ -7,9 +7,9 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
 <title>Affiliate Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -151,26 +151,9 @@ body {
   box-shadow: 0 0 40px rgba(61,139,255,0.06);
 }
 
-.upload-icon {
-  font-size: 40px;
-  margin-bottom: 16px;
-  opacity: 0.4;
-}
-
-.upload-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--logo-color);
-  margin-bottom: 8px;
-}
-
-.upload-sub {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.7;
-}
-
+.upload-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.4; }
+.upload-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--logo-color); margin-bottom: 8px; }
+.upload-sub { color: var(--muted); font-size: 11px; line-height: 1.7; }
 .upload-sub .hl { color: var(--accent); }
 
 .upload-btn {
@@ -186,7 +169,6 @@ body {
   cursor: pointer;
   transition: all 0.15s;
 }
-
 .upload-btn:hover { background: #5a9fff; transform: translateY(-1px); }
 
 .upload-format {
@@ -204,7 +186,6 @@ body {
   font-size: 10px;
   color: var(--muted);
 }
-
 .fmt-pill.active { border-color: var(--accent); color: var(--accent); }
 
 #fileInput { display: none; }
@@ -216,7 +197,6 @@ body {
   display: none;
 }
 
-/* column mapping */
 .mapping-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -226,14 +206,7 @@ body {
   display: none;
 }
 
-.mapping-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--logo-color);
-  margin-bottom: 4px;
-}
-
+.mapping-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--logo-color); margin-bottom: 4px; }
 .mapping-sub { color: var(--muted); font-size: 11px; margin-bottom: 20px; }
 
 .mapping-grid {
@@ -243,14 +216,7 @@ body {
   margin-bottom: 20px;
 }
 
-.map-row label {
-  display: block;
-  color: var(--muted);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: 4px;
-}
+.map-row label { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
 
 .map-row select {
   width: 100%;
@@ -265,13 +231,9 @@ body {
   cursor: pointer;
   appearance: none;
 }
-
 .map-row select:focus { border-color: var(--accent); }
 
-.map-pps-row {
-  margin-bottom: 16px;
-}
-
+.map-pps-row { margin-bottom: 16px; }
 .map-pps-row label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 4px; }
 .map-pps-row input { background: var(--bg); border: 1px solid var(--border2); border-radius: 5px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 10px; outline: none; width: 100%; }
 .map-pps-row input:focus { border-color: var(--accent); }
@@ -289,7 +251,6 @@ body {
   cursor: pointer;
   transition: all 0.15s;
 }
-
 .btn-secondary:hover { border-color: var(--text); color: var(--text); }
 
 .btn-primary {
@@ -304,7 +265,6 @@ body {
   cursor: pointer;
   transition: all 0.15s;
 }
-
 .btn-primary:hover { background: #5a9fff; }
 
 /* ─── MAIN APP ─── */
@@ -331,13 +291,10 @@ body {
   align-items: center;
   gap: 7px;
 }
-
 .top-logo .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
 
 .top-meta { font-size: 11px; color: var(--muted); flex: 1; }
-
 .top-stats { display: flex; gap: 20px; }
-
 .ts { display: flex; flex-direction: column; align-items: flex-end; }
 .ts .v { font-size: 13px; font-weight: 600; color: var(--logo-color); }
 .ts .l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
@@ -367,7 +324,6 @@ body {
   overflow-x: auto;
   flex-shrink: 0;
 }
-
 .affiliate-tabs-bar::-webkit-scrollbar { height: 2px; }
 .affiliate-tabs-bar::-webkit-scrollbar-thumb { background: var(--border2); }
 
@@ -384,30 +340,41 @@ body {
   user-select: none;
   position: relative;
 }
-
 .aff-tab:hover { color: var(--text); }
-
-.aff-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-.aff-tab .aff-clicks {
-  font-size: 9px;
-  color: var(--dim);
-  margin-left: 5px;
-  font-weight: 400;
-}
-
-.aff-tab .aff-rev {
-  font-size: 9px;
-  color: var(--green);
-  margin-left: 4px;
-  font-weight: 500;
-  opacity: 0.8;
-}
-
+.aff-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.aff-tab .aff-clicks { font-size: 9px; color: var(--dim); margin-left: 5px; font-weight: 400; }
+.aff-tab .aff-rev { font-size: 9px; color: var(--green); margin-left: 4px; font-weight: 500; opacity: 0.8; }
 .aff-tab.active .aff-clicks { color: rgba(61,139,255,0.5); }
+
+/* ─── VIEW MODE TABS ─── */
+.view-mode-bar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.vm-tab {
+  padding: 7px 18px 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vm-tab:hover { color: var(--text); }
+.vm-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.vm-tab .vm-icon { font-size: 13px; }
 
 /* ─── FLOW TABS ─── */
 .flow-tabs-bar {
@@ -420,7 +387,6 @@ body {
   overflow-x: auto;
   flex-shrink: 0;
 }
-
 .flow-tabs-bar::-webkit-scrollbar { height: 2px; }
 .flow-tabs-bar::-webkit-scrollbar-thumb { background: var(--border2); }
 
@@ -439,41 +405,13 @@ body {
   align-items: center;
   gap: 4px;
 }
-
 .flow-tab:hover { color: var(--text); }
-
-.flow-tab.active {
-  color: var(--green);
-  border-bottom-color: var(--green);
-}
-
-.flow-tab .flow-clicks {
-  font-size: 9px;
-  color: var(--dim);
-  margin-left: 4px;
-}
-
-.flow-tab .flow-rev {
-  font-size: 9px;
-  color: var(--green);
-  margin-left: 4px;
-  font-weight: 500;
-  opacity: 0.8;
-}
-
+.flow-tab.active { color: var(--green); border-bottom-color: var(--green); }
+.flow-tab .flow-clicks { font-size: 9px; color: var(--dim); margin-left: 4px; }
+.flow-tab .flow-rev { font-size: 9px; color: var(--green); margin-left: 4px; font-weight: 500; opacity: 0.8; }
 .flow-tab.active .flow-clicks { color: rgba(34,217,138,0.4); }
-
-.flow-tab.no-flow-tab {
-  color: var(--muted);
-  opacity: 0.7;
-  border-style: dashed;
-}
-
-.flow-tab.no-flow-tab.active {
-  color: var(--orange);
-  border-bottom-color: var(--orange);
-  opacity: 1;
-}
+.flow-tab.no-flow-tab { color: var(--muted); opacity: 0.7; border-style: dashed; }
+.flow-tab.no-flow-tab.active { color: var(--orange); border-bottom-color: var(--orange); opacity: 1; }
 
 .flow-tab-copy-btn {
   display: inline-flex;
@@ -493,18 +431,8 @@ body {
   line-height: 1;
   flex-shrink: 0;
 }
-
-.flow-tab-copy-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(61,139,255,0.08);
-}
-
-.flow-tab-copy-btn.copied {
-  border-color: var(--green);
-  color: var(--green);
-  background: rgba(34,217,138,0.08);
-}
+.flow-tab-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(61,139,255,0.08); }
+.flow-tab-copy-btn.copied { border-color: var(--green); color: var(--green); background: rgba(34,217,138,0.08); }
 
 /* ─── MAIN LAYOUT ─── */
 .main-layout {
@@ -568,7 +496,6 @@ body {
   padding: 5px 9px;
   outline: none;
 }
-
 .search-bar input:focus { border-color: var(--accent); }
 .search-bar input::placeholder { color: var(--muted); }
 
@@ -584,22 +511,10 @@ body {
   align-items: center;
   transition: background 0.1s;
 }
-
 .country-item:hover { background: var(--surface2); }
+.country-item.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 12px; }
 
-.country-item.selected {
-  background: rgba(61,139,255,0.07);
-  border-left: 2px solid var(--accent);
-  padding-left: 12px;
-}
-
-.country-code {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--logo-color);
-  letter-spacing: .02em;
-}
-
+.country-code { font-size: 12px; font-weight: 600; color: var(--logo-color); letter-spacing: .02em; }
 .bar-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
 .cbar { height: 2px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
 .cclicks { font-size: 10px; color: var(--muted); }
@@ -617,7 +532,6 @@ body {
   color: var(--muted);
   gap: 10px;
 }
-
 .empty-icon { font-size: 48px; opacity: 0.15; }
 .empty-text { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--dim); }
 
@@ -651,7 +565,6 @@ body {
   align-items: center;
   min-width: 64px;
 }
-
 .chip .cv { font-size: 14px; font-weight: 700; color: var(--logo-color); }
 .chip .cl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
 
@@ -666,7 +579,6 @@ body {
   align-items: center;
   gap: 10px;
 }
-
 .section-lbl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ─── OFFER CARDS ─── */
@@ -678,7 +590,6 @@ body {
   overflow: hidden;
   transition: border-color .15s;
 }
-
 .offer-card:hover { border-color: var(--border2); }
 
 .offer-head {
@@ -691,7 +602,6 @@ body {
   user-select: none;
   transition: background .1s;
 }
-
 .offer-head:hover { background: var(--surface2); }
 
 .offer-title {
@@ -726,26 +636,16 @@ body {
   letter-spacing: .05em;
   flex-shrink: 0;
 }
-
 .badge-pps { background: rgba(255,140,68,.12); color: var(--orange); border: 1px solid rgba(255,140,68,.25); }
 .badge-soi { background: rgba(61,139,255,.1); color: var(--accent); border: 1px solid rgba(61,139,255,.2); }
 
-.offer-kpis {
-  display: flex;
-  gap: 12px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
+.offer-kpis { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
 
 .kpi { display: flex; flex-direction: column; }
 .kpi .kv { font-size: 11px; font-weight: 600; color: var(--logo-color); }
 .kpi .kl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 
-.offer-metric {
-  text-align: right;
-  flex-shrink: 0;
-}
-
+.offer-metric { text-align: right; flex-shrink: 0; }
 .metric-val { font-size: 14px; font-weight: 700; }
 .metric-lbl { font-size: 9px; color: var(--muted); text-align: right; margin-top: 2px; }
 
@@ -774,7 +674,6 @@ body {
   gap: 4px;
   transition: background .1s;
 }
-
 .page-row:last-child { border-bottom: none; }
 .page-row:hover { background: var(--surface2); }
 .page-row.top-row { background: rgba(61,139,255,0.04); }
@@ -786,14 +685,12 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .page-row.top-row .page-name { color: var(--accent); }
 
 .pnum { font-size: 11px; text-align: right; color: var(--text); }
 
 .rank-badge {
-  width: 17px;
-  height: 17px;
+  width: 17px; height: 17px;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -802,7 +699,6 @@ body {
   font-weight: 700;
   flex-shrink: 0;
 }
-
 .r1 { background: rgba(61,139,255,.2); color: var(--accent); }
 .r2 { background: rgba(61,139,255,.12); color: #7ab0e0; }
 .r3 { background: rgba(61,139,255,.07); color: var(--muted); }
@@ -810,8 +706,7 @@ body {
 
 /* ─── THEME TOGGLE ─── */
 .theme-toggle {
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   border-radius: 6px;
   border: 1px solid var(--border2);
   background: transparent;
@@ -827,17 +722,12 @@ body {
 }
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
-.upload-theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
+.upload-theme-toggle { position: absolute; top: 20px; right: 20px; }
 
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-/* anim */
 @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 .offer-card { animation: fadeIn 0.2s ease both; }
 
@@ -852,30 +742,9 @@ body {
   margin-bottom: 16px;
 }
 
-.df-label {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .10em;
-  color: var(--muted);
-  margin-right: 4px;
-  white-space: nowrap;
-}
-
-.df-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.df-sep {
-  width: 1px;
-  height: 14px;
-  background: var(--border2);
-  margin: 0 4px;
-  flex-shrink: 0;
-}
+.df-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .10em; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+.df-group { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.df-sep { width: 1px; height: 14px; background: var(--border2); margin: 0 4px; flex-shrink: 0; }
 
 .df-btn {
   padding: 3px 9px;
@@ -890,30 +759,12 @@ body {
   white-space: nowrap;
   line-height: 1.5;
 }
-
 .df-btn:hover { border-color: var(--text); color: var(--text); }
+.df-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(61,139,255,0.08); }
+.df-btn.active-os { border-color: var(--accent2); color: var(--accent2); background: rgba(108,99,255,0.08); }
 
-.df-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(61,139,255,0.08);
-}
+.df-filter-note { font-size: 9px; color: var(--orange); margin-left: auto; white-space: nowrap; opacity: 0.85; }
 
-.df-btn.active-os {
-  border-color: var(--accent2);
-  color: var(--accent2);
-  background: rgba(108,99,255,0.08);
-}
-
-.df-filter-note {
-  font-size: 9px;
-  color: var(--orange);
-  margin-left: auto;
-  white-space: nowrap;
-  opacity: 0.85;
-}
-
-/* Device/OS breakdown row in geo header */
 .device-breakdown-row {
   display: flex;
   align-items: center;
@@ -934,71 +785,238 @@ body {
   border-radius: 5px;
   padding: 4px 9px;
 }
+.db-icon { display: flex; align-items: center; color: var(--muted); flex-shrink: 0; }
+.db-icon svg { display: block; }
+.db-pct { font-size: 12px; font-weight: 700; color: var(--logo-color); }
+.db-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.db-sub { display: flex; align-items: center; gap: 4px; margin-left: 4px; padding-left: 6px; border-left: 1px solid var(--border2); }
+.db-sub-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--muted); }
+.db-sub-item .db-sub-pct { font-weight: 600; color: var(--text); }
 
-.db-icon {
+.device-winner-icons { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: middle; flex-shrink: 0; }
+.dw-icon { display: inline-flex; align-items: center; line-height: 1; opacity: 0.9; cursor: help; }
+.dw-icon svg { display: block; }
+
+/* ─── CHARTS VIEW ─── */
+#chartsView {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+#chartsView.active { display: flex; }
+
+.charts-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+.charts-left {
+  border-right: 1px solid var(--border);
   display: flex;
-  align-items: center;
-  color: var(--muted);
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.charts-left-hdr {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
   flex-shrink: 0;
 }
 
-.db-icon svg { display: block; }
+.charts-left-hdr h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 
-.db-pct {
+/* Dimension selector tabs */
+.dim-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.dim-tab {
+  flex: 1;
+  padding: 4px 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  transition: all .12s;
+  background: transparent;
+}
+.dim-tab:hover { color: var(--text); border-color: var(--text); }
+.dim-tab.active { color: var(--accent); border-color: var(--accent); background: rgba(61,139,255,0.08); }
+
+.dim-list { overflow-y: auto; flex: 1; }
+
+.dim-item {
+  padding: 7px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.dim-item:hover { background: var(--surface2); }
+.dim-item.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 12px; }
+
+.dim-item-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dim-item.selected .dim-item-name { color: var(--accent); }
+.dim-item-sub {
+  font-size: 9px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Chart main area */
+.charts-right {
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.chart-section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--logo-color);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.chart-section-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.chart-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.chart-card-title {
+  font-family: 'Syne', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: var(--logo-color);
 }
 
-.db-label {
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 9px;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .05em;
+  cursor: pointer;
+  transition: opacity .15s;
+  user-select: none;
 }
+.chart-legend-item:hover { color: var(--text); }
+.chart-legend-item.hidden { opacity: 0.35; }
 
-.db-sub {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 4px;
-  padding-left: 6px;
-  border-left: 1px solid var(--border2);
-}
-
-.db-sub-item {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.db-sub-item .db-sub-pct {
-  font-weight: 600;
-  color: var(--text);
-}
-
-/* Device winner badges on landing page rows */
-.device-winner-icons {
-  display: inline-flex;
-  gap: 3px;
-  margin-left: 6px;
-  vertical-align: middle;
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.dw-icon {
-  display: inline-flex;
-  align-items: center;
-  line-height: 1;
-  opacity: 0.9;
-  cursor: help;
+.chart-canvas-wrap {
+  position: relative;
+  height: 200px;
 }
 
-.dw-icon svg {
-  display: block;
+.chart-summary-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
+
+.summary-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 5px 10px;
+  min-width: 60px;
+}
+.summary-chip .sv { font-size: 12px; font-weight: 700; color: var(--logo-color); }
+.summary-chip .sl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+/* ─── TABLE VIEW (charts mode, data table) ─── */
+.chart-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-top: 10px;
+}
+.chart-data-table th {
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.chart-data-table th:first-child { text-align: left; }
+.chart-data-table td {
+  padding: 4px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.chart-data-table td:first-child { text-align: left; font-weight: 600; }
+.chart-data-table tr:last-child td { border-bottom: none; }
+.chart-data-table tr:hover td { background: var(--surface2); }
 </style>
 </head>
 <body>
@@ -1013,7 +1031,8 @@ body {
     <div class="upload-title">Drop your report file</div>
     <div class="upload-sub">
       Supports <span class="hl">.xlsx</span> and <span class="hl">.csv</span> exports<br>
-      Must contain columns: Affiliate Id, Flow Id, Offer, Clicks, Conversions, Revenue, Offer Page, Country
+      Must contain columns: Affiliate Id, Flow Id, Offer, Clicks, Conversions, Revenue, Offer Page, Country<br>
+      Optional: <span class="hl">Period</span> (date) column enables daily trend charts
     </div>
     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
     <div class="upload-error" id="uploadError"></div>
@@ -1028,7 +1047,6 @@ body {
     <span>standard affiliate network exports</span>
   </div>
 
-  <!-- Column Mapping Card -->
   <div class="mapping-card" id="mappingCard">
     <div class="mapping-title">Map Your Columns</div>
     <div class="mapping-sub" id="mappingSub">Match your file's columns to the required fields</div>
@@ -1057,46 +1075,78 @@ body {
   <!-- Affiliate tabs -->
   <div class="affiliate-tabs-bar" id="affiliateTabs"></div>
 
-  <!-- Flow tabs (per affiliate) -->
-  <div class="flow-tabs-bar" id="flowTabs"></div>
-
-  <div class="main-layout">
-    <div class="left-panel">
-      <div class="panel-hdr">
-        <h2>Countries</h2>
-        <span class="count-badge" id="countBadge">—</span>
-      </div>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search country…" maxlength="100" autocomplete="off">
-      </div>
-      <div class="country-list" id="countryList"></div>
+  <!-- View mode: Analytics / Charts -->
+  <div class="view-mode-bar" id="viewModeBar">
+    <div class="vm-tab active" id="vmTabAnalytics" onclick="switchViewMode('analytics')">
+      <span class="vm-icon">◎</span> Analytics
     </div>
-    <div class="right-panel" id="rightPanel">
-      <div class="empty-state">
-        <div class="empty-icon">◎</div>
-        <div class="empty-text">Select a country to explore</div>
-        <div style="color:var(--muted);font-size:11px">Offers ranked by EPC · PPS offers show CR</div>
+    <div class="vm-tab" id="vmTabCharts" onclick="switchViewMode('charts')">
+      <span class="vm-icon">⟋</span> Daily Charts
+    </div>
+  </div>
+
+  <!-- ANALYTICS VIEW -->
+  <div id="analyticsView" style="display:flex;flex:1;overflow:hidden;flex-direction:column;">
+    <!-- Flow tabs -->
+    <div class="flow-tabs-bar" id="flowTabs"></div>
+    <div class="main-layout">
+      <div class="left-panel">
+        <div class="panel-hdr">
+          <h2>Countries</h2>
+          <span class="count-badge" id="countBadge">—</span>
+        </div>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search country…" maxlength="100" autocomplete="off">
+        </div>
+        <div class="country-list" id="countryList"></div>
       </div>
+      <div class="right-panel" id="rightPanel">
+        <div class="empty-state">
+          <div class="empty-icon">◎</div>
+          <div class="empty-text">Select a country to explore</div>
+          <div style="color:var(--muted);font-size:11px">Offers ranked by EPC · PPS offers show CR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS VIEW -->
+  <div id="chartsView">
+    <div class="charts-layout">
+      <!-- Left: dimension selector -->
+      <div class="charts-left">
+        <div class="charts-left-hdr">
+          <h2>Dimension</h2>
+          <div class="dim-tabs">
+            <button class="dim-tab active" id="dimTabOverall" onclick="selectDimension('overall')">All</button>
+            <button class="dim-tab" id="dimTabFlow" onclick="selectDimension('flow')">Flow</button>
+            <button class="dim-tab" id="dimTabGeo" onclick="selectDimension('geo')">GEO</button>
+            <button class="dim-tab" id="dimTabOffer" onclick="selectDimension('offer')">Offer</button>
+          </div>
+        </div>
+        <div class="dim-list" id="dimList"></div>
+      </div>
+      <!-- Right: charts -->
+      <div class="charts-right" id="chartsRight"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ── Security: sanitize helper ──
+// ── Security helpers ──
 function esc(str) {
   const d = document.createElement('div');
   d.textContent = String(str ?? '');
   return d.innerHTML;
 }
-
 function sanitize(str) {
-  return String(str ?? '').replace(/[<>"'`&]/g, c => ({
-    '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;', '`':'&#96;', '&':'&amp;'
-  }[c]));
+  return String(str ?? '').replace(/[<>"'`&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','&':'&amp;'}[c]));
 }
 
 // ── State ──
 let FULL_DATA = {};
+let DAILY_DATA = {}; // daily[affiliate][flow][country][offerKey][date] = {clicks,conversions,revenue}
+let HAS_DATES = false;
 let selectedAffiliate = null;
 let selectedFlow = null;
 let selectedCountry = null;
@@ -1106,11 +1156,15 @@ let maxRevenue = 1;
 let parsedRows = [];
 let detectedColumns = [];
 let geoSortMode = 'revenue';
-
 let activeDeviceType = null;
 let activeDeviceOS = null;
+let currentViewMode = 'analytics';
 
-// ── Required fields ──
+// Charts state
+let chartDimension = 'overall'; // overall | flow | geo | offer
+let chartSelectedKey = null;
+let chartInstances = {};
+
 const FIELDS = [
   { key: 'affiliate_id', label: 'Affiliate ID',  optional: false },
   { key: 'flow_id',      label: 'Flow ID',       optional: false },
@@ -1121,6 +1175,7 @@ const FIELDS = [
   { key: 'revenue',      label: 'Revenue',       optional: false },
   { key: 'offer_page',   label: 'Offer Page',    optional: false },
   { key: 'country',      label: 'Country/GEO',   optional: false },
+  { key: 'date',         label: 'Date/Period',   optional: true  },
   { key: 'device_type',  label: 'Device Type',   optional: true  },
   { key: 'device_os',    label: 'Device OS',     optional: true  },
   { key: 'goal',         label: 'Goal',          optional: true  },
@@ -1136,6 +1191,7 @@ const AUTO_MATCH = {
   revenue:      ['revenue','rev','earnings','income','payout','amount'],
   offer_page:   ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
   country:      ['country','geo','country code','countrycode','country_code'],
+  date:         ['period','date','day','report date','reportdate'],
   device_type:  ['device type','devicetype','device_type','device','platform type'],
   device_os:    ['device os','deviceos','device_os','os','operating system','platform os'],
   goal:         ['goal','goal name','goalname','goal_name','conversion type','action type'],
@@ -1144,14 +1200,9 @@ const AUTO_MATCH = {
 // ── Upload ──
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
-
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  handleFile(e.dataTransfer.files[0]);
-});
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
 fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
 
 function showError(msg) {
@@ -1166,137 +1217,70 @@ function resetUpload() {
   document.getElementById('mappingCard').style.display = 'none';
   document.getElementById('uploadError').style.display = 'none';
   fileInput.value = '';
-  parsedRows = [];
-  detectedColumns = [];
-  FULL_DATA = {};
-  selectedAffiliate = null;
-  selectedFlow = null;
-  selectedCountry = null;
-  searchQuery = '';
+  parsedRows = []; detectedColumns = []; FULL_DATA = {}; DAILY_DATA = {};
+  selectedAffiliate = null; selectedFlow = null; selectedCountry = null;
+  searchQuery = ''; HAS_DATES = false;
+  destroyAllCharts();
 }
 
 function handleFile(file) {
   if (!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
-  const ALLOWED_EXTENSIONS = ['xlsx', 'xls', 'csv'];
-  if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    showError('Invalid file type. Only .xlsx, .xls, and .csv files are accepted.');
-    return;
-  }
-  const MAX_SIZE = 50 * 1024 * 1024;
-  if (file.size > MAX_SIZE) {
-    showError('File is too large. Maximum size is 50 MB.');
-    return;
-  }
+  if (!['xlsx','xls','csv'].includes(ext)) { showError('Invalid file type. Only .xlsx, .xls, and .csv files are accepted.'); return; }
+  if (file.size > 50 * 1024 * 1024) { showError('File is too large. Maximum size is 50 MB.'); return; }
   document.getElementById('uploadError').style.display = 'none';
-
   const reader = new FileReader();
   reader.onload = e => {
     try {
       let rows = [];
-      if (ext === 'csv') {
-        rows = parseCSV(e.target.result);
-      } else {
-        const wb = XLSX.read(e.target.result, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      }
+      if (ext === 'csv') rows = parseCSV(e.target.result);
+      else { const wb = XLSX.read(e.target.result, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]]; rows = XLSX.utils.sheet_to_json(ws, { defval: '' }); }
       if (!rows.length) { showError('File is empty or unreadable.'); return; }
-      const MAX_ROWS = 200_000;
-      if (rows.length > MAX_ROWS) {
-        showError(`File has too many rows (${rows.length.toLocaleString()}). Maximum is ${MAX_ROWS.toLocaleString()}.`);
-        return;
-      }
-      parsedRows = rows;
-      detectedColumns = Object.keys(rows[0]);
+      if (rows.length > 200000) { showError(`File has too many rows (${rows.length.toLocaleString()}). Maximum is 200,000.`); return; }
+      parsedRows = rows; detectedColumns = Object.keys(rows[0]);
       showMappingUI(file.name, rows.length);
     } catch(err) {
-      const safeMsg = (err && err.message && err.message.length < 120)
-        ? err.message.replace(/[<>"'`]/g, '')
-        : 'Unexpected error';
+      const safeMsg = (err && err.message && err.message.length < 120) ? err.message.replace(/[<>"'`]/g,'') : 'Unexpected error';
       showError('Could not parse file: ' + safeMsg);
     }
   };
-  if (ext === 'csv') reader.readAsText(file);
-  else reader.readAsArrayBuffer(file);
+  if (ext === 'csv') reader.readAsText(file); else reader.readAsArrayBuffer(file);
 }
 
 function parseCSV(text) {
-  const rows = [];
-  let field = '';
-  let inQuotes = false;
-  let currentRow = [];
+  const rows = []; let field = '', inQuotes = false, currentRow = [];
   const push = () => { currentRow.push(field); field = ''; };
-
   for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-    if (inQuotes) {
-      if (ch === '"' && next === '"') { field += '"'; i++; }
-      else if (ch === '"') { inQuotes = false; }
-      else { field += ch; }
-    } else {
-      if (ch === '"') { inQuotes = true; }
-      else if (ch === ',') { push(); }
+    const ch = text[i], next = text[i+1];
+    if (inQuotes) { if (ch === '"' && next === '"') { field += '"'; i++; } else if (ch === '"') inQuotes = false; else field += ch; }
+    else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') push();
       else if (ch === '\r' && next === '\n') { push(); rows.push(currentRow); currentRow = []; i++; }
       else if (ch === '\n' || ch === '\r') { push(); rows.push(currentRow); currentRow = []; }
-      else { field += ch; }
+      else field += ch;
     }
   }
-  push();
-  if (currentRow.length > 1 || currentRow[0] !== '') rows.push(currentRow);
-
+  push(); if (currentRow.length > 1 || currentRow[0] !== '') rows.push(currentRow);
   if (rows.length < 2) return [];
   const headers = rows[0].map(h => h.trim());
-  return rows.slice(1)
-    .filter(cols => cols.some(v => v.trim() !== ''))
-    .map(cols => {
-      const obj = {};
-      headers.forEach((h, i) => obj[h] = (cols[i] ?? '').trim());
-      return obj;
-    });
+  return rows.slice(1).filter(c => c.some(v => v.trim() !== '')).map(cols => { const obj = {}; headers.forEach((h,i) => obj[h] = (cols[i]??'').trim()); return obj; });
 }
 
 function showMappingUI(filename, rowCount) {
   document.getElementById('mappingSub').textContent = `${sanitize(filename)} · ${rowCount.toLocaleString()} rows · Match columns below`;
   const grid = document.getElementById('mappingGrid');
   grid.innerHTML = '';
-
   FIELDS.forEach(field => {
     const best = autoDetect(field.key, detectedColumns);
-    const div = document.createElement('div');
-    div.className = 'map-row';
-
-    const label = document.createElement('label');
-    label.textContent = field.label;
-    if (field.optional) {
-      const em = document.createElement('em');
-      em.style.color = 'var(--dim)';
-      em.textContent = ' (optional)';
-      label.appendChild(em);
-    }
-
-    const select = document.createElement('select');
-    select.id = 'map_' + field.key;
-
-    const placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = field.optional ? '— skip —' : '— select —';
-    select.appendChild(placeholder);
-
-    detectedColumns.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      if (c === best) opt.selected = true;
-      select.appendChild(opt);
-    });
-
-    div.appendChild(label);
-    div.appendChild(select);
-    grid.appendChild(div);
+    const div = document.createElement('div'); div.className = 'map-row';
+    const label = document.createElement('label'); label.textContent = field.label;
+    if (field.optional) { const em = document.createElement('em'); em.style.color='var(--dim)'; em.textContent=' (optional)'; label.appendChild(em); }
+    const select = document.createElement('select'); select.id = 'map_' + field.key;
+    const ph = document.createElement('option'); ph.value=''; ph.textContent=field.optional?'— skip —':'— select —'; select.appendChild(ph);
+    detectedColumns.forEach(c => { const opt = document.createElement('option'); opt.value=c; opt.textContent=c; if (c===best) opt.selected=true; select.appendChild(opt); });
+    div.appendChild(label); div.appendChild(select); grid.appendChild(div);
   });
-
   document.getElementById('mappingCard').style.display = 'block';
 }
 
@@ -1317,116 +1301,111 @@ function buildAndLaunch() {
     mapping[f.key] = val;
   }
   const rawPpsKw = document.getElementById('ppsKeyword').value || 'PPS';
-  const ppsKw = rawPpsKw.trim().slice(0, 64).replace(/[<>"'`]/g, '').toLowerCase();
+  const ppsKw = rawPpsKw.trim().slice(0,64).replace(/[<>"'`]/g,'').toLowerCase();
   if (!ppsKw) { showError('PPS keyword cannot be empty.'); return; }
   buildData(parsedRows, mapping, ppsKw);
   launchApp();
 }
 
-function safeNum(val, fieldName) {
+function safeNum(val, fn) {
   const n = parseFloat(val);
-  if (isNaN(n)) return 0;
-  if (!isFinite(n)) { console.warn(`Non-finite value for ${fieldName}, coercing to 0`); return 0; }
-  if (n < 0) { console.warn(`Negative value for ${fieldName}, coercing to 0`); return 0; }
+  if (isNaN(n) || !isFinite(n) || n < 0) return 0;
   return n;
+}
+
+function normalizeDate(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  // Try YYYY.MM.DD, YYYY-MM-DD, YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY
+  let m;
+  if ((m = s.match(/^(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})$/))) return `${m[1]}-${m[2]}-${m[3]}`;
+  if ((m = s.match(/^(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})$/))) return `${m[3]}-${m[2]}-${m[1]}`;
+  if ((m = s.match(/^(\d{4})(\d{2})(\d{2})$/))) return `${m[1]}-${m[2]}-${m[3]}`;
+  return null;
 }
 
 function buildData(rows, m, ppsKw) {
   const agg = Object.create(null);
+  const dailyAgg = Object.create(null);
   const hasGoal = !!m.goal;
+  const hasDate = !!m.date;
+  HAS_DATES = false;
 
-  const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype', 'toString', 'valueOf', 'hasOwnProperty']);
+  const FORBIDDEN_KEYS = new Set(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty']);
   const isSafeKey = k => k.length > 0 && !FORBIDDEN_KEYS.has(k);
-
-  function isSaleGoal(goalStr) {
-    return goalStr.toLowerCase().replace(/\s+/g,'') === 'sale' || goalStr.toLowerCase().trim() === 'sale';
-  }
+  const isSaleGoal = g => g.toLowerCase().replace(/\s+/g,'') === 'sale' || g.toLowerCase().trim() === 'sale';
 
   rows.forEach(row => {
-    const affiliateId = (row[m.affiliate_id] || '').toString().trim().slice(0, 128);
-    const rawFlowId   = (row[m.flow_id]      || '').toString().trim().slice(0, 128);
+    const affiliateId = (row[m.affiliate_id]||'').toString().trim().slice(0,128);
+    const rawFlowId   = (row[m.flow_id]||'').toString().trim().slice(0,128);
     const flowId      = rawFlowId || '__no_flow__';
-    const country     = ((row[m.country] || 'Unknown').toString().trim().slice(0, 8)) || 'Unknown';
-    const offerName   = (row[m.offer_name]   || '').toString().trim().slice(0, 256);
-    const offerId     = m.offer_id ? (row[m.offer_id] || 0) : 0;
-    const page        = (row[m.offer_page]   || '0. Default').toString().trim().slice(0, 256) || '0. Default';
-    const deviceType  = m.device_type ? (row[m.device_type] || 'unknown').toString().trim().slice(0, 64) : null;
-    const deviceOS    = m.device_os   ? (row[m.device_os]   || 'unknown').toString().trim().slice(0, 64) : null;
-    const goalRaw     = hasGoal ? (row[m.goal] || '').toString().trim().slice(0, 128) : '';
+    const country     = ((row[m.country]||'Unknown').toString().trim().slice(0,8)) || 'Unknown';
+    const offerName   = (row[m.offer_name]||'').toString().trim().slice(0,256);
+    const offerId     = m.offer_id ? (row[m.offer_id]||0) : 0;
+    const page        = (row[m.offer_page]||'0. Default').toString().trim().slice(0,256) || '0. Default';
+    const deviceType  = m.device_type ? (row[m.device_type]||'unknown').toString().trim().slice(0,64) : null;
+    const deviceOS    = m.device_os   ? (row[m.device_os]||'unknown').toString().trim().slice(0,64) : null;
+    const goalRaw     = hasGoal ? (row[m.goal]||'').toString().trim().slice(0,128) : '';
+    const dateRaw     = hasDate ? normalizeDate(row[m.date]) : null;
 
     if (!isSafeKey(affiliateId) || !isSafeKey(flowId) || !isSafeKey(country)) return;
-    const clicks = safeNum(row[m.clicks], 'clicks');
-    const conversions = safeNum(row[m.conversions], 'conversions');
-    const revenue = safeNum(row[m.revenue], 'revenue');
+    const clicks = safeNum(row[m.clicks],'clicks');
+    const conversions = safeNum(row[m.conversions],'conversions');
+    const revenue = safeNum(row[m.revenue],'revenue');
     const isPPS = offerName.toLowerCase().includes(ppsKw);
-
-    // isSale: this row's goal is a sale goal
     const isSale = hasGoal && goalRaw && isSaleGoal(goalRaw);
-    // isCPL: any non-sale goal (reg, lead, doi, soi, etc.) — used for reg2sale denominator
     const isCPL = hasGoal && goalRaw && !isSaleGoal(goalRaw);
 
+    // ── Regular aggregation (existing logic) ──
     if (!agg[affiliateId]) agg[affiliateId] = {};
     if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
     const flowData = agg[affiliateId][flowId];
-
     if (!flowData[country]) flowData[country] = { clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, offers:{}, deviceData:{} };
     const C = flowData[country];
-    C.clicks += clicks;
-    C.conversions += conversions;
-    C.revenue += revenue;
+    C.clicks += clicks; C.conversions += conversions; C.revenue += revenue;
     if (isSale) C.sales += conversions;
     if (isCPL) C.cpl_convs += conversions;
 
-    // Device-segmented data
     if (deviceType !== null) {
-      const dtKey = deviceType || 'unknown';
-      const osKey = deviceOS || 'unknown';
+      const dtKey = deviceType||'unknown', osKey = deviceOS||'unknown';
       if (isSafeKey(dtKey) && isSafeKey(osKey)) {
         if (!C.deviceData[dtKey]) C.deviceData[dtKey] = {};
-        if (!C.deviceData[dtKey][osKey]) C.deviceData[dtKey][osKey] = { clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, offers:{} };
+        if (!C.deviceData[dtKey][osKey]) C.deviceData[dtKey][osKey] = { clicks:0,conversions:0,revenue:0,sales:0,cpl_convs:0,offers:{} };
         const DD = C.deviceData[dtKey][osKey];
-        DD.clicks += clicks;
-        DD.conversions += conversions;
-        DD.revenue += revenue;
-        if (isSale) DD.sales += conversions;
-        if (isCPL) DD.cpl_convs += conversions;
-
-        const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
-        if (!DD.offers[offerKey]) DD.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, has_goal_data:hasGoal, pages:{} };
-        const DO = DD.offers[offerKey];
-        DO.clicks += clicks;
-        DO.conversions += conversions;
-        DO.revenue += revenue;
-        if (isSale) DO.sales += conversions;
-        if (isCPL) DO.cpl_convs += conversions;
-        if (!DO.pages[page]) DO.pages[page] = { page, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0 };
-        const DP = DO.pages[page];
-        DP.clicks += clicks;
-        DP.conversions += conversions;
-        DP.revenue += revenue;
-        if (isSale) DP.sales += conversions;
-        if (isCPL) DP.cpl_convs += conversions;
+        DD.clicks+=clicks; DD.conversions+=conversions; DD.revenue+=revenue;
+        if (isSale) DD.sales+=conversions; if (isCPL) DD.cpl_convs+=conversions;
+        const offerKeyD = offerId?`${offerId}::${offerName}`:offerName;
+        if (!DD.offers[offerKeyD]) DD.offers[offerKeyD]={offer_id:offerId,offer_name:offerName,is_pps:isPPS,clicks:0,conversions:0,revenue:0,sales:0,cpl_convs:0,has_goal_data:hasGoal,pages:{}};
+        const DO=DD.offers[offerKeyD]; DO.clicks+=clicks; DO.conversions+=conversions; DO.revenue+=revenue;
+        if (isSale) DO.sales+=conversions; if (isCPL) DO.cpl_convs+=conversions;
+        if (!DO.pages[page]) DO.pages[page]={page,clicks:0,conversions:0,revenue:0,sales:0,cpl_convs:0};
+        const DP=DO.pages[page]; DP.clicks+=clicks; DP.conversions+=conversions; DP.revenue+=revenue;
+        if (isSale) DP.sales+=conversions; if (isCPL) DP.cpl_convs+=conversions;
       }
     }
 
-    const offerKey = offerId ? `${offerId}::${offerName}` : offerName;
-    if (!C.offers[offerKey]) C.offers[offerKey] = { offer_id:offerId, offer_name:offerName, is_pps:isPPS, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0, has_goal_data:hasGoal, pages:{} };
-    const O = C.offers[offerKey];
-    O.clicks += clicks;
-    O.conversions += conversions;
-    O.revenue += revenue;
-    if (isSale) O.sales += conversions;
-    if (isCPL) O.cpl_convs += conversions;
+    const offerKey = offerId?`${offerId}::${offerName}`:offerName;
+    if (!C.offers[offerKey]) C.offers[offerKey]={offer_id:offerId,offer_name:offerName,is_pps:isPPS,clicks:0,conversions:0,revenue:0,sales:0,cpl_convs:0,has_goal_data:hasGoal,pages:{}};
+    const O=C.offers[offerKey]; O.clicks+=clicks; O.conversions+=conversions; O.revenue+=revenue;
+    if (isSale) O.sales+=conversions; if (isCPL) O.cpl_convs+=conversions;
+    if (!O.pages[page]) O.pages[page]={page,clicks:0,conversions:0,revenue:0,sales:0,cpl_convs:0};
+    const P=O.pages[page]; P.clicks+=clicks; P.conversions+=conversions; P.revenue+=revenue;
+    if (isSale) P.sales+=conversions; if (isCPL) P.cpl_convs+=conversions;
 
-    if (!O.pages[page]) O.pages[page] = { page, clicks:0, conversions:0, revenue:0, sales:0, cpl_convs:0 };
-    const P = O.pages[page];
-    P.clicks += clicks;
-    P.conversions += conversions;
-    P.revenue += revenue;
-    if (isSale) P.sales += conversions;
-    if (isCPL) P.cpl_convs += conversions;
+    // ── Daily aggregation ──
+    if (dateRaw && isSafeKey(dateRaw)) {
+      HAS_DATES = true;
+      if (!dailyAgg[affiliateId]) dailyAgg[affiliateId] = {};
+      if (!dailyAgg[affiliateId][flowId]) dailyAgg[affiliateId][flowId] = {};
+      if (!dailyAgg[affiliateId][flowId][country]) dailyAgg[affiliateId][flowId][country] = {};
+      if (!dailyAgg[affiliateId][flowId][country][offerKey]) dailyAgg[affiliateId][flowId][country][offerKey] = {};
+      if (!dailyAgg[affiliateId][flowId][country][offerKey][dateRaw]) dailyAgg[affiliateId][flowId][country][offerKey][dateRaw] = {clicks:0,conversions:0,revenue:0};
+      const DD2 = dailyAgg[affiliateId][flowId][country][offerKey][dateRaw];
+      DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
+    }
   });
 
+  // Build FULL_DATA (same as before)
   FULL_DATA = {};
   for (const [affId, flows] of Object.entries(agg)) {
     FULL_DATA[affId] = {};
@@ -1434,96 +1413,49 @@ function buildData(rows, m, ppsKw) {
       FULL_DATA[affId][flowId] = {};
       for (const [country, cdata] of Object.entries(countries)) {
         const offers = flattenOffers(cdata.offers);
-
         const deviceData = {};
-        for (const [dt, osList] of Object.entries(cdata.deviceData || {})) {
+        for (const [dt, osList] of Object.entries(cdata.deviceData||{})) {
           deviceData[dt] = {};
           for (const [os, ddData] of Object.entries(osList)) {
-            deviceData[dt][os] = {
-              clicks: ddData.clicks,
-              conversions: ddData.conversions,
-              revenue: ddData.revenue,
-              sales: ddData.sales || 0,
-              cpl_convs: ddData.cpl_convs || 0,
-              offers: flattenOffers(ddData.offers),
-            };
+            deviceData[dt][os] = { clicks:ddData.clicks, conversions:ddData.conversions, revenue:ddData.revenue, sales:ddData.sales||0, cpl_convs:ddData.cpl_convs||0, offers:flattenOffers(ddData.offers) };
           }
         }
-
-        FULL_DATA[affId][flowId][country] = {
-          clicks: cdata.clicks,
-          conversions: cdata.conversions,
-          revenue: cdata.revenue,
-          sales: cdata.sales || 0,
-          cpl_convs: cdata.cpl_convs || 0,
-          offers,
-          deviceData
-        };
+        FULL_DATA[affId][flowId][country] = { clicks:cdata.clicks, conversions:cdata.conversions, revenue:cdata.revenue, sales:cdata.sales||0, cpl_convs:cdata.cpl_convs||0, offers, deviceData };
       }
     }
   }
+
+  // Build DAILY_DATA: flatten to daily timeseries
+  DAILY_DATA = dailyAgg;
 }
 
 function flattenOffers(offersObj) {
   return Object.values(offersObj).map(o => {
-    const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
-    const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
-    const sales = o.sales || 0;
-    const cpl_convs = o.cpl_convs || 0;
-    // reg2sale: sales / registrations (cpl_convs), not sales / clicks
-    const reg2sale = cpl_convs > 0 && sales > 0 ? (sales / cpl_convs * 100) : 0;
-    const cps = sales > 0 ? (o.revenue / sales) : 0;
-    const pages = Object.values(o.pages).map(p => {
-      const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
-      const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-      const p_sales = p.sales || 0;
-      const p_cpl_convs = p.cpl_convs || 0;
-      // reg2sale per page
-      const p_reg2sale = p_cpl_convs > 0 && p_sales > 0 ? (p_sales / p_cpl_convs * 100) : 0;
-      const p_cps = p_sales > 0 ? (p.revenue / p_sales) : 0;
-      return {
-        ...p,
-        cr: parseFloat(pcr.toFixed(4)),
-        cpc: parseFloat(pcpc.toFixed(6)),
-        sales: p_sales,
-        cpl_convs: p_cpl_convs,
-        reg2sale: parseFloat(p_reg2sale.toFixed(4)),
-        cps: parseFloat(p_cps.toFixed(4)),
-      };
+    const cr=o.clicks>0?(o.conversions/o.clicks*100):0;
+    const cpc=o.clicks>0?(o.revenue/o.clicks):0;
+    const sales=o.sales||0, cpl_convs=o.cpl_convs||0;
+    const reg2sale=cpl_convs>0&&sales>0?(sales/cpl_convs*100):0;
+    const cps=sales>0?(o.revenue/sales):0;
+    const pages=Object.values(o.pages).map(p => {
+      const pcr=p.clicks>0?(p.conversions/p.clicks*100):0;
+      const pcpc=p.clicks>0?(p.revenue/p.clicks):0;
+      const ps=p.sales||0,pcc=p.cpl_convs||0;
+      return {...p,cr:parseFloat(pcr.toFixed(4)),cpc:parseFloat(pcpc.toFixed(6)),sales:ps,cpl_convs:pcc,reg2sale:parseFloat((pcc>0&&ps>0?(ps/pcc*100):0).toFixed(4)),cps:parseFloat((ps>0?p.revenue/ps:0).toFixed(4))};
     });
-    return {
-      ...o,
-      pages,
-      cr: parseFloat(cr.toFixed(4)),
-      cpc: parseFloat(cpc.toFixed(6)),
-      sales,
-      cpl_convs,
-      reg2sale: parseFloat(reg2sale.toFixed(4)),
-      cps: parseFloat(cps.toFixed(4)),
-    };
+    return {...o,pages,cr:parseFloat(cr.toFixed(4)),cpc:parseFloat(cpc.toFixed(6)),sales,cpl_convs,reg2sale:parseFloat(reg2sale.toFixed(4)),cps:parseFloat(cps.toFixed(4))};
   });
 }
 
 function getAffiliateStats(affId) {
-  let clicks = 0, conversions = 0, revenue = 0;
-  for (const flowData of Object.values(FULL_DATA[affId])) {
-    for (const cdata of Object.values(flowData)) {
-      clicks += cdata.clicks;
-      conversions += cdata.conversions;
-      revenue += cdata.revenue;
-    }
-  }
-  return { clicks, conversions, revenue };
+  let clicks=0,conversions=0,revenue=0;
+  for (const flowData of Object.values(FULL_DATA[affId])) for (const cdata of Object.values(flowData)) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; }
+  return {clicks,conversions,revenue};
 }
 
 function getFlowStats(affId, flowId) {
-  let clicks = 0, conversions = 0, revenue = 0;
-  for (const cdata of Object.values(FULL_DATA[affId][flowId])) {
-    clicks += cdata.clicks;
-    conversions += cdata.conversions;
-    revenue += cdata.revenue;
-  }
-  return { clicks, conversions, revenue };
+  let clicks=0,conversions=0,revenue=0;
+  for (const cdata of Object.values(FULL_DATA[affId][flowId])) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; }
+  return {clicks,conversions,revenue};
 }
 
 function launchApp() {
@@ -1531,90 +1463,66 @@ function launchApp() {
   const app = document.getElementById('appScreen');
   app.style.display = 'flex';
 
-  let totalClicks = 0, totalRevenue = 0, totalConversions = 0;
-  for (const affId of Object.keys(FULL_DATA)) {
-    const s = getAffiliateStats(affId);
-    totalClicks += s.clicks;
-    totalRevenue += s.revenue;
-    totalConversions += s.conversions;
-  }
-
+  let totalClicks=0,totalRevenue=0,totalConversions=0;
+  for (const affId of Object.keys(FULL_DATA)) { const s=getAffiliateStats(affId); totalClicks+=s.clicks; totalRevenue+=s.revenue; totalConversions+=s.conversions; }
   const totalAffiliates = Object.keys(FULL_DATA).length;
-  document.getElementById('topMeta').textContent = `${totalAffiliates} affiliate${totalAffiliates !== 1 ? 's' : ''}`;
+  document.getElementById('topMeta').textContent = `${totalAffiliates} affiliate${totalAffiliates!==1?'s':''}${HAS_DATES?' · daily charts available':''}`;
 
   const topStats = document.getElementById('topStats');
   topStats.innerHTML = '';
+  function makeStat(value,label,color) { const ts=document.createElement('div'); ts.className='ts'; const v=document.createElement('div'); v.className='v'; v.textContent=value; if (color) v.style.color=color; const l=document.createElement('div'); l.className='l'; l.textContent=label; ts.appendChild(v); ts.appendChild(l); return ts; }
+  topStats.appendChild(makeStat(fmtNum(totalClicks),'Clicks',null));
+  topStats.appendChild(makeStat(totalConversions.toLocaleString(),'Convs',null));
+  topStats.appendChild(makeStat(totalRevenue>0?'$'+totalRevenue.toFixed(2):'—','Revenue','var(--green)'));
 
-  function makeStat(value, label, color) {
-    const ts = document.createElement('div');
-    ts.className = 'ts';
-    const v = document.createElement('div');
-    v.className = 'v';
-    v.textContent = value;
-    if (color) v.style.color = color;
-    const l = document.createElement('div');
-    l.className = 'l';
-    l.textContent = label;
-    ts.appendChild(v);
-    ts.appendChild(l);
-    return ts;
-  }
+  // Show/hide Charts tab based on date availability
+  const vmCharts = document.getElementById('vmTabCharts');
+  if (!HAS_DATES) { vmCharts.style.opacity='0.35'; vmCharts.style.pointerEvents='none'; vmCharts.title='No date/period column detected'; }
+  else { vmCharts.style.opacity=''; vmCharts.style.pointerEvents=''; vmCharts.title=''; }
 
-  topStats.appendChild(makeStat(fmtNum(totalClicks), 'Clicks', null));
-  topStats.appendChild(makeStat(totalConversions.toLocaleString(), 'Convs', null));
-  topStats.appendChild(makeStat(totalRevenue > 0 ? '$' + totalRevenue.toFixed(2) : '—', 'Revenue', 'var(--green)'));
-
-  document.getElementById('searchInput').addEventListener('input', e => {
-    searchQuery = e.target.value.slice(0, 100);
-    renderCountryList();
-  });
+  document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.slice(0,100); renderCountryList(); });
 
   renderAffiliateTabs();
-
-  const topAff = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue)[0];
+  const topAff = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue)[0];
   if (topAff) selectAffiliate(topAff);
+}
+
+// ── View mode ──
+function switchViewMode(mode) {
+  currentViewMode = mode;
+  document.getElementById('vmTabAnalytics').classList.toggle('active', mode==='analytics');
+  document.getElementById('vmTabCharts').classList.toggle('active', mode==='charts');
+  document.getElementById('analyticsView').style.display = mode==='analytics' ? 'flex' : 'none';
+  const cv = document.getElementById('chartsView');
+  cv.classList.toggle('active', mode==='charts');
+  if (mode==='charts') renderChartsView();
 }
 
 // ── Affiliate Tabs ──
 function renderAffiliateTabs() {
-  const affiliates = Object.keys(FULL_DATA).sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue);
+  const affiliates = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue);
   const container = document.getElementById('affiliateTabs');
   container.innerHTML = '';
   affiliates.forEach(affId => {
     const s = getAffiliateStats(affId);
     const div = document.createElement('div');
-    div.className = 'aff-tab' + (affId === selectedAffiliate ? ' active' : '');
+    div.className = 'aff-tab' + (affId===selectedAffiliate?' active':'');
     div.addEventListener('click', () => selectAffiliate(affId));
-
     div.appendChild(document.createTextNode(affId));
-
-    const clk = document.createElement('span');
-    clk.className = 'aff-clicks';
-    clk.textContent = fmtNum(s.clicks);
-    div.appendChild(clk);
-
-    if (s.revenue > 0) {
-      const rev = document.createElement('span');
-      rev.className = 'aff-rev';
-      rev.textContent = fmtMoney(s.revenue);
-      div.appendChild(rev);
-    }
-
+    const clk=document.createElement('span'); clk.className='aff-clicks'; clk.textContent=fmtNum(s.clicks); div.appendChild(clk);
+    if (s.revenue>0) { const rev=document.createElement('span'); rev.className='aff-rev'; rev.textContent=fmtMoney(s.revenue); div.appendChild(rev); }
     container.appendChild(div);
   });
 }
 
 function selectAffiliate(affId) {
   selectedAffiliate = affId;
-  selectedFlow = null;
-  selectedCountry = null;
-  activeDeviceType = null;
-  activeDeviceOS = null;
+  selectedFlow = null; selectedCountry = null; activeDeviceType = null; activeDeviceOS = null;
   renderAffiliateTabs();
   renderFlowTabs();
-
-  const flows = Object.keys(FULL_DATA[affId]).sort((a, b) => getFlowStats(affId, b).revenue - getFlowStats(affId, a).revenue);
+  const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
   if (flows.length) selectFlow(flows[0]);
+  if (currentViewMode==='charts') renderChartsView();
 }
 
 // ── Flow Tabs ──
@@ -1622,960 +1530,644 @@ function renderFlowTabs() {
   const container = document.getElementById('flowTabs');
   container.innerHTML = '';
   if (!selectedAffiliate) return;
-  const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a, b) =>
-    getFlowStats(selectedAffiliate, b).revenue - getFlowStats(selectedAffiliate, a).revenue
-  );
+  const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a,b)=>getFlowStats(selectedAffiliate,b).revenue-getFlowStats(selectedAffiliate,a).revenue);
   flows.forEach(flowId => {
-    const s = getFlowStats(selectedAffiliate, flowId);
-    const isNoFlow = flowId === '__no_flow__';
-    const labelText = isNoFlow ? '⊘ No Flow' : flowId;
-
-    const div = document.createElement('div');
-    div.className = 'flow-tab' +
-      (flowId === selectedFlow ? ' active' : '') +
-      (isNoFlow ? ' no-flow-tab' : '');
-    div.addEventListener('click', () => selectFlow(flowId));
-
-    div.appendChild(document.createTextNode(labelText));
-
+    const s=getFlowStats(selectedAffiliate,flowId);
+    const isNoFlow=flowId==='__no_flow__';
+    const div=document.createElement('div');
+    div.className='flow-tab'+(flowId===selectedFlow?' active':'')+(isNoFlow?' no-flow-tab':'');
+    div.addEventListener('click',()=>selectFlow(flowId));
+    div.appendChild(document.createTextNode(isNoFlow?'⊘ No Flow':flowId));
     if (!isNoFlow) {
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'flow-tab-copy-btn';
-      copyBtn.title = 'Copy Flow ID';
-      copyBtn.textContent = '⎘';
-      copyBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        navigator.clipboard.writeText(flowId).then(() => {
-          copyBtn.textContent = '✓';
-          copyBtn.classList.add('copied');
-          setTimeout(() => { copyBtn.textContent = '⎘'; copyBtn.classList.remove('copied'); }, 1200);
-        }).catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = flowId;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          copyBtn.textContent = '✓';
-          copyBtn.classList.add('copied');
-          setTimeout(() => { copyBtn.textContent = '⎘'; copyBtn.classList.remove('copied'); }, 1200);
-        });
-      });
+      const copyBtn=document.createElement('button'); copyBtn.className='flow-tab-copy-btn'; copyBtn.title='Copy Flow ID'; copyBtn.textContent='⎘';
+      copyBtn.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(flowId).then(()=>{ copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=flowId; ta.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }); });
       div.appendChild(copyBtn);
     }
-
-    const clk = document.createElement('span');
-    clk.className = 'flow-clicks';
-    clk.textContent = fmtNum(s.clicks);
-    div.appendChild(clk);
-
-    if (s.revenue > 0) {
-      const rev = document.createElement('span');
-      rev.className = 'flow-rev';
-      rev.textContent = fmtMoney(s.revenue);
-      div.appendChild(rev);
-    }
-
+    const clk=document.createElement('span'); clk.className='flow-clicks'; clk.textContent=fmtNum(s.clicks); div.appendChild(clk);
+    if (s.revenue>0) { const rev=document.createElement('span'); rev.className='flow-rev'; rev.textContent=fmtMoney(s.revenue); div.appendChild(rev); }
     container.appendChild(div);
   });
 }
 
 function selectFlow(flowId) {
-  selectedFlow = flowId;
-  selectedCountry = null;
-  activeDeviceType = null;
-  activeDeviceOS = null;
+  selectedFlow = flowId; selectedCountry = null; activeDeviceType = null; activeDeviceOS = null;
   renderFlowTabs();
-  searchQuery = '';
-  document.getElementById('searchInput').value = '';
-
+  searchQuery = ''; document.getElementById('searchInput').value = '';
   const flowData = FULL_DATA[selectedAffiliate][selectedFlow];
-  maxClicks = Math.max(...Object.values(flowData).map(d => d.clicks), 1);
-  maxRevenue = Math.max(...Object.values(flowData).map(d => d.revenue), 1);
-
+  maxClicks = Math.max(...Object.values(flowData).map(d=>d.clicks),1);
+  maxRevenue = Math.max(...Object.values(flowData).map(d=>d.revenue),1);
   renderCountryList();
-
-  // Auto-select top country
   const topCountry = sortedCountries(flowData)[0];
   if (topCountry) selectCountry(topCountry[0]);
-  else {
-    const rp = document.getElementById('rightPanel');
-    rp.innerHTML = '';
-    const es = document.createElement('div');
-    es.className = 'empty-state';
-    const icon = document.createElement('div');
-    icon.className = 'empty-icon';
-    icon.textContent = '◎';
-    const txt = document.createElement('div');
-    txt.className = 'empty-text';
-    txt.textContent = 'No data for this flow';
-    es.appendChild(icon);
-    es.appendChild(txt);
-    rp.appendChild(es);
-  }
+  else { const rp=document.getElementById('rightPanel'); rp.innerHTML=''; const es=document.createElement('div'); es.className='empty-state'; const icon=document.createElement('div'); icon.className='empty-icon'; icon.textContent='◎'; const txt=document.createElement('div'); txt.className='empty-text'; txt.textContent='No data for this flow'; es.appendChild(icon); es.appendChild(txt); rp.appendChild(es); }
 }
 
 // ── Helpers ──
-function fmt(n, d=2) { return n === 0 ? '0' : n.toFixed(d); }
-function fmtMoney(n) { return n === 0 ? '$0' : '$' + n.toFixed(2); }
-function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+function fmt(n,d=2) { return n===0?'0':n.toFixed(d); }
+function fmtMoney(n) { return n===0?'$0':'$'+n.toFixed(2); }
+function fmtNum(n) { return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'k':String(n); }
 
-// ── Sorted countries: revenue sort puts GEOs with revenue first (by revenue desc),
-//    then GEOs without revenue sorted by clicks desc.
-//    Clicks sort: all GEOs by clicks desc.
 function sortedCountries(flowData, q) {
-  const q_ = (q || '').toLowerCase();
-  let entries = Object.entries(flowData);
-  if (q_) entries = entries.filter(([code]) => code.toLowerCase().includes(q_));
-
-  if (geoSortMode === 'revenue') {
-    const withRev  = entries.filter(([, d]) => d.revenue > 0).sort((a, b) => b[1].revenue - a[1].revenue);
-    const withoutRev = entries.filter(([, d]) => d.revenue <= 0).sort((a, b) => b[1].clicks - a[1].clicks);
-    return [...withRev, ...withoutRev];
-  } else {
-    return entries.sort((a, b) => b[1].clicks - a[1].clicks);
+  const q_=(q||'').toLowerCase();
+  let entries=Object.entries(flowData);
+  if (q_) entries=entries.filter(([code])=>code.toLowerCase().includes(q_));
+  if (geoSortMode==='revenue') {
+    const wr=entries.filter(([,d])=>d.revenue>0).sort((a,b)=>b[1].revenue-a[1].revenue);
+    const wor=entries.filter(([,d])=>d.revenue<=0).sort((a,b)=>b[1].clicks-a[1].clicks);
+    return [...wr,...wor];
   }
+  return entries.sort((a,b)=>b[1].clicks-a[1].clicks);
 }
 
-// ── Country List ──
 function renderCountryList() {
-  if (!selectedAffiliate || !selectedFlow) return;
-  const flowData = FULL_DATA[selectedAffiliate][selectedFlow];
-  const countries = sortedCountries(flowData, searchQuery);
+  if (!selectedAffiliate||!selectedFlow) return;
+  const flowData=FULL_DATA[selectedAffiliate][selectedFlow];
+  const countries=sortedCountries(flowData,searchQuery);
+  document.getElementById('countBadge').textContent=countries.length+' shown';
 
-  document.getElementById('countBadge').textContent = countries.length + ' shown';
-
-  // Sort toggle in panel header
-  let sortToggle = document.getElementById('geoSortToggle');
+  let sortToggle=document.getElementById('geoSortToggle');
   if (!sortToggle) {
-    const hdr = document.querySelector('.panel-hdr');
+    const hdr=document.querySelector('.panel-hdr');
     if (hdr) {
-      sortToggle = document.createElement('div');
-      sortToggle.id = 'geoSortToggle';
-      sortToggle.style.cssText = 'display:flex;gap:3px;margin-left:auto;margin-right:6px;';
-      const btnRev = document.createElement('button');
-      btnRev.id = 'geoSortRevBtn';
-      btnRev.title = 'Sort by Revenue';
-      btnRev.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
-      btnRev.textContent = '$';
-      btnRev.onclick = () => { geoSortMode = 'revenue'; renderCountryList(); };
-      const btnClk = document.createElement('button');
-      btnClk.id = 'geoSortClkBtn';
-      btnClk.title = 'Sort by Clicks';
-      btnClk.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
-      btnClk.textContent = '↗';
-      btnClk.onclick = () => { geoSortMode = 'clicks'; renderCountryList(); };
-      sortToggle.appendChild(btnRev);
-      sortToggle.appendChild(btnClk);
-      const badge = hdr.querySelector('.count-badge');
-      if (badge) hdr.insertBefore(sortToggle, badge);
-      else hdr.appendChild(sortToggle);
+      sortToggle=document.createElement('div'); sortToggle.id='geoSortToggle'; sortToggle.style.cssText='display:flex;gap:3px;margin-left:auto;margin-right:6px;';
+      const btnRev=document.createElement('button'); btnRev.id='geoSortRevBtn'; btnRev.title='Sort by Revenue'; btnRev.textContent='$';
+      btnRev.style.cssText='padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
+      btnRev.onclick=()=>{ geoSortMode='revenue'; renderCountryList(); };
+      const btnClk=document.createElement('button'); btnClk.id='geoSortClkBtn'; btnClk.title='Sort by Clicks'; btnClk.textContent='↗';
+      btnClk.style.cssText='padding:2px 7px;border-radius:3px;border:1px solid var(--border2);background:transparent;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;';
+      btnClk.onclick=()=>{ geoSortMode='clicks'; renderCountryList(); };
+      sortToggle.appendChild(btnRev); sortToggle.appendChild(btnClk);
+      const badge=hdr.querySelector('.count-badge');
+      if (badge) hdr.insertBefore(sortToggle,badge); else hdr.appendChild(sortToggle);
     }
   }
-  const btnRev = document.getElementById('geoSortRevBtn');
-  const btnClk = document.getElementById('geoSortClkBtn');
-  if (btnRev && btnClk) {
-    const activeStyle = 'background:var(--surface3);color:var(--accent);border-color:var(--accent);';
-    const inactiveStyle = 'background:transparent;color:var(--muted);border-color:var(--border2);';
-    btnRev.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;' + (geoSortMode === 'revenue' ? activeStyle : inactiveStyle);
-    btnClk.style.cssText = 'padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;' + (geoSortMode === 'clicks' ? activeStyle : inactiveStyle);
+  const btnRev=document.getElementById('geoSortRevBtn'), btnClk=document.getElementById('geoSortClkBtn');
+  if (btnRev&&btnClk) {
+    const activeS='background:var(--surface3);color:var(--accent);border-color:var(--accent);';
+    const inactiveS='background:transparent;color:var(--muted);border-color:var(--border2);';
+    btnRev.style.cssText='padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;'+(geoSortMode==='revenue'?activeS:inactiveS);
+    btnClk.style.cssText='padding:2px 7px;border-radius:3px;border:1px solid;font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer;transition:all .12s;'+(geoSortMode==='clicks'?activeS:inactiveS);
   }
 
-  const maxVal = geoSortMode === 'revenue'
-    ? Math.max(...countries.map(([,d]) => d.revenue), 1)
-    : maxClicks;
-
-  const list = document.getElementById('countryList');
-  list.innerHTML = '';
-
-  countries.forEach(([code, data]) => {
-    const sortVal = geoSortMode === 'revenue' ? data.revenue : data.clicks;
-    const bw = Math.max(2, Math.round((sortVal / maxVal) * 72));
-
-    const item = document.createElement('div');
-    item.className = 'country-item' + (code === selectedCountry ? ' selected' : '');
-    item.addEventListener('click', () => selectCountry(code));
-
-    const left = document.createElement('div');
-
-    const codeEl = document.createElement('div');
-    codeEl.className = 'country-code';
-    codeEl.textContent = code;
-    left.appendChild(codeEl);
-
-    const barRow = document.createElement('div');
-    barRow.className = 'bar-row';
-
-    const bar = document.createElement('div');
-    bar.className = 'cbar';
-    bar.style.width = bw + 'px';
-    barRow.appendChild(bar);
-
-    const clicks = document.createElement('span');
-    clicks.className = 'cclicks';
-    clicks.textContent = fmtNum(data.clicks);
-    barRow.appendChild(clicks);
+  const maxVal=geoSortMode==='revenue'?Math.max(...countries.map(([,d])=>d.revenue),1):maxClicks;
+  const list=document.getElementById('countryList'); list.innerHTML='';
+  countries.forEach(([code,data]) => {
+    const sortVal=geoSortMode==='revenue'?data.revenue:data.clicks;
+    const bw=Math.max(2,Math.round((sortVal/maxVal)*72));
+    const item=document.createElement('div'); item.className='country-item'+(code===selectedCountry?' selected':'');
+    item.addEventListener('click',()=>selectCountry(code));
+    const left=document.createElement('div');
+    const codeEl=document.createElement('div'); codeEl.className='country-code'; codeEl.textContent=code; left.appendChild(codeEl);
+    const barRow=document.createElement('div'); barRow.className='bar-row';
+    const bar=document.createElement('div'); bar.className='cbar'; bar.style.width=bw+'px'; barRow.appendChild(bar);
+    const clicks=document.createElement('span'); clicks.className='cclicks'; clicks.textContent=fmtNum(data.clicks); barRow.appendChild(clicks);
     left.appendChild(barRow);
-
-    const revEl = document.createElement('div');
-    revEl.className = 'crev';
-    revEl.textContent = data.revenue > 0 ? fmtMoney(data.revenue) : '';
-
-    item.appendChild(left);
-    item.appendChild(revEl);
-    list.appendChild(item);
+    const revEl=document.createElement('div'); revEl.className='crev'; revEl.textContent=data.revenue>0?fmtMoney(data.revenue):'';
+    item.appendChild(left); item.appendChild(revEl); list.appendChild(item);
   });
 }
 
 function selectCountry(code) {
-  selectedCountry = code;
-  activeDeviceType = null;
-  activeDeviceOS = null;
-  renderCountryList();
-  renderRight(code);
+  selectedCountry=code; activeDeviceType=null; activeDeviceOS=null;
+  renderCountryList(); renderRight(code);
 }
 
-// ── Right Panel ──
+// ─────────────────── DAILY CHARTS ─────────────────────────────────────────
+
+function destroyAllCharts() {
+  for (const [id, chart] of Object.entries(chartInstances)) { try { chart.destroy(); } catch(e){} }
+  chartInstances = {};
+}
+
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getChartColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light' && !(window.matchMedia('(prefers-color-scheme: light)').matches && !document.documentElement.getAttribute('data-theme'));
+  return {
+    revenue: isDark ? '#22d98a' : '#16a865',
+    clicks:  isDark ? '#3d8bff' : '#2678f0',
+    epc:     isDark ? '#f0c040' : '#c89010',
+    grid:    isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
+    text:    isDark ? '#4a5a78' : '#7a8baa',
+  };
+}
+
+// Get sorted date keys across the entire affiliate
+function getAllDates(affId) {
+  const dates = new Set();
+  const da = DAILY_DATA[affId];
+  if (!da) return [];
+  for (const flows of Object.values(da)) for (const countries of Object.values(flows)) for (const offers of Object.values(countries)) for (const date of Object.keys(offers)) dates.add(date);
+  return [...dates].sort();
+}
+
+// Compute daily totals for a given scope:
+// scope = { type:'overall' } | { type:'flow', flowId } | { type:'geo', country } | { type:'offer', offerKey }
+// Returns array of {date, clicks, conversions, revenue, epc}
+function computeDailyTimeseries(affId, scope) {
+  const da = DAILY_DATA[affId];
+  if (!da) return [];
+  const dates = getAllDates(affId);
+  const byDate = {};
+  for (const d of dates) byDate[d] = {clicks:0,conversions:0,revenue:0};
+
+  for (const [flowId, countries] of Object.entries(da)) {
+    if (scope.type==='flow' && flowId!==scope.flowId) continue;
+    for (const [country, offers] of Object.entries(countries)) {
+      if (scope.type==='geo' && country!==scope.country) continue;
+      for (const [offerKey, dayData] of Object.entries(offers)) {
+        if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
+        for (const [date, d] of Object.entries(dayData)) {
+          if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+          byDate[date].clicks += d.clicks;
+          byDate[date].conversions += d.conversions;
+          byDate[date].revenue += d.revenue;
+        }
+      }
+    }
+  }
+
+  return dates.map(date => {
+    const d = byDate[date]||{clicks:0,conversions:0,revenue:0};
+    return { date, ...d, epc: d.clicks>0 ? d.revenue/d.clicks : 0 };
+  });
+}
+
+function getDimList_flow(affId) {
+  const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
+  return flows.map(f => {
+    const s=getFlowStats(affId,f);
+    return { key:f, name:f==='__no_flow__'?'⊘ No Flow':f, sub:fmtMoney(s.revenue)+' · '+fmtNum(s.clicks)+' clicks' };
+  });
+}
+
+function getDimList_geo(affId) {
+  const geoMap = {};
+  for (const flowData of Object.values(FULL_DATA[affId])) for (const [c,d] of Object.entries(flowData)) {
+    if (!geoMap[c]) geoMap[c]={clicks:0,revenue:0};
+    geoMap[c].clicks+=d.clicks; geoMap[c].revenue+=d.revenue;
+  }
+  return Object.entries(geoMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+}
+
+function getDimList_offer(affId) {
+  const offerMap = {};
+  for (const flowData of Object.values(FULL_DATA[affId])) for (const d of Object.values(flowData)) for (const o of d.offers) {
+    const k = o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
+    if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0};
+    offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue;
+  }
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+}
+
+function selectDimension(dim) {
+  chartDimension = dim;
+  chartSelectedKey = null;
+  ['overall','flow','geo','offer'].forEach(d => document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1)).classList.toggle('active', d===dim));
+  renderDimList();
+  if (dim==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
+  else {
+    const chartsRight = document.getElementById('chartsRight');
+    chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+dim+' from the left</div></div>';
+  }
+}
+
+function renderDimList() {
+  const list = document.getElementById('dimList');
+  list.innerHTML = '';
+  if (!selectedAffiliate) return;
+  if (chartDimension==='overall') { list.innerHTML = ''; return; }
+
+  let items = [];
+  if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
+  else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
+  else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
+
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
+    div.addEventListener('click', () => selectDimItem(item));
+    const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name; div.appendChild(name);
+    const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
+    list.appendChild(div);
+  });
+}
+
+function selectDimItem(item) {
+  chartSelectedKey = item.key;
+  renderDimList();
+  let scope, title;
+  if (chartDimension==='flow') { scope={type:'flow',flowId:item.key}; title='Flow: '+(item.key==='__no_flow__'?'No Flow':item.key); }
+  else if (chartDimension==='geo') { scope={type:'geo',country:item.key}; title='GEO: '+item.key; }
+  else if (chartDimension==='offer') { scope={type:'offer',offerKey:item.key}; title=item.name; }
+  renderChart(scope, title);
+}
+
+function renderChartsView() {
+  if (!selectedAffiliate || !HAS_DATES) return;
+  destroyAllCharts();
+  selectDimension(chartDimension);
+  if (chartDimension==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
+}
+
+function renderChart(scope, title) {
+  const affId = selectedAffiliate;
+  const series = computeDailyTimeseries(affId, scope);
+  const chartsRight = document.getElementById('chartsRight');
+  chartsRight.innerHTML = '';
+  destroyAllCharts();
+
+  if (!series.length) {
+    chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">No daily data for selection</div></div>';
+    return;
+  }
+
+  const dates = series.map(d => d.date.slice(5)); // MM-DD
+  const revenueData = series.map(d => parseFloat(d.revenue.toFixed(2)));
+  const clicksData = series.map(d => d.clicks);
+  const epcData = series.map(d => parseFloat(d.epc.toFixed(4)));
+
+  const totalRev = series.reduce((s,d)=>s+d.revenue,0);
+  const totalClicks2 = series.reduce((s,d)=>s+d.clicks,0);
+  const totalConvs = series.reduce((s,d)=>s+d.conversions,0);
+  const avgEPC = totalClicks2>0?totalRev/totalClicks2:0;
+  const peakRev = Math.max(...revenueData);
+  const peakClicks = Math.max(...clicksData);
+
+  // Title
+  const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title; chartsRight.appendChild(titleEl);
+  const subEl = document.createElement('div'); subEl.className='chart-section-sub'; subEl.textContent=`${series.length} days · ${series[0].date} → ${series[series.length-1].date}`; chartsRight.appendChild(subEl);
+
+  // ── Revenue Chart ──
+  chartsRight.appendChild(buildChartCard('revenue-chart', 'Daily Revenue', revenueData, dates, series));
+
+  // ── Clicks Chart ──
+  chartsRight.appendChild(buildChartCard('clicks-chart', 'Daily Clicks', clicksData, dates, series));
+
+  // ── EPC Chart ──
+  chartsRight.appendChild(buildChartCard('epc-chart', 'Daily EPC (Revenue per Click)', epcData, dates, series));
+
+  // ── Summary chips ──
+  const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
+  const shdr = document.createElement('div'); shdr.className='chart-card-hdr'; const stitle = document.createElement('div'); stitle.className='chart-card-title'; stitle.textContent='Period Summary'; shdr.appendChild(stitle); summaryCard.appendChild(shdr);
+  const chips = document.createElement('div'); chips.className='chart-summary-chips';
+  const chipDefs = [
+    {v:fmtMoney(totalRev),l:'Total Revenue',c:'var(--green)'},
+    {v:fmtNum(totalClicks2),l:'Total Clicks',c:null},
+    {v:totalConvs.toLocaleString(),l:'Total Convs',c:null},
+    {v:'$'+avgEPC.toFixed(4),l:'Avg EPC',c:'var(--yellow)'},
+    {v:fmtMoney(peakRev),l:'Peak Revenue',c:'var(--orange)'},
+    {v:fmtNum(peakClicks),l:'Peak Clicks',c:null},
+  ];
+  chipDefs.forEach(({v,l,c}) => {
+    const chip=document.createElement('div'); chip.className='summary-chip';
+    const sv=document.createElement('div'); sv.className='sv'; sv.textContent=v; if(c) sv.style.color=c; chip.appendChild(sv);
+    const sl=document.createElement('div'); sl.className='sl'; sl.textContent=l; chip.appendChild(sl);
+    chips.appendChild(chip);
+  });
+  summaryCard.appendChild(chips);
+  chartsRight.appendChild(summaryCard);
+
+  // ── Data Table ──
+  const tableCard = document.createElement('div'); tableCard.className='chart-card';
+  const thdr = document.createElement('div'); thdr.className='chart-card-hdr';
+  const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent='Day-by-Day Table';
+  thdr.appendChild(ttitle);
+  const toggleBtn = document.createElement('button');
+  toggleBtn.style.cssText='padding:3px 10px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:10px;cursor:pointer;';
+  toggleBtn.textContent='Show'; let tableVisible=false;
+  const tableWrap = document.createElement('div'); tableWrap.style.display='none';
+  toggleBtn.onclick=()=>{ tableVisible=!tableVisible; tableWrap.style.display=tableVisible?'block':'none'; toggleBtn.textContent=tableVisible?'Hide':'Show'; };
+  thdr.appendChild(toggleBtn); tableCard.appendChild(thdr);
+
+  const table = document.createElement('table'); table.className='chart-data-table';
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  ['Date','Clicks','Conversions','Revenue','EPC'].forEach((h,i)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
+  thead.appendChild(hrow); table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  series.forEach(d=>{ const tr=document.createElement('tr'); [d.date,fmtNum(d.clicks),d.conversions,'$'+d.revenue.toFixed(2),'$'+d.epc.toFixed(4)].forEach((v,i)=>{ const td=document.createElement('td'); td.textContent=v; if(i===3) td.style.color='var(--green)'; if(i===4) td.style.color='var(--yellow)'; tr.appendChild(td); }); tbody.appendChild(tr); });
+  table.appendChild(tbody);
+  tableWrap.appendChild(table); tableCard.appendChild(tableWrap);
+  chartsRight.appendChild(tableCard);
+}
+
+function buildChartCard(id, label, data, dates, series) {
+  const colors = getChartColors();
+  const card = document.createElement('div'); card.className='chart-card';
+
+  const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
+  const title = document.createElement('div'); title.className='chart-card-title'; title.textContent=label; hdr.appendChild(title);
+  card.appendChild(hdr);
+
+  const wrap = document.createElement('div'); wrap.className='chart-canvas-wrap';
+  const canvas = document.createElement('canvas'); canvas.id=id; canvas.style.width='100%'; canvas.style.height='100%';
+  wrap.appendChild(canvas); card.appendChild(wrap);
+
+  // determine color based on label
+  let lineColor = colors.revenue;
+  if (label.toLowerCase().includes('click')) lineColor = colors.clicks;
+  if (label.toLowerCase().includes('epc')) lineColor = colors.epc;
+
+  requestAnimationFrame(() => {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+    const ctx = canvas.getContext('2d');
+
+    // Gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, lineColor + '30');
+    gradient.addColorStop(1, lineColor + '00');
+
+    chartInstances[id] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: label,
+          data: data,
+          borderColor: lineColor,
+          backgroundColor: gradient,
+          borderWidth: 2,
+          pointRadius: data.length > 60 ? 0 : 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: lineColor,
+          tension: 0.3,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(13,16,24,0.95)',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            titleColor: '#c8d4e8',
+            bodyColor: '#c8d4e8',
+            titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
+            bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+            padding: 10,
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                return series[idx]?.date || items[0].label;
+              },
+              label: (item) => {
+                const v = item.raw;
+                if (label.toLowerCase().includes('revenue')) return ' Revenue: $' + v.toFixed(2);
+                if (label.toLowerCase().includes('click')) return ' Clicks: ' + fmtNum(v);
+                if (label.toLowerCase().includes('epc')) return ' EPC: $' + v.toFixed(4);
+                return ' ' + v;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: colors.grid },
+            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+            border: { color: colors.grid }
+          },
+          y: {
+            grid: { color: colors.grid },
+            ticks: {
+              color: colors.text,
+              font: { family: "'JetBrains Mono', monospace", size: 9 },
+              callback: (v) => {
+                if (label.toLowerCase().includes('click')) return fmtNum(v);
+                return '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(label.toLowerCase().includes('epc')?3:0));
+              }
+            },
+            border: { color: colors.grid }
+          }
+        }
+      }
+    });
+  });
+
+  return card;
+}
+
+// ─────────────────── RIGHT PANEL (Analytics) ──────────────────────────────
+
 function getFilteredData(code) {
   const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
   if (!base) return null;
   if (!activeDeviceType && !activeDeviceOS) return base;
-
-  const deviceData = base.deviceData || {};
-  let filteredOfferMap = {};
-  let filteredClicks = 0, filteredConversions = 0, filteredRevenue = 0;
-  let filteredSales = 0, filteredCplConvs = 0;
-
-  const dtKeys = activeDeviceType ? [activeDeviceType] : Object.keys(deviceData);
+  const deviceData=base.deviceData||{};
+  let filteredOfferMap={}, filteredClicks=0,filteredConversions=0,filteredRevenue=0,filteredSales=0,filteredCplConvs=0;
+  const dtKeys=activeDeviceType?[activeDeviceType]:Object.keys(deviceData);
   for (const dt of dtKeys) {
     if (!deviceData[dt]) continue;
-    const osKeys = activeDeviceOS ? [activeDeviceOS] : Object.keys(deviceData[dt]);
+    const osKeys=activeDeviceOS?[activeDeviceOS]:Object.keys(deviceData[dt]);
     for (const os of osKeys) {
-      const dd = deviceData[dt][os];
-      if (!dd) continue;
-      filteredClicks += dd.clicks;
-      filteredConversions += dd.conversions;
-      filteredRevenue += dd.revenue;
-      filteredSales += dd.sales || 0;
-      filteredCplConvs += dd.cpl_convs || 0;
+      const dd=deviceData[dt][os]; if (!dd) continue;
+      filteredClicks+=dd.clicks; filteredConversions+=dd.conversions; filteredRevenue+=dd.revenue; filteredSales+=dd.sales||0; filteredCplConvs+=dd.cpl_convs||0;
       for (const o of dd.offers) {
-        const key = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        if (!filteredOfferMap[key]) {
-          filteredOfferMap[key] = { ...o, pages: {} };
-          for (const p of o.pages) filteredOfferMap[key].pages[p.page] = { ...p };
-        } else {
-          const fo = filteredOfferMap[key];
-          fo.clicks += o.clicks;
-          fo.conversions += o.conversions;
-          fo.revenue += o.revenue;
-          fo.sales = (fo.sales || 0) + (o.sales || 0);
-          fo.cpl_convs = (fo.cpl_convs || 0) + (o.cpl_convs || 0);
-          for (const p of o.pages) {
-            if (!fo.pages[p.page]) fo.pages[p.page] = { ...p };
-            else {
-              fo.pages[p.page].clicks += p.clicks;
-              fo.pages[p.page].conversions += p.conversions;
-              fo.pages[p.page].revenue += p.revenue;
-              fo.pages[p.page].sales = (fo.pages[p.page].sales || 0) + (p.sales || 0);
-              fo.pages[p.page].cpl_convs = (fo.pages[p.page].cpl_convs || 0) + (p.cpl_convs || 0);
-            }
-          }
+        const key=o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
+        if (!filteredOfferMap[key]) { filteredOfferMap[key]={...o,pages:{}}; for (const p of o.pages) filteredOfferMap[key].pages[p.page]={...p}; }
+        else {
+          const fo=filteredOfferMap[key]; fo.clicks+=o.clicks; fo.conversions+=o.conversions; fo.revenue+=o.revenue; fo.sales=(fo.sales||0)+(o.sales||0); fo.cpl_convs=(fo.cpl_convs||0)+(o.cpl_convs||0);
+          for (const p of o.pages) { if (!fo.pages[p.page]) fo.pages[p.page]={...p}; else { fo.pages[p.page].clicks+=p.clicks; fo.pages[p.page].conversions+=p.conversions; fo.pages[p.page].revenue+=p.revenue; fo.pages[p.page].sales=(fo.pages[p.page].sales||0)+(p.sales||0); fo.pages[p.page].cpl_convs=(fo.pages[p.page].cpl_convs||0)+(p.cpl_convs||0); } }
         }
       }
     }
   }
-
-  // Recompute metrics with reg2sale
-  const offers = Object.values(filteredOfferMap).map(o => {
-    const cr = o.clicks > 0 ? (o.conversions / o.clicks * 100) : 0;
-    const cpc = o.clicks > 0 ? (o.revenue / o.clicks) : 0;
-    const sales = o.sales || 0;
-    const cpl_convs = o.cpl_convs || 0;
-    const reg2sale = cpl_convs > 0 && sales > 0 ? (sales / cpl_convs * 100) : 0;
-    const cps = sales > 0 ? (o.revenue / sales) : 0;
-    const pages = Object.values(o.pages).map(p => {
-      const pcr = p.clicks > 0 ? (p.conversions / p.clicks * 100) : 0;
-      const pcpc = p.clicks > 0 ? (p.revenue / p.clicks) : 0;
-      const p_sales = p.sales || 0;
-      const p_cpl_convs = p.cpl_convs || 0;
-      const p_reg2sale = p_cpl_convs > 0 && p_sales > 0 ? (p_sales / p_cpl_convs * 100) : 0;
-      const p_cps = p_sales > 0 ? (p.revenue / p_sales) : 0;
-      return {
-        ...p,
-        cr: parseFloat(pcr.toFixed(4)),
-        cpc: parseFloat(pcpc.toFixed(6)),
-        sales: p_sales, cpl_convs: p_cpl_convs,
-        reg2sale: parseFloat(p_reg2sale.toFixed(4)),
-        cps: parseFloat(p_cps.toFixed(4)),
-      };
-    });
-    return {
-      ...o, pages,
-      cr: parseFloat(cr.toFixed(4)), cpc: parseFloat(cpc.toFixed(6)),
-      sales, cpl_convs,
-      reg2sale: parseFloat(reg2sale.toFixed(4)),
-      cps: parseFloat(cps.toFixed(4)),
-    };
+  const offers=Object.values(filteredOfferMap).map(o => {
+    const cr=o.clicks>0?(o.conversions/o.clicks*100):0,cpc=o.clicks>0?(o.revenue/o.clicks):0,sales=o.sales||0,cpl_convs=o.cpl_convs||0;
+    const reg2sale=cpl_convs>0&&sales>0?(sales/cpl_convs*100):0,cps=sales>0?(o.revenue/sales):0;
+    const pages=Object.values(o.pages).map(p => { const pcr=p.clicks>0?(p.conversions/p.clicks*100):0,pcpc=p.clicks>0?(p.revenue/p.clicks):0,ps=p.sales||0,pcc=p.cpl_convs||0; return {...p,cr:parseFloat(pcr.toFixed(4)),cpc:parseFloat(pcpc.toFixed(6)),sales:ps,cpl_convs:pcc,reg2sale:parseFloat((pcc>0&&ps>0?(ps/pcc*100):0).toFixed(4)),cps:parseFloat((ps>0?p.revenue/ps:0).toFixed(4))}; });
+    return {...o,pages,cr:parseFloat(cr.toFixed(4)),cpc:parseFloat(cpc.toFixed(6)),sales,cpl_convs,reg2sale:parseFloat(reg2sale.toFixed(4)),cps:parseFloat(cps.toFixed(4))};
   });
-
-  return {
-    clicks: filteredClicks, conversions: filteredConversions, revenue: filteredRevenue,
-    sales: filteredSales, cpl_convs: filteredCplConvs,
-    offers
-  };
+  return {clicks:filteredClicks,conversions:filteredConversions,revenue:filteredRevenue,sales:filteredSales,cpl_convs:filteredCplConvs,offers};
 }
 
 function getAvailableDeviceFilters(code) {
-  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
-  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return null;
-
-  function sortDimension(arr, priority) {
-    return arr.slice().sort((a, b) => {
-      const an = a.toLowerCase(), bn = b.toLowerCase();
-      const ai = priority.findIndex(p => an.includes(p));
-      const bi = priority.findIndex(p => bn.includes(p));
-      const ar = ai === -1 ? priority.length : ai;
-      const br = bi === -1 ? priority.length : bi;
-      if (ar !== br) return ar - br;
-      return a.localeCompare(b);
-    });
-  }
-
-  const deviceTypes = sortDimension(Object.keys(base.deviceData), ['mobile', 'desktop']);
-  const allOS = new Set();
-  for (const dt of deviceTypes) {
-    for (const os of Object.keys(base.deviceData[dt])) allOS.add(os);
-  }
-  const sortedOS = sortDimension([...allOS], ['android', 'ios']);
-  return { deviceTypes, allOS: sortedOS };
+  const base=FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base||!base.deviceData||!Object.keys(base.deviceData).length) return null;
+  function sortDimension(arr,priority) { return arr.slice().sort((a,b)=>{ const an=a.toLowerCase(),bn=b.toLowerCase(); const ai=priority.findIndex(p=>an.includes(p)),bi=priority.findIndex(p=>bn.includes(p)); const ar=ai===-1?priority.length:ai,br=bi===-1?priority.length:bi; if (ar!==br) return ar-br; return a.localeCompare(b); }); }
+  const deviceTypes=sortDimension(Object.keys(base.deviceData),['mobile','desktop']);
+  const allOS=new Set();
+  for (const dt of deviceTypes) for (const os of Object.keys(base.deviceData[dt])) allOS.add(os);
+  return {deviceTypes,allOS:sortDimension([...allOS],['android','ios'])};
 }
 
-function renderDeviceFilterBar(panel, code) {
-  const filters = getAvailableDeviceFilters(code);
-  if (!filters) return;
-
-  const bar = document.createElement('div');
-  bar.className = 'device-filter-bar';
-  bar.id = 'deviceFilterBar';
-
-  const lbl = document.createElement('span');
-  lbl.className = 'df-label';
-  lbl.textContent = 'Filter:';
-  bar.appendChild(lbl);
-
-  const dtGroup = document.createElement('div');
-  dtGroup.className = 'df-group';
-
-  const allDtBtn = document.createElement('button');
-  allDtBtn.className = 'df-btn' + (!activeDeviceType ? ' active' : '');
-  allDtBtn.textContent = 'All Devices';
-  allDtBtn.onclick = () => { activeDeviceType = null; activeDeviceOS = null; renderRight(code); };
-  dtGroup.appendChild(allDtBtn);
-
-  for (const dt of filters.deviceTypes) {
-    const btn = document.createElement('button');
-    const label = dt.replace('device_type_', '');
-    btn.className = 'df-btn' + (activeDeviceType === dt ? ' active' : '');
-    btn.textContent = label;
-    btn.title = dt;
-    btn.onclick = () => {
-      activeDeviceType = (activeDeviceType === dt) ? null : dt;
-      activeDeviceOS = null;
-      renderRight(code);
-    };
-    dtGroup.appendChild(btn);
-  }
+function renderDeviceFilterBar(panel,code) {
+  const filters=getAvailableDeviceFilters(code); if (!filters) return;
+  const bar=document.createElement('div'); bar.className='device-filter-bar'; bar.id='deviceFilterBar';
+  const lbl=document.createElement('span'); lbl.className='df-label'; lbl.textContent='Filter:'; bar.appendChild(lbl);
+  const dtGroup=document.createElement('div'); dtGroup.className='df-group';
+  const allDtBtn=document.createElement('button'); allDtBtn.className='df-btn'+(!activeDeviceType?' active':''); allDtBtn.textContent='All Devices'; allDtBtn.onclick=()=>{ activeDeviceType=null; activeDeviceOS=null; renderRight(code); }; dtGroup.appendChild(allDtBtn);
+  for (const dt of filters.deviceTypes) { const btn=document.createElement('button'); btn.className='df-btn'+(activeDeviceType===dt?' active':''); btn.textContent=dt.replace('device_type_',''); btn.title=dt; btn.onclick=()=>{ activeDeviceType=(activeDeviceType===dt)?null:dt; activeDeviceOS=null; renderRight(code); }; dtGroup.appendChild(btn); }
   bar.appendChild(dtGroup);
-
-  if (filters.allOS.length > 1) {
-    const sep = document.createElement('div');
-    sep.className = 'df-sep';
-    bar.appendChild(sep);
-
-    const rawOS = activeDeviceType
-      ? Object.keys((FULL_DATA[selectedAffiliate][selectedFlow][code].deviceData[activeDeviceType]) || {})
-      : filters.allOS;
-    const availableOS = rawOS.slice().sort((a, b) => {
-      const priority = ['android', 'ios'];
-      const ai = priority.findIndex(p => a.toLowerCase().includes(p));
-      const bi = priority.findIndex(p => b.toLowerCase().includes(p));
-      const ar = ai === -1 ? priority.length : ai;
-      const br = bi === -1 ? priority.length : bi;
-      if (ar !== br) return ar - br;
-      return a.localeCompare(b);
-    });
-
-    const osGroup = document.createElement('div');
-    osGroup.className = 'df-group';
-
-    const allOsBtn = document.createElement('button');
-    allOsBtn.className = 'df-btn' + (!activeDeviceOS ? ' active' : '');
-    allOsBtn.textContent = 'All OS';
-    allOsBtn.onclick = () => { activeDeviceOS = null; renderRight(code); };
-    osGroup.appendChild(allOsBtn);
-
-    for (const os of availableOS) {
-      const btn = document.createElement('button');
-      btn.className = 'df-btn' + (activeDeviceOS === os ? ' active-os' : '');
-      btn.textContent = os;
-      btn.onclick = () => {
-        activeDeviceOS = (activeDeviceOS === os) ? null : os;
-        renderRight(code);
-      };
-      osGroup.appendChild(btn);
-    }
+  if (filters.allOS.length>1) {
+    const sep=document.createElement('div'); sep.className='df-sep'; bar.appendChild(sep);
+    const rawOS=activeDeviceType?Object.keys((FULL_DATA[selectedAffiliate][selectedFlow][code].deviceData[activeDeviceType])||{}):filters.allOS;
+    const availableOS=rawOS.slice().sort((a,b)=>{ const p=['android','ios']; const ai=p.findIndex(x=>a.toLowerCase().includes(x)),bi=p.findIndex(x=>b.toLowerCase().includes(x)); const ar=ai===-1?p.length:ai,br=bi===-1?p.length:bi; if(ar!==br) return ar-br; return a.localeCompare(b); });
+    const osGroup=document.createElement('div'); osGroup.className='df-group';
+    const allOsBtn=document.createElement('button'); allOsBtn.className='df-btn'+(!activeDeviceOS?' active':''); allOsBtn.textContent='All OS'; allOsBtn.onclick=()=>{ activeDeviceOS=null; renderRight(code); }; osGroup.appendChild(allOsBtn);
+    for (const os of availableOS) { const btn=document.createElement('button'); btn.className='df-btn'+(activeDeviceOS===os?' active-os':''); btn.textContent=os; btn.onclick=()=>{ activeDeviceOS=(activeDeviceOS===os)?null:os; renderRight(code); }; osGroup.appendChild(btn); }
     bar.appendChild(osGroup);
   }
-
-  if (activeDeviceType || activeDeviceOS) {
-    const note = document.createElement('span');
-    note.className = 'df-filter-note';
-    const parts = [];
-    if (activeDeviceType) parts.push(activeDeviceType.replace('device_type_', ''));
-    if (activeDeviceOS) parts.push(activeDeviceOS);
-    note.textContent = '⚡ ' + parts.join(' · ');
-    bar.appendChild(note);
-  }
-
+  if (activeDeviceType||activeDeviceOS) { const note=document.createElement('span'); note.className='df-filter-note'; const parts=[]; if (activeDeviceType) parts.push(activeDeviceType.replace('device_type_','')); if (activeDeviceOS) parts.push(activeDeviceOS); note.textContent='⚡ '+parts.join(' · '); bar.appendChild(note); }
   panel.appendChild(bar);
 }
 
-// SVG icon strings for device winner badges
 const DW_SVGS = {
-  desktop: {
-    label: 'Desktop',
-    color: 'var(--accent)',
-    svg: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
-      <path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-    </svg>`
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--accent2)',
-    svg: `<svg width="10" height="14" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/>
-      <circle cx="5" cy="12.5" r="0.85" fill="currentColor"/>
-    </svg>`
-  },
-  ios: {
-    label: 'iOS',
-    color: '#a0b4d0',
-    svg: `<svg width="12" height="14" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="8.5" cy="2" r="1.2" fill="currentColor" opacity="0.7"/>
-      <path d="M8.5 0.8 C8.5 0.8 8.5 2.8 6.5 3.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-      <path d="M6 4 C3.8 4 2 6 2 8.2 C2 11 3.8 14 6 14 C7 14 7.6 13.5 8.2 13.5 C8.8 13.5 9.4 14 10.5 14 C11.3 12.8 11.8 10.8 11 9.1 C10.5 8.1 9.6 7.4 8.5 7.4 C7.8 7.4 7.2 7.9 6.6 7.9 C6.2 7.9 6 4 6 4 Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" fill="none"/>
-    </svg>`
-  },
-  android: {
-    label: 'Android',
-    color: '#78c878',
-    svg: `<svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.8 5 L0.8 9.5 C0.8 10.1 1.3 10.6 1.9 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-      <path d="M12.2 5 L12.2 9.5 C12.2 10.1 11.7 10.6 11.1 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-      <rect x="2.2" y="4.5" width="8.6" height="8" rx="1.4" stroke="currentColor" stroke-width="1.3"/>
-      <circle cx="4.8" cy="8" r="0.75" fill="currentColor"/>
-      <circle cx="8.2" cy="8" r="0.75" fill="currentColor"/>
-      <path d="M3.5 4.5 L2 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-      <path d="M9.5 4.5 L11 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-    </svg>`
-  }
+  desktop:{label:'Desktop',color:'var(--accent)',svg:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`},
+  mobile:{label:'Mobile',color:'var(--accent2)',svg:`<svg width="10" height="14" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`},
+  ios:{label:'iOS',color:'#a0b4d0',svg:`<svg width="12" height="14" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8.5" cy="2" r="1.2" fill="currentColor" opacity="0.7"/><path d="M8.5 0.8 C8.5 0.8 8.5 2.8 6.5 3.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 4 C3.8 4 2 6 2 8.2 C2 11 3.8 14 6 14 C7 14 7.6 13.5 8.2 13.5 C8.8 13.5 9.4 14 10.5 14 C11.3 12.8 11.8 10.8 11 9.1 C10.5 8.1 9.6 7.4 8.5 7.4 C7.8 7.4 7.2 7.9 6.6 7.9 C6.2 7.9 6 4 6 4 Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" fill="none"/></svg>`},
+  android:{label:'Android',color:'#78c878',svg:`<svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.8 5 L0.8 9.5 C0.8 10.1 1.3 10.6 1.9 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12.2 5 L12.2 9.5 C12.2 10.1 11.7 10.6 11.1 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="2.2" y="4.5" width="8.6" height="8" rx="1.4" stroke="currentColor" stroke-width="1.3"/><circle cx="4.8" cy="8" r="0.75" fill="currentColor"/><circle cx="8.2" cy="8" r="0.75" fill="currentColor"/><path d="M3.5 4.5 L2 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 4.5 L11 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`}
 };
 
 function getDeviceWinnerPages(code, offerKey) {
-  if (activeDeviceType || activeDeviceOS) return {};
-
-  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
-  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return {};
-
-  function normDT(k) { return k.toLowerCase().replace(/[\s_\-]/g, ''); }
-
-  const bestPerDeviceType = {};
-
-  for (const [dt, osList] of Object.entries(base.deviceData)) {
-    const dtNorm = normDT(dt);
-    const dtKey = dtNorm.includes('mobile') ? 'mobile' : dtNorm.includes('desktop') ? 'desktop' : null;
-    if (!dtKey) continue;
-
-    const pageAgg = {};
-    for (const [, ddData] of Object.entries(osList)) {
-      const offerObj = ddData.offers.find(o => {
-        const key = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        return key === offerKey;
-      });
-      if (!offerObj) continue;
-      for (const p of offerObj.pages) {
-        if (!pageAgg[p.page]) pageAgg[p.page] = { clicks: 0, revenue: 0 };
-        pageAgg[p.page].clicks  += p.clicks;
-        pageAgg[p.page].revenue += p.revenue;
-      }
-    }
-
-    let best = null;
-    for (const [pageName, agg] of Object.entries(pageAgg)) {
-      const cpc = agg.clicks > 0 ? agg.revenue / agg.clicks : 0;
-      if (cpc <= 0) continue;
-      if (!best || cpc > best.cpc) best = { page: pageName, cpc };
-    }
+  if (activeDeviceType||activeDeviceOS) return {};
+  const base=FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base||!base.deviceData||!Object.keys(base.deviceData).length) return {};
+  function normDT(k){return k.toLowerCase().replace(/[\s_\-]/g,'');}
+  const bestPerDeviceType={};
+  for (const [dt,osList] of Object.entries(base.deviceData)) {
+    const dtNorm=normDT(dt),dtKey=dtNorm.includes('mobile')?'mobile':dtNorm.includes('desktop')?'desktop':null; if (!dtKey) continue;
+    const pageAgg={};
+    for (const [,ddData] of Object.entries(osList)) { const offerObj=ddData.offers.find(o=>{ const key=o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name; return key===offerKey; }); if (!offerObj) continue; for (const p of offerObj.pages) { if (!pageAgg[p.page]) pageAgg[p.page]={clicks:0,revenue:0}; pageAgg[p.page].clicks+=p.clicks; pageAgg[p.page].revenue+=p.revenue; } }
+    let best=null;
+    for (const [pageName,agg] of Object.entries(pageAgg)) { const cpc=agg.clicks>0?agg.revenue/agg.clicks:0; if (cpc<=0) continue; if (!best||cpc>best.cpc) best={page:pageName,cpc}; }
     if (!best) continue;
-
-    if (!bestPerDeviceType[dtKey] || best.cpc > bestPerDeviceType[dtKey].cpc) {
-      bestPerDeviceType[dtKey] = best;
-    }
+    if (!bestPerDeviceType[dtKey]||best.cpc>bestPerDeviceType[dtKey].cpc) bestPerDeviceType[dtKey]=best;
   }
-
-  const pageWinners = {};
-  for (const [dtKey, { page }] of Object.entries(bestPerDeviceType)) {
-    const def = DW_SVGS[dtKey];
-    if (!def) continue;
-    if (!pageWinners[page]) pageWinners[page] = [];
-    if (!pageWinners[page].find(e => e.label === def.label)) {
-      pageWinners[page].push(def);
-    }
-  }
+  const pageWinners={};
+  for (const [dtKey,{page}] of Object.entries(bestPerDeviceType)) { const def=DW_SVGS[dtKey]; if (!def) continue; if (!pageWinners[page]) pageWinners[page]=[]; if (!pageWinners[page].find(e=>e.label===def.label)) pageWinners[page].push(def); }
   return pageWinners;
 }
 
 function getDeviceBreakdown(code) {
-  const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
-  if (!base || !base.deviceData || !Object.keys(base.deviceData).length) return null;
-
-  function normDT(k) { return k.toLowerCase().replace(/[\s_\-]/g, ''); }
-
-  let totalClicks = 0;
-  const byDevice = {};
-
-  for (const [dt, osList] of Object.entries(base.deviceData)) {
-    const dtNorm = normDT(dt);
-    const dtKey = dtNorm.includes('mobile') ? 'mobile' : dtNorm.includes('desktop') ? 'desktop' : 'other';
-    if (!byDevice[dtKey]) byDevice[dtKey] = { clicks: 0, os: {} };
-
-    for (const [os, ddData] of Object.entries(osList)) {
-      byDevice[dtKey].clicks += ddData.clicks;
-      totalClicks += ddData.clicks;
-
-      const osNorm = normDT(os);
-      const osKey = osNorm.includes('android') ? 'android' : osNorm.includes('ios') ? 'ios' : 'other';
-      if (!byDevice[dtKey].os[osKey]) byDevice[dtKey].os[osKey] = 0;
-      byDevice[dtKey].os[osKey] += ddData.clicks;
+  const base=FULL_DATA[selectedAffiliate][selectedFlow][code];
+  if (!base||!base.deviceData||!Object.keys(base.deviceData).length) return null;
+  function normDT(k){return k.toLowerCase().replace(/[\s_\-]/g,'');}
+  let totalClicks=0; const byDevice={};
+  for (const [dt,osList] of Object.entries(base.deviceData)) {
+    const dtNorm=normDT(dt),dtKey=dtNorm.includes('mobile')?'mobile':dtNorm.includes('desktop')?'desktop':'other';
+    if (!byDevice[dtKey]) byDevice[dtKey]={clicks:0,os:{}};
+    for (const [os,ddData] of Object.entries(osList)) {
+      byDevice[dtKey].clicks+=ddData.clicks; totalClicks+=ddData.clicks;
+      const osNorm=normDT(os),osKey=osNorm.includes('android')?'android':osNorm.includes('ios')?'ios':'other';
+      if (!byDevice[dtKey].os[osKey]) byDevice[dtKey].os[osKey]=0;
+      byDevice[dtKey].os[osKey]+=ddData.clicks;
     }
   }
-
-  if (totalClicks === 0) return null;
-
-  const result = { total: totalClicks };
-  for (const [dtKey, d] of Object.entries(byDevice)) {
-    result[dtKey] = {
-      clicks: d.clicks,
-      pct: d.clicks / totalClicks * 100,
-      os: {}
-    };
-    for (const [osKey, osClicks] of Object.entries(d.os)) {
-      result[dtKey].os[osKey] = {
-        clicks: osClicks,
-        pct: d.clicks > 0 ? osClicks / d.clicks * 100 : 0
-      };
-    }
-  }
+  if (totalClicks===0) return null;
+  const result={total:totalClicks};
+  for (const [dtKey,d] of Object.entries(byDevice)) { result[dtKey]={clicks:d.clicks,pct:d.clicks/totalClicks*100,os:{}}; for (const [osKey,osClicks] of Object.entries(d.os)) result[dtKey].os[osKey]={clicks:osClicks,pct:d.clicks>0?osClicks/d.clicks*100:0}; }
   return result;
 }
 
 function renderRight(code) {
-  const panel = document.getElementById('rightPanel');
-  if (!selectedAffiliate || !selectedFlow) return;
-  const data = getFilteredData(code);
-  if (!data) return;
+  const panel=document.getElementById('rightPanel');
+  if (!selectedAffiliate||!selectedFlow) return;
+  const data=getFilteredData(code); if (!data) return;
+  const cr=data.clicks>0?(data.conversions/data.clicks*100):0;
+  const offers=[...data.offers].sort((a,b)=>{ const aH=a.cpc>0,bH=b.cpc>0; if (aH&&bH) return b.cpc-a.cpc; if (!aH&&!bH) return b.clicks-a.clicks; return aH?-1:1; });
+  panel.innerHTML='';
 
-  const cr = data.clicks > 0 ? (data.conversions / data.clicks * 100) : 0;
+  const hdr=document.createElement('div'); hdr.className='country-hdr';
+  const nameEl=document.createElement('div'); nameEl.className='country-name'; nameEl.textContent=code; hdr.appendChild(nameEl);
 
-  // ── Sort all offers together by EPC desc; offers without EPC sorted by clicks desc ──
-  // (Change 7: PPS and SOI/DOI offers are no longer separated — all sorted by EPC, no-EPC by clicks)
-  const offers = [...data.offers].sort((a, b) => {
-    const aHasEPC = a.cpc > 0;
-    const bHasEPC = b.cpc > 0;
-    if (aHasEPC && bHasEPC) return b.cpc - a.cpc;
-    if (!aHasEPC && !bHasEPC) return b.clicks - a.clicks;
-    return aHasEPC ? -1 : 1;
-  });
-
-  panel.innerHTML = '';
-
-  // ── Country header ──
-  const hdr = document.createElement('div');
-  hdr.className = 'country-hdr';
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'country-name';
-  nameEl.textContent = code;
-  hdr.appendChild(nameEl);
-
-  const chips = document.createElement('div');
-  chips.className = 'stat-chips';
-
-  function makeChip(value, label, color) {
-    const chip = document.createElement('div');
-    chip.className = 'chip';
-    const cv = document.createElement('div');
-    cv.className = 'cv';
-    cv.textContent = value;
-    if (color) cv.style.color = color;
-    const cl = document.createElement('div');
-    cl.className = 'cl';
-    cl.textContent = label;
-    chip.appendChild(cv);
-    chip.appendChild(cl);
-    return chip;
-  }
-
-  chips.appendChild(makeChip(fmtNum(data.clicks), 'Clicks', null));
-  chips.appendChild(makeChip(data.conversions.toLocaleString(), 'Convs', null));
-  chips.appendChild(makeChip(data.revenue > 0 ? fmtMoney(data.revenue) : '$0', 'Revenue', 'var(--green)'));
-  chips.appendChild(makeChip(fmt(cr,2)+'%', 'CR', 'var(--yellow)'));
-  // Change 1 & 2: Remove CPS, CPL convs, CPL chips from GEO header entirely.
-  // Only show Sales count (no CPS chip).
-  if (data.sales > 0) {
-    chips.appendChild(makeChip(data.sales.toLocaleString(), 'Sales', 'var(--orange)'));
-  }
-  chips.appendChild(makeChip(offers.length, 'Offers', null));
+  const chips=document.createElement('div'); chips.className='stat-chips';
+  function makeChip(value,label,color) { const chip=document.createElement('div'); chip.className='chip'; const cv=document.createElement('div'); cv.className='cv'; cv.textContent=value; if(color) cv.style.color=color; const cl=document.createElement('div'); cl.className='cl'; cl.textContent=label; chip.appendChild(cv); chip.appendChild(cl); return chip; }
+  chips.appendChild(makeChip(fmtNum(data.clicks),'Clicks',null));
+  chips.appendChild(makeChip(data.conversions.toLocaleString(),'Convs',null));
+  chips.appendChild(makeChip(data.revenue>0?fmtMoney(data.revenue):'$0','Revenue','var(--green)'));
+  chips.appendChild(makeChip(fmt(cr,2)+'%','CR','var(--yellow)'));
+  if (data.sales>0) chips.appendChild(makeChip(data.sales.toLocaleString(),'Sales','var(--orange)'));
+  chips.appendChild(makeChip(offers.length,'Offers',null));
   hdr.appendChild(chips);
 
-  // ── Device breakdown row ──
-  const breakdown = getDeviceBreakdown(code);
+  // Device breakdown
+  const breakdown=getDeviceBreakdown(code);
   if (breakdown) {
-    const dbRow = document.createElement('div');
-    dbRow.className = 'device-breakdown-row';
-
-    const DEVICE_ORDER = ['mobile', 'desktop'];
-    const OS_ORDER = ['android', 'ios'];
-
-    const DEVICE_DEFS = {
-      mobile: {
-        label: 'Mobile',
-        color: 'var(--accent2)',
-        svg: `<svg width="9" height="12" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`
-      },
-      desktop: {
-        label: 'Desktop',
-        color: 'var(--accent)',
-        svg: `<svg width="13" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
-      }
-    };
-
-    const OS_DEFS = {
-      android: { label: 'And' },
-      ios:     { label: 'iOS' }
-    };
-
-    const devicesPresent = DEVICE_ORDER.filter(k => breakdown[k]);
-
-    devicesPresent.forEach(dtKey => {
-      const d = breakdown[dtKey];
-      const def = DEVICE_DEFS[dtKey];
-      if (!def) return;
-
-      const seg = document.createElement('div');
-      seg.className = 'db-segment';
-
-      const ico = document.createElement('span');
-      ico.className = 'db-icon';
-      ico.style.color = def.color;
-      ico.innerHTML = def.svg;
-      seg.appendChild(ico);
-
-      const pctEl = document.createElement('span');
-      pctEl.className = 'db-pct';
-      pctEl.style.color = def.color;
-      pctEl.textContent = Math.round(d.pct) + '%';
-      seg.appendChild(pctEl);
-
-      const lbl = document.createElement('span');
-      lbl.className = 'db-label';
-      lbl.textContent = def.label;
-      seg.appendChild(lbl);
-
-      if (dtKey === 'mobile' && d.os) {
-        const osPresentOrdered = OS_ORDER.filter(k => d.os[k]);
-        if (osPresentOrdered.length > 0) {
-          const sub = document.createElement('div');
-          sub.className = 'db-sub';
-          osPresentOrdered.forEach(osKey => {
-            const osData = d.os[osKey];
-            const osDef = OS_DEFS[osKey];
-            const item = document.createElement('span');
-            item.className = 'db-sub-item';
-            const pct = document.createElement('span');
-            pct.className = 'db-sub-pct';
-            pct.textContent = Math.round(osData.pct) + '%';
-            const osLbl = document.createElement('span');
-            osLbl.textContent = osDef.label;
-            item.appendChild(pct);
-            item.appendChild(osLbl);
-            sub.appendChild(item);
-          });
-          seg.appendChild(sub);
-        }
-      }
-
+    const dbRow=document.createElement('div'); dbRow.className='device-breakdown-row';
+    const DEVICE_ORDER=['mobile','desktop'];
+    const DEVICE_DEFS={mobile:{label:'Mobile',color:'var(--accent2)',svg:`<svg width="9" height="12" viewBox="0 0 10 16" fill="none"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`},desktop:{label:'Desktop',color:'var(--accent)',svg:`<svg width="13" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`}};
+    const OS_DEFS={android:{label:'And'},ios:{label:'iOS'}};
+    DEVICE_ORDER.filter(k=>breakdown[k]).forEach(dtKey=>{
+      const d=breakdown[dtKey],def=DEVICE_DEFS[dtKey]; if (!def) return;
+      const seg=document.createElement('div'); seg.className='db-segment';
+      const ico=document.createElement('span'); ico.className='db-icon'; ico.style.color=def.color; ico.innerHTML=def.svg; seg.appendChild(ico);
+      const pctEl=document.createElement('span'); pctEl.className='db-pct'; pctEl.style.color=def.color; pctEl.textContent=Math.round(d.pct)+'%'; seg.appendChild(pctEl);
+      const lbl=document.createElement('span'); lbl.className='db-label'; lbl.textContent=def.label; seg.appendChild(lbl);
+      if (dtKey==='mobile'&&d.os) { const osPO=['android','ios'].filter(k=>d.os[k]); if (osPO.length>0) { const sub=document.createElement('div'); sub.className='db-sub'; osPO.forEach(osKey=>{ const osData=d.os[osKey],osDef=OS_DEFS[osKey]; const item=document.createElement('span'); item.className='db-sub-item'; const pct=document.createElement('span'); pct.className='db-sub-pct'; pct.textContent=Math.round(osData.pct)+'%'; const osLbl=document.createElement('span'); osLbl.textContent=osDef.label; item.appendChild(pct); item.appendChild(osLbl); sub.appendChild(item); }); seg.appendChild(sub); } }
       dbRow.appendChild(seg);
     });
-
     hdr.appendChild(dbRow);
   }
-
   panel.appendChild(hdr);
+  renderDeviceFilterBar(panel,code);
 
-  // ── Device filter bar ──
-  renderDeviceFilterBar(panel, code);
+  const sectionLbl=document.createElement('div'); sectionLbl.className='section-lbl'; sectionLbl.textContent='Offers — sorted by EPC · offers without EPC sorted by clicks'; panel.appendChild(sectionLbl);
 
-  // ── Section label ──
-  const sectionLbl = document.createElement('div');
-  sectionLbl.className = 'section-lbl';
-  sectionLbl.textContent = 'Offers — sorted by EPC · offers without EPC sorted by clicks';
-  panel.appendChild(sectionLbl);
+  if (!offers.length) { const empty=document.createElement('p'); empty.style.cssText='color:var(--muted);padding:20px;'; empty.textContent='No offer data for selected filter'; panel.appendChild(empty); return; }
 
-  if (!offers.length) {
-    const empty = document.createElement('p');
-    empty.style.color = 'var(--muted)';
-    empty.style.padding = '20px';
-    empty.textContent = 'No offer data for selected filter';
-    panel.appendChild(empty);
-    return;
-  }
-
-  offers.forEach((o, idx) => {
-    const isPPS = o.is_pps;
-    // Change 2: only show sale goal data (no CPL/reg blocks in offers)
-    const hasSaleGoalData = o.has_goal_data && o.sales > 0;
-
-    const pages = [...o.pages].sort((a,b) => b.cpc - a.cpc);
-
-    const topMetricColor = o.cpc > 0 ? 'var(--green)' : 'var(--muted)';
-    const topMetricVal = o.cpc > 0 ? `$${fmt(o.cpc, 4)}` : '—';
-
-    const card = document.createElement('div');
-    card.className = 'offer-card';
-    card.style.animationDelay = (idx * 0.03) + 's';
-
-    const head = document.createElement('div');
-    head.className = 'offer-head';
-    head.addEventListener('click', () => togglePages(idx));
-
-    const headLeft = document.createElement('div');
-
-    // Title row with offer ID tag and badge
-    const titleRow = document.createElement('div');
-    titleRow.className = 'offer-title';
-
-    const titleText = document.createElement('span');
-    titleText.textContent = o.offer_name.trim();
-    titleRow.appendChild(titleText);
-
-    // Change 4: offer ID near the offer name (as a styled tag in the title row)
-    if (o.offer_id) {
-      const idTag = document.createElement('span');
-      idTag.className = 'offer-id-tag';
-      idTag.textContent = '#' + o.offer_id;
-      idTag.title = 'Offer ID';
-      titleRow.appendChild(idTag);
-    }
-
-    const badge = document.createElement('span');
-    badge.className = 'badge ' + (isPPS ? 'badge-pps' : 'badge-soi');
-    badge.textContent = isPPS ? 'PPS' : 'SOI';
-    titleRow.appendChild(badge);
-
+  offers.forEach((o,idx)=>{
+    const isPPS=o.is_pps,hasSaleGoalData=o.has_goal_data&&o.sales>0;
+    const pages=[...o.pages].sort((a,b)=>b.cpc-a.cpc);
+    const card=document.createElement('div'); card.className='offer-card'; card.style.animationDelay=(idx*0.03)+'s';
+    const head=document.createElement('div'); head.className='offer-head'; head.addEventListener('click',()=>togglePages(idx));
+    const headLeft=document.createElement('div');
+    const titleRow=document.createElement('div'); titleRow.className='offer-title';
+    const titleText=document.createElement('span'); titleText.textContent=o.offer_name.trim(); titleRow.appendChild(titleText);
+    if (o.offer_id) { const idTag=document.createElement('span'); idTag.className='offer-id-tag'; idTag.textContent='#'+o.offer_id; idTag.title='Offer ID'; titleRow.appendChild(idTag); }
+    const badge=document.createElement('span'); badge.className='badge '+(isPPS?'badge-pps':'badge-soi'); badge.textContent=isPPS?'PPS':'SOI'; titleRow.appendChild(badge);
     headLeft.appendChild(titleRow);
-
-    // KPIs
-    const kpisRow = document.createElement('div');
-    kpisRow.className = 'offer-kpis';
-
-    function makeKpi(value, label, color) {
-      const kpi = document.createElement('div');
-      kpi.className = 'kpi';
-      const kv = document.createElement('span');
-      kv.className = 'kv';
-      kv.textContent = value;
-      if (color) kv.style.color = color;
-      const kl = document.createElement('span');
-      kl.className = 'kl';
-      kl.textContent = label;
-      kpi.appendChild(kv);
-      kpi.appendChild(kl);
-      return kpi;
-    }
-
-    kpisRow.appendChild(makeKpi(fmtNum(o.clicks), 'Clicks', null));
-    kpisRow.appendChild(makeKpi(o.conversions, 'Convs', null));
-    kpisRow.appendChild(makeKpi(o.revenue > 0 ? '$'+fmt(o.revenue,2) : '—', 'Rev', 'var(--green)'));
-    kpisRow.appendChild(makeKpi(fmt(o.cr,2)+'%', 'CR', 'var(--yellow)'));
-    kpisRow.appendChild(makeKpi(o.cpc > 0 ? '$'+fmt(o.cpc,4) : '—', 'EPC', 'var(--green)'));
-
-    // Change 2 & 3: Show Sales, Reg2Sale (instead of CPL convs/CPL). No CPL block.
-    if (hasSaleGoalData) {
-      kpisRow.appendChild(makeKpi(o.sales.toLocaleString(), 'Sales', 'var(--orange)'));
-      if (o.reg2sale > 0) {
-        kpisRow.appendChild(makeKpi(fmt(o.reg2sale,2)+'%', 'Reg→Sale', 'var(--orange)'));
-      }
-      kpisRow.appendChild(makeKpi('$'+fmt(o.cps,2), 'CPS', 'var(--orange)'));
-    }
-
+    const kpisRow=document.createElement('div'); kpisRow.className='offer-kpis';
+    function makeKpi(value,label,color){const kpi=document.createElement('div');kpi.className='kpi';const kv=document.createElement('span');kv.className='kv';kv.textContent=value;if(color)kv.style.color=color;const kl=document.createElement('span');kl.className='kl';kl.textContent=label;kpi.appendChild(kv);kpi.appendChild(kl);return kpi;}
+    kpisRow.appendChild(makeKpi(fmtNum(o.clicks),'Clicks',null));
+    kpisRow.appendChild(makeKpi(o.conversions,'Convs',null));
+    kpisRow.appendChild(makeKpi(o.revenue>0?'$'+fmt(o.revenue,2):'—','Rev','var(--green)'));
+    kpisRow.appendChild(makeKpi(fmt(o.cr,2)+'%','CR','var(--yellow)'));
+    kpisRow.appendChild(makeKpi(o.cpc>0?'$'+fmt(o.cpc,4):'—','EPC','var(--green)'));
+    if (hasSaleGoalData) { kpisRow.appendChild(makeKpi(o.sales.toLocaleString(),'Sales','var(--orange)')); if (o.reg2sale>0) kpisRow.appendChild(makeKpi(fmt(o.reg2sale,2)+'%','Reg→Sale','var(--orange)')); kpisRow.appendChild(makeKpi('$'+fmt(o.cps,2),'CPS','var(--orange)')); }
     headLeft.appendChild(kpisRow);
-
-    // Right metric: EPC for all offers; PPS also shows CR below
-    const metricDiv = document.createElement('div');
-    metricDiv.className = 'offer-metric';
-    const metricVal = document.createElement('div');
-    metricVal.className = 'metric-val';
-    metricVal.style.color = topMetricColor;
-    metricVal.textContent = topMetricVal;
-    const metricLbl = document.createElement('div');
-    metricLbl.className = 'metric-lbl';
-    metricLbl.textContent = `Top EPC ▾`;
+    const metricDiv=document.createElement('div'); metricDiv.className='offer-metric';
+    const metricVal=document.createElement('div'); metricVal.className='metric-val'; metricVal.style.color=o.cpc>0?'var(--green)':'var(--muted)'; metricVal.textContent=o.cpc>0?`$${fmt(o.cpc,4)}`:'—';
+    const metricLbl=document.createElement('div'); metricLbl.className='metric-lbl'; metricLbl.textContent='Top EPC ▾';
     metricDiv.appendChild(metricVal);
-    if (isPPS && o.cr > 0) {
-      const crLine = document.createElement('div');
-      crLine.style.cssText = 'font-size:10px;color:var(--yellow);margin-top:2px;font-weight:600;';
-      crLine.textContent = fmt(o.cr,2)+'% CR';
-      metricDiv.appendChild(crLine);
-    }
+    if (isPPS&&o.cr>0) { const crLine=document.createElement('div'); crLine.style.cssText='font-size:10px;color:var(--yellow);margin-top:2px;font-weight:600;'; crLine.textContent=fmt(o.cr,2)+'% CR'; metricDiv.appendChild(crLine); }
     metricDiv.appendChild(metricLbl);
+    head.appendChild(headLeft); head.appendChild(metricDiv); card.appendChild(head);
 
-    head.appendChild(headLeft);
-    head.appendChild(metricDiv);
-    card.appendChild(head);
-
-    // Pages wrap
-    const pagesWrap = document.createElement('div');
-    pagesWrap.className = 'pages-wrap';
-    pagesWrap.id = 'pw-' + idx;
-
-    const offerKey = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-    const deviceWinners = (!activeDeviceType && !activeDeviceOS) ? getDeviceWinnerPages(code, offerKey) : {};
-
-    // Change 2 & 3: pages header — remove CPL CR / CPL columns; add Reg→Sale + CPS for sale goal data
-    // Change 5: rename "CPL CR" to "CR" — now just called "CR" for the conversion rate column
-    const hasSaleGoalInPages = hasSaleGoalData && o.pages.some(p => p.sales > 0);
-
-    // Columns: rank | page | clicks | convs | rev | epc | [cr% for pps] | [reg→sale + cps for sale goal]
-    const extraColCount = (isPPS ? 1 : 0) + (hasSaleGoalInPages ? 2 : 0);
-    const baseCols = '18px 1fr 52px 52px 64px 64px';
-    const extraCols = extraColCount > 0 ? (' ' + Array(extraColCount).fill('58px').join(' ')) : '';
-    const cols = `grid-template-columns:${baseCols}${extraCols}`;
-
-    const pagesHdr = document.createElement('div');
-    pagesHdr.className = 'pages-hdr';
-    pagesHdr.setAttribute('style', cols);
-
-    const hdrCells = ['', 'PAGE', 'CLICKS', 'CONVS', 'REV', 'EPC'];
-    if (isPPS) hdrCells.push('CR %');
-    // Change 5: "CR" column header (was "CPL CR") — now for reg→sale
-    if (hasSaleGoalInPages) { hdrCells.push('CR'); hdrCells.push('CPS'); }
-
-    hdrCells.forEach((txt, i) => {
-      const cell = document.createElement('div');
-      cell.textContent = txt;
-      if (i >= 2) cell.style.textAlign = 'right';
-      pagesHdr.appendChild(cell);
-    });
+    const pagesWrap=document.createElement('div'); pagesWrap.className='pages-wrap'; pagesWrap.id='pw-'+idx;
+    const offerKey=o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
+    const deviceWinners=(!activeDeviceType&&!activeDeviceOS)?getDeviceWinnerPages(code,offerKey):{};
+    const hasSaleGoalInPages=hasSaleGoalData&&o.pages.some(p=>p.sales>0);
+    const extraColCount=(isPPS?1:0)+(hasSaleGoalInPages?2:0);
+    const cols=`grid-template-columns:18px 1fr 52px 52px 64px 64px${extraColCount>0?' '+Array(extraColCount).fill('58px').join(' '):''}`;
+    const pagesHdr=document.createElement('div'); pagesHdr.className='pages-hdr'; pagesHdr.setAttribute('style',cols);
+    const hdrCells=['','PAGE','CLICKS','CONVS','REV','EPC']; if (isPPS) hdrCells.push('CR %'); if (hasSaleGoalInPages){hdrCells.push('CR');hdrCells.push('CPS');}
+    hdrCells.forEach((txt,i)=>{ const cell=document.createElement('div'); cell.textContent=txt; if(i>=2) cell.style.textAlign='right'; pagesHdr.appendChild(cell); });
     pagesWrap.appendChild(pagesHdr);
 
-    // Page rows
-    pages.forEach((p, pi) => {
-      const ri = pi === 0 ? 'r1' : pi === 1 ? 'r2' : pi === 2 ? 'r3' : 'rn';
-      const rLabel = pi < 3 ? (pi+1) : '·';
-
-      const row = document.createElement('div');
-      row.className = 'page-row' + (pi === 0 ? ' top-row' : '');
-      row.setAttribute('style', cols);
-
-      const rankBadge = document.createElement('div');
-      rankBadge.className = 'rank-badge ' + ri;
-      rankBadge.textContent = rLabel;
-      row.appendChild(rankBadge);
-
-      const pageName = document.createElement('div');
-      pageName.className = 'page-name';
-      pageName.title = p.page;
-      pageName.textContent = p.page;
-
-      const winners = deviceWinners[p.page];
-      if (winners && winners.length > 0) {
-        const iconsWrap = document.createElement('span');
-        iconsWrap.className = 'device-winner-icons';
-        winners.forEach(w => {
-          const ico = document.createElement('span');
-          ico.className = 'dw-icon';
-          ico.title = `Best EPC: ${w.label}`;
-          ico.style.color = w.color;
-          ico.innerHTML = w.svg;
-          iconsWrap.appendChild(ico);
-        });
-        pageName.appendChild(iconsWrap);
-      }
-
+    pages.forEach((p,pi)=>{
+      const ri=pi===0?'r1':pi===1?'r2':pi===2?'r3':'rn',rLabel=pi<3?(pi+1):'·';
+      const row=document.createElement('div'); row.className='page-row'+(pi===0?' top-row':''); row.setAttribute('style',cols);
+      const rankBadge=document.createElement('div'); rankBadge.className='rank-badge '+ri; rankBadge.textContent=rLabel; row.appendChild(rankBadge);
+      const pageName=document.createElement('div'); pageName.className='page-name'; pageName.title=p.page; pageName.textContent=p.page;
+      const winners=deviceWinners[p.page];
+      if (winners&&winners.length>0) { const iconsWrap=document.createElement('span'); iconsWrap.className='device-winner-icons'; winners.forEach(w=>{ const ico=document.createElement('span'); ico.className='dw-icon'; ico.title=`Best EPC: ${w.label}`; ico.style.color=w.color; ico.innerHTML=w.svg; iconsWrap.appendChild(ico); }); pageName.appendChild(iconsWrap); }
       row.appendChild(pageName);
-
-      const clicksCell = document.createElement('div');
-      clicksCell.className = 'pnum';
-      clicksCell.textContent = fmtNum(p.clicks);
-      row.appendChild(clicksCell);
-
-      const convsCell = document.createElement('div');
-      convsCell.className = 'pnum';
-      convsCell.textContent = p.conversions;
-      row.appendChild(convsCell);
-
-      const revCell = document.createElement('div');
-      revCell.className = 'pnum';
-      revCell.style.color = p.revenue > 0 ? 'var(--green)' : 'var(--muted)';
-      revCell.textContent = p.revenue > 0 ? '$' + fmt(p.revenue, 2) : '—';
-      row.appendChild(revCell);
-
-      // EPC
-      const epcCell = document.createElement('div');
-      epcCell.className = 'pnum';
-      const epcSpan = document.createElement('span');
-      epcSpan.style.color = p.cpc > 0 ? 'var(--green)' : 'var(--muted)';
-      epcSpan.textContent = p.cpc > 0 ? '$' + fmt(p.cpc, 4) : '—';
-      epcCell.appendChild(epcSpan);
-      row.appendChild(epcCell);
-
-      // CR % column for PPS
-      if (isPPS) {
-        const crCell = document.createElement('div');
-        crCell.className = 'pnum';
-        const crSpan = document.createElement('span');
-        crSpan.style.color = p.cr > 0 ? 'var(--yellow)' : 'var(--muted)';
-        crSpan.textContent = p.cr > 0 ? fmt(p.cr, 2) + '%' : '—';
-        crCell.appendChild(crSpan);
-        row.appendChild(crCell);
-      }
-
-      // Change 3 & 5: Reg→Sale (renamed "CR") + CPS columns (replaces CPL CR + CPL)
+      const clicksCell=document.createElement('div'); clicksCell.className='pnum'; clicksCell.textContent=fmtNum(p.clicks); row.appendChild(clicksCell);
+      const convsCell=document.createElement('div'); convsCell.className='pnum'; convsCell.textContent=p.conversions; row.appendChild(convsCell);
+      const revCell=document.createElement('div'); revCell.className='pnum'; revCell.style.color=p.revenue>0?'var(--green)':'var(--muted)'; revCell.textContent=p.revenue>0?'$'+fmt(p.revenue,2):'—'; row.appendChild(revCell);
+      const epcCell=document.createElement('div'); epcCell.className='pnum'; const epcSpan=document.createElement('span'); epcSpan.style.color=p.cpc>0?'var(--green)':'var(--muted)'; epcSpan.textContent=p.cpc>0?'$'+fmt(p.cpc,4):'—'; epcCell.appendChild(epcSpan); row.appendChild(epcCell);
+      if (isPPS) { const crCell=document.createElement('div'); crCell.className='pnum'; const crSpan=document.createElement('span'); crSpan.style.color=p.cr>0?'var(--yellow)':'var(--muted)'; crSpan.textContent=p.cr>0?fmt(p.cr,2)+'%':'—'; crCell.appendChild(crSpan); row.appendChild(crCell); }
       if (hasSaleGoalInPages) {
-        // "CR" column = reg2sale rate (sales / cpl_convs)
-        const reg2saleCell = document.createElement('div');
-        reg2saleCell.className = 'pnum';
-        const reg2saleSpan = document.createElement('span');
-        reg2saleSpan.style.color = p.reg2sale > 0 ? 'var(--orange)' : 'var(--muted)';
-        reg2saleSpan.textContent = p.reg2sale > 0 ? fmt(p.reg2sale, 2) + '%' : '—';
-        reg2saleCell.appendChild(reg2saleSpan);
-        row.appendChild(reg2saleCell);
-
-        const cpsCell = document.createElement('div');
-        cpsCell.className = 'pnum';
-        const cpsSpan = document.createElement('span');
-        cpsSpan.style.color = p.cps > 0 ? 'var(--orange)' : 'var(--muted)';
-        cpsSpan.textContent = p.cps > 0 ? '$' + fmt(p.cps, 2) : '—';
-        cpsCell.appendChild(cpsSpan);
-        row.appendChild(cpsCell);
+        const r2sCell=document.createElement('div'); r2sCell.className='pnum'; const r2sSpan=document.createElement('span'); r2sSpan.style.color=p.reg2sale>0?'var(--orange)':'var(--muted)'; r2sSpan.textContent=p.reg2sale>0?fmt(p.reg2sale,2)+'%':'—'; r2sCell.appendChild(r2sSpan); row.appendChild(r2sCell);
+        const cpsCell=document.createElement('div'); cpsCell.className='pnum'; const cpsSpan=document.createElement('span'); cpsSpan.style.color=p.cps>0?'var(--orange)':'var(--muted)'; cpsSpan.textContent=p.cps>0?'$'+fmt(p.cps,2):'—'; cpsCell.appendChild(cpsSpan); row.appendChild(cpsCell);
       }
-
       pagesWrap.appendChild(row);
     });
 
@@ -2583,47 +2175,29 @@ function renderRight(code) {
     panel.appendChild(card);
   });
 
-  // auto-open first card
-  const fp = document.getElementById('pw-0');
-  if (fp) fp.classList.add('open');
+  const fp=document.getElementById('pw-0'); if (fp) fp.classList.add('open');
 }
 
 function togglePages(idx) {
-  const el = document.getElementById('pw-' + idx);
-  if (el) el.classList.toggle('open');
+  const el=document.getElementById('pw-'+idx); if (el) el.classList.toggle('open');
 }
 
 // ── Theme ──
-function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-}
-
+function getSystemTheme() { return window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'; }
 function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const icon = theme === 'light' ? '☾' : '☀';
-  const title = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
-  ['uploadThemeBtn', 'appThemeBtn'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) { btn.textContent = icon; btn.title = title; }
-  });
-  localStorage.setItem('aa-theme', theme);
+  document.documentElement.setAttribute('data-theme',theme);
+  const icon=theme==='light'?'☾':'☀',title=theme==='light'?'Switch to dark theme':'Switch to light theme';
+  ['uploadThemeBtn','appThemeBtn'].forEach(id=>{ const btn=document.getElementById(id); if(btn){btn.textContent=icon;btn.title=title;} });
+  localStorage.setItem('aa-theme',theme);
+  // Re-render charts with new theme colors
+  if (currentViewMode==='charts' && selectedAffiliate && HAS_DATES) {
+    setTimeout(()=>renderChartsView(),50);
+  }
 }
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || getSystemTheme();
-  applyTheme(current === 'dark' ? 'light' : 'dark');
-}
-
+function toggleTheme() { const current=document.documentElement.getAttribute('data-theme')||getSystemTheme(); applyTheme(current==='dark'?'light':'dark'); }
 (function initTheme() {
-  const saved = localStorage.getItem('aa-theme');
-  const theme = saved || getSystemTheme();
-  applyTheme(theme);
-
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-    if (!localStorage.getItem('aa-theme')) {
-      applyTheme(e.matches ? 'light' : 'dark');
-    }
-  });
+  const saved=localStorage.getItem('aa-theme'),theme=saved||getSystemTheme(); applyTheme(theme);
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{ if(!localStorage.getItem('aa-theme')) applyTheme(e.matches?'light':'dark'); });
 }());
 </script>
 </body>
