@@ -202,7 +202,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 24px 32px;
-  width: 520px;
+  width: 560px;
   display: none;
 }
 
@@ -839,11 +839,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* Dimension selector tabs */
-.dim-tabs {
-  display: flex;
-  gap: 2px;
-}
+.dim-tabs { display: flex; gap: 2px; }
 
 .dim-tab {
   flex: 1;
@@ -895,11 +891,7 @@ body {
   white-space: nowrap;
 }
 
-/* Chart main area */
-.charts-right {
-  overflow-y: auto;
-  padding: 20px 24px;
-}
+.charts-right { overflow-y: auto; padding: 20px 24px; }
 
 .chart-section-title {
   font-family: 'Syne', sans-serif;
@@ -910,11 +902,7 @@ body {
   margin-bottom: 4px;
 }
 
-.chart-section-sub {
-  font-size: 10px;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
+.chart-section-sub { font-size: 10px; color: var(--muted); margin-bottom: 20px; }
 
 .chart-card {
   background: var(--surface);
@@ -938,35 +926,7 @@ body {
   color: var(--logo-color);
 }
 
-.chart-legend {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-.chart-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 9px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: opacity .15s;
-  user-select: none;
-}
-.chart-legend-item:hover { color: var(--text); }
-.chart-legend-item.hidden { opacity: 0.35; }
-
-.legend-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.chart-canvas-wrap {
-  position: relative;
-  height: 200px;
-}
+.chart-canvas-wrap { position: relative; height: 200px; }
 
 .chart-summary-chips {
   display: flex;
@@ -990,33 +950,236 @@ body {
 .summary-chip .sv { font-size: 12px; font-weight: 700; color: var(--logo-color); }
 .summary-chip .sl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 
-/* ─── TABLE VIEW (charts mode, data table) ─── */
-.chart-data-table {
+.chart-data-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
+.chart-data-table th { padding: 4px 8px; text-align: right; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); border-bottom: 1px solid var(--border); }
+.chart-data-table th:first-child { text-align: left; }
+.chart-data-table td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text); }
+.chart-data-table td:first-child { text-align: left; font-weight: 600; }
+.chart-data-table tr:last-child td { border-bottom: none; }
+.chart-data-table tr:hover td { background: var(--surface2); }
+
+/* ─── SOURCE ANALYTICS VIEW ─── */
+#sourceView {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: column;
+}
+#sourceView.active { display: flex; }
+
+.source-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+.source-left {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.source-offer-list { overflow-y: auto; flex: 1; }
+
+.source-offer-item {
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.source-offer-item:hover { background: var(--surface2); }
+.source-offer-item.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 12px; }
+
+.source-offer-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+.source-offer-item.selected .source-offer-name { color: var(--accent); }
+.source-offer-meta { font-size: 9px; color: var(--muted); display: flex; gap: 8px; }
+
+.source-right { overflow-y: auto; padding: 20px 22px; }
+
+/* Source table styles */
+.source-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.source-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10px;
-  margin-top: 10px;
+  font-size: 11px;
 }
-.chart-data-table th {
-  padding: 4px 8px;
+
+.source-table thead tr {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.source-table th {
+  padding: 7px 12px;
   text-align: right;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .07em;
   color: var(--muted);
-  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color .12s;
 }
-.chart-data-table th:first-child { text-align: left; }
-.chart-data-table td {
-  padding: 4px 8px;
+.source-table th:hover { color: var(--text); }
+.source-table th.sort-active { color: var(--accent); }
+.source-table th:first-child,
+.source-table th:nth-child(2) { text-align: left; }
+.source-table th .sort-arrow { margin-left: 3px; opacity: 0.5; font-size: 8px; }
+.source-table th.sort-active .sort-arrow { opacity: 1; }
+
+.source-table td {
+  padding: 6px 12px;
   text-align: right;
   border-bottom: 1px solid var(--border);
   color: var(--text);
+  font-size: 11px;
 }
-.chart-data-table td:first-child { text-align: left; font-weight: 600; }
-.chart-data-table tr:last-child td { border-bottom: none; }
-.chart-data-table tr:hover td { background: var(--surface2); }
+.source-table td:first-child { text-align: left; }
+.source-table td:nth-child(2) { text-align: left; font-size: 10px; color: var(--muted); }
+.source-table tr:last-child td { border-bottom: none; }
+.source-table tr:hover td { background: var(--surface2); }
+.source-table tr.src-top td { background: rgba(61,139,255,0.04); }
+
+.source-id-main {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+.source-id-alt {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 1px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.src-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.src-badge-cps { background: rgba(34,217,138,0.15); color: var(--green); }
+.src-badge-rev { background: rgba(61,139,255,0.12); color: var(--accent); }
+.src-badge-clk { background: rgba(240,192,64,0.12); color: var(--yellow); }
+.src-badge-nosale { background: rgba(74,90,120,0.15); color: var(--muted); }
+
+.no-sources-msg {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.source-hdr-area {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.source-hdr-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--logo-color);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.source-hdr-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+
+.source-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.src-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 9px;
+  color: var(--muted);
+}
+.src-legend-item { display: flex; align-items: center; gap: 5px; }
+.src-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Source search */
+.source-search-bar {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.source-search-bar input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 5px 9px;
+  outline: none;
+}
+.source-search-bar input:focus { border-color: var(--accent); }
+.source-search-bar input::placeholder { color: var(--muted); }
+
+/* Replaced source indicator */
+.replaced-src-badge {
+  display: inline-block;
+  font-size: 8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.25);
+  color: var(--accent2);
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+
+/* Sorting group badges inside source table */
+.src-group-sep {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+  color: var(--muted);
+  padding: 5px 12px 3px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
 </style>
 </head>
 <body>
@@ -1032,7 +1195,7 @@ body {
     <div class="upload-sub">
       Supports <span class="hl">.xlsx</span> and <span class="hl">.csv</span> exports<br>
       Must contain columns: Affiliate Id, Flow Id, Offer, Clicks, Conversions, Revenue, Offer Page, Country<br>
-      Optional: <span class="hl">Period</span> (date) column enables daily trend charts
+      Optional: <span class="hl">Period</span> (date), <span class="hl">Source</span>, <span class="hl">Replaced Source</span> columns
     </div>
     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
     <div class="upload-error" id="uploadError"></div>
@@ -1043,8 +1206,6 @@ body {
     <span class="fmt-pill active">XLSX</span>
     <span class="fmt-pill active">XLS</span>
     <span class="fmt-pill active">CSV</span>
-    <span style="color:var(--dim)">·</span>
-    <span>standard affiliate network exports</span>
   </div>
 
   <div class="mapping-card" id="mappingCard">
@@ -1075,10 +1236,13 @@ body {
   <!-- Affiliate tabs -->
   <div class="affiliate-tabs-bar" id="affiliateTabs"></div>
 
-  <!-- View mode: Analytics / Charts -->
+  <!-- View mode tabs -->
   <div class="view-mode-bar" id="viewModeBar">
     <div class="vm-tab active" id="vmTabAnalytics" onclick="switchViewMode('analytics')">
       <span class="vm-icon">◎</span> Analytics
+    </div>
+    <div class="vm-tab" id="vmTabSource" onclick="switchViewMode('source')">
+      <span class="vm-icon">⊞</span> Source Analytics
     </div>
     <div class="vm-tab" id="vmTabCharts" onclick="switchViewMode('charts')">
       <span class="vm-icon">⟋</span> Daily Charts
@@ -1087,7 +1251,6 @@ body {
 
   <!-- ANALYTICS VIEW -->
   <div id="analyticsView" style="display:flex;flex:1;overflow:hidden;flex-direction:column;">
-    <!-- Flow tabs -->
     <div class="flow-tabs-bar" id="flowTabs"></div>
     <div class="main-layout">
       <div class="left-panel">
@@ -1110,10 +1273,34 @@ body {
     </div>
   </div>
 
+  <!-- SOURCE ANALYTICS VIEW -->
+  <div id="sourceView">
+    <div class="source-layout">
+      <!-- Left: offer list -->
+      <div class="source-left">
+        <div class="panel-hdr">
+          <h2>Offers</h2>
+          <span class="count-badge" id="srcOfferBadge">—</span>
+        </div>
+        <div class="source-search-bar">
+          <input type="text" id="srcOfferSearch" placeholder="Search offer…" maxlength="100" autocomplete="off">
+        </div>
+        <div class="source-offer-list" id="srcOfferList"></div>
+      </div>
+      <!-- Right: source table -->
+      <div class="source-right" id="srcRight">
+        <div class="empty-state">
+          <div class="empty-icon">⊞</div>
+          <div class="empty-text">Select an offer to view sources</div>
+          <div style="color:var(--muted);font-size:11px">Sources sorted by CPS (lower = better)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CHARTS VIEW -->
   <div id="chartsView">
     <div class="charts-layout">
-      <!-- Left: dimension selector -->
       <div class="charts-left">
         <div class="charts-left-hdr">
           <h2>Dimension</h2>
@@ -1126,7 +1313,6 @@ body {
         </div>
         <div class="dim-list" id="dimList"></div>
       </div>
-      <!-- Right: charts -->
       <div class="charts-right" id="chartsRight"></div>
     </div>
   </div>
@@ -1145,8 +1331,10 @@ function sanitize(str) {
 
 // ── State ──
 let FULL_DATA = {};
-let DAILY_DATA = {}; // daily[affiliate][flow][country][offerKey][date] = {clicks,conversions,revenue}
+let DAILY_DATA = {};
+let SOURCE_DATA = {}; // SOURCE_DATA[affId][offerKey] = { sources: { sourceId: { source, replacedSource, clicks, conversions, revenue, sales, cpl_convs } } }
 let HAS_DATES = false;
+let HAS_SOURCES = false;
 let selectedAffiliate = null;
 let selectedFlow = null;
 let selectedCountry = null;
@@ -1160,41 +1348,49 @@ let activeDeviceType = null;
 let activeDeviceOS = null;
 let currentViewMode = 'analytics';
 
+// Source Analytics state
+let srcSelectedOfferKey = null;
+let srcOfferSearchQuery = '';
+
 // Charts state
-let chartDimension = 'overall'; // overall | flow | geo | offer
+let chartDimension = 'overall';
 let chartSelectedKey = null;
 let chartInstances = {};
 
 const FIELDS = [
-  { key: 'affiliate_id', label: 'Affiliate ID',  optional: false },
-  { key: 'flow_id',      label: 'Flow ID',       optional: false },
-  { key: 'offer_id',     label: 'Offer ID',      optional: true  },
-  { key: 'offer_name',   label: 'Offer Name',    optional: false },
-  { key: 'clicks',       label: 'Clicks',        optional: false },
-  { key: 'conversions',  label: 'Conversions',   optional: false },
-  { key: 'revenue',      label: 'Revenue',       optional: false },
-  { key: 'offer_page',   label: 'Offer Page',    optional: false },
-  { key: 'country',      label: 'Country/GEO',   optional: false },
-  { key: 'date',         label: 'Date/Period',   optional: true  },
-  { key: 'device_type',  label: 'Device Type',   optional: true  },
-  { key: 'device_os',    label: 'Device OS',     optional: true  },
-  { key: 'goal',         label: 'Goal',          optional: true  },
+  { key: 'affiliate_id',    label: 'Affiliate ID',       optional: false },
+  { key: 'flow_id',         label: 'Flow ID',            optional: false },
+  { key: 'offer_id',        label: 'Offer ID',           optional: true  },
+  { key: 'offer_name',      label: 'Offer Name',         optional: false },
+  { key: 'clicks',          label: 'Clicks',             optional: false },
+  { key: 'conversions',     label: 'Conversions',        optional: false },
+  { key: 'revenue',         label: 'Revenue',            optional: false },
+  { key: 'offer_page',      label: 'Offer Page',         optional: false },
+  { key: 'country',         label: 'Country/GEO',        optional: false },
+  { key: 'date',            label: 'Date/Period',        optional: true  },
+  { key: 'device_type',     label: 'Device Type',        optional: true  },
+  { key: 'device_os',       label: 'Device OS',          optional: true  },
+  { key: 'goal',            label: 'Goal',               optional: true  },
+  { key: 'source',          label: 'Source',             optional: true  },
+  { key: 'replaced_source', label: 'Replaced Source',    optional: true  },
 ];
 
 const AUTO_MATCH = {
-  affiliate_id: ['affiliate id','affiliateid','affiliate_id','partner id','partnerid','partner'],
-  flow_id:      ['flow id','flowid','flow_id','flow'],
-  offer_id:     ['offer id','offerid','offer_id','id'],
-  offer_name:   ['offer name','offername','offer_name','offer','name','campaign'],
-  clicks:       ['clicks','click','clk','visits'],
-  conversions:  ['conversions','conversion','convs','conv','leads','actions'],
-  revenue:      ['revenue','rev','earnings','income','payout','amount'],
-  offer_page:   ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
-  country:      ['country','geo','country code','countrycode','country_code'],
-  date:         ['period','date','day','report date','reportdate'],
-  device_type:  ['device type','devicetype','device_type','device','platform type'],
-  device_os:    ['device os','deviceos','device_os','os','operating system','platform os'],
-  goal:         ['goal','goal name','goalname','goal_name','conversion type','action type'],
+  affiliate_id:    ['affiliate id','affiliateid','affiliate_id','partner id','partnerid','partner'],
+  flow_id:         ['flow id','flowid','flow_id','flow'],
+  offer_id:        ['offer id','offerid','offer_id','id'],
+  offer_name:      ['offer name','offername','offer_name','offer','name','campaign'],
+  clicks:          ['clicks','click','clk','visits'],
+  conversions:     ['conversions','conversion','convs','conv','leads','actions'],
+  revenue:         ['revenue','rev','earnings','income','payout','amount'],
+  offer_page:      ['offer page','offerpage','offer_page','page','landing page','lp','creative'],
+  country:         ['country','geo','country code','countrycode','country_code'],
+  date:            ['period','date','day','report date','reportdate'],
+  device_type:     ['device type','devicetype','device_type','device','platform type'],
+  device_os:       ['device os','deviceos','device_os','os','operating system','platform os'],
+  goal:            ['goal','goal name','goalname','goal_name','conversion type','action type'],
+  source:          ['source','src','traffic source','trafficsource'],
+  replaced_source: ['replaced source','replacedsource','replaced_source','original source','originalsource'],
 };
 
 // ── Upload ──
@@ -1217,9 +1413,10 @@ function resetUpload() {
   document.getElementById('mappingCard').style.display = 'none';
   document.getElementById('uploadError').style.display = 'none';
   fileInput.value = '';
-  parsedRows = []; detectedColumns = []; FULL_DATA = {}; DAILY_DATA = {};
+  parsedRows = []; detectedColumns = []; FULL_DATA = {}; DAILY_DATA = {}; SOURCE_DATA = {};
   selectedAffiliate = null; selectedFlow = null; selectedCountry = null;
-  searchQuery = ''; HAS_DATES = false;
+  searchQuery = ''; HAS_DATES = false; HAS_SOURCES = false;
+  srcSelectedOfferKey = null; srcOfferSearchQuery = '';
   destroyAllCharts();
 }
 
@@ -1307,7 +1504,7 @@ function buildAndLaunch() {
   launchApp();
 }
 
-function safeNum(val, fn) {
+function safeNum(val) {
   const n = parseFloat(val);
   if (isNaN(n) || !isFinite(n) || n < 0) return 0;
   return n;
@@ -1316,7 +1513,6 @@ function safeNum(val, fn) {
 function normalizeDate(raw) {
   if (!raw) return null;
   const s = String(raw).trim();
-  // Try YYYY.MM.DD, YYYY-MM-DD, YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY
   let m;
   if ((m = s.match(/^(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})$/))) return `${m[1]}-${m[2]}-${m[3]}`;
   if ((m = s.match(/^(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})$/))) return `${m[3]}-${m[2]}-${m[1]}`;
@@ -1327,13 +1523,17 @@ function normalizeDate(raw) {
 function buildData(rows, m, ppsKw) {
   const agg = Object.create(null);
   const dailyAgg = Object.create(null);
+  const srcAgg = Object.create(null); // srcAgg[affId][offerKey][combinedSrcKey] = {...}
   const hasGoal = !!m.goal;
   const hasDate = !!m.date;
+  const hasSrc = !!m.source;
+  const hasReplSrc = !!m.replaced_source;
   HAS_DATES = false;
+  HAS_SOURCES = false;
 
   const FORBIDDEN_KEYS = new Set(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty']);
   const isSafeKey = k => k.length > 0 && !FORBIDDEN_KEYS.has(k);
-  const isSaleGoal = g => g.toLowerCase().replace(/\s+/g,'') === 'sale' || g.toLowerCase().trim() === 'sale';
+  const isSaleGoal = g => g.toLowerCase().replace(/\s+/g,'') === 'sale';
 
   rows.forEach(row => {
     const affiliateId = (row[m.affiliate_id]||'').toString().trim().slice(0,128);
@@ -1347,16 +1547,18 @@ function buildData(rows, m, ppsKw) {
     const deviceOS    = m.device_os   ? (row[m.device_os]||'unknown').toString().trim().slice(0,64) : null;
     const goalRaw     = hasGoal ? (row[m.goal]||'').toString().trim().slice(0,128) : '';
     const dateRaw     = hasDate ? normalizeDate(row[m.date]) : null;
+    const sourceRaw   = hasSrc ? (row[m.source]||'').toString().trim().slice(0,256) : '';
+    const replSrcRaw  = hasReplSrc ? (row[m.replaced_source]||'').toString().trim().slice(0,256) : '';
 
     if (!isSafeKey(affiliateId) || !isSafeKey(flowId) || !isSafeKey(country)) return;
-    const clicks = safeNum(row[m.clicks],'clicks');
-    const conversions = safeNum(row[m.conversions],'conversions');
-    const revenue = safeNum(row[m.revenue],'revenue');
+    const clicks = safeNum(row[m.clicks]);
+    const conversions = safeNum(row[m.conversions]);
+    const revenue = safeNum(row[m.revenue]);
     const isPPS = offerName.toLowerCase().includes(ppsKw);
     const isSale = hasGoal && goalRaw && isSaleGoal(goalRaw);
     const isCPL = hasGoal && goalRaw && !isSaleGoal(goalRaw);
 
-    // ── Regular aggregation (existing logic) ──
+    // ── Regular aggregation ──
     if (!agg[affiliateId]) agg[affiliateId] = {};
     if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
     const flowData = agg[affiliateId][flowId];
@@ -1403,9 +1605,33 @@ function buildData(rows, m, ppsKw) {
       const DD2 = dailyAgg[affiliateId][flowId][country][offerKey][dateRaw];
       DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
     }
+
+    // ── Source aggregation ──
+    if (hasSrc && sourceRaw && isSafeKey(sourceRaw)) {
+      HAS_SOURCES = true;
+      if (!srcAgg[affiliateId]) srcAgg[affiliateId] = {};
+      if (!srcAgg[affiliateId][offerKey]) srcAgg[affiliateId][offerKey] = {
+        offer_id: offerId, offer_name: offerName, is_pps: isPPS, has_goal_data: hasGoal, sources: {}
+      };
+      // Use source as key; also store replacedSource if present
+      const srcKey = sourceRaw;
+      if (!srcAgg[affiliateId][offerKey].sources[srcKey]) {
+        srcAgg[affiliateId][offerKey].sources[srcKey] = {
+          source: sourceRaw,
+          replaced_source: replSrcRaw || null,
+          clicks: 0, conversions: 0, revenue: 0, sales: 0, cpl_convs: 0
+        };
+      } else if (replSrcRaw && !srcAgg[affiliateId][offerKey].sources[srcKey].replaced_source) {
+        srcAgg[affiliateId][offerKey].sources[srcKey].replaced_source = replSrcRaw;
+      }
+      const S = srcAgg[affiliateId][offerKey].sources[srcKey];
+      S.clicks += clicks; S.conversions += conversions; S.revenue += revenue;
+      if (isSale) S.sales += conversions;
+      if (isCPL) S.cpl_convs += conversions;
+    }
   });
 
-  // Build FULL_DATA (same as before)
+  // Build FULL_DATA
   FULL_DATA = {};
   for (const [affId, flows] of Object.entries(agg)) {
     FULL_DATA[affId] = {};
@@ -1425,8 +1651,40 @@ function buildData(rows, m, ppsKw) {
     }
   }
 
-  // Build DAILY_DATA: flatten to daily timeseries
   DAILY_DATA = dailyAgg;
+
+  // Build SOURCE_DATA — flatten with computed metrics per source
+  SOURCE_DATA = {};
+  for (const [affId, offerMap] of Object.entries(srcAgg)) {
+    SOURCE_DATA[affId] = {};
+    for (const [offerKey, offerData] of Object.entries(offerMap)) {
+      const sources = Object.values(offerData.sources).map(s => {
+        const cr = s.clicks > 0 ? (s.conversions / s.clicks * 100) : 0;
+        const epc = s.clicks > 0 ? (s.revenue / s.clicks) : 0;
+        const sales = s.sales || 0;
+        const cpl_convs = s.cpl_convs || 0;
+        const reg2sale = (cpl_convs > 0 && sales > 0) ? (sales / cpl_convs * 100) : 0;
+        const cps = sales > 0 ? (s.revenue / sales) : 0;
+        return {
+          source: s.source,
+          replaced_source: s.replaced_source || null,
+          clicks: s.clicks, conversions: s.conversions, revenue: s.revenue,
+          sales, cpl_convs,
+          cr: parseFloat(cr.toFixed(4)),
+          epc: parseFloat(epc.toFixed(6)),
+          reg2sale: parseFloat(reg2sale.toFixed(4)),
+          cps: parseFloat(cps.toFixed(4))
+        };
+      });
+      SOURCE_DATA[affId][offerKey] = {
+        offer_id: offerData.offer_id,
+        offer_name: offerData.offer_name,
+        is_pps: offerData.is_pps,
+        has_goal_data: offerData.has_goal_data,
+        sources
+      };
+    }
+  }
 }
 
 function flattenOffers(offersObj) {
@@ -1466,7 +1724,10 @@ function launchApp() {
   let totalClicks=0,totalRevenue=0,totalConversions=0;
   for (const affId of Object.keys(FULL_DATA)) { const s=getAffiliateStats(affId); totalClicks+=s.clicks; totalRevenue+=s.revenue; totalConversions+=s.conversions; }
   const totalAffiliates = Object.keys(FULL_DATA).length;
-  document.getElementById('topMeta').textContent = `${totalAffiliates} affiliate${totalAffiliates!==1?'s':''}${HAS_DATES?' · daily charts available':''}`;
+  const metaParts = [`${totalAffiliates} affiliate${totalAffiliates!==1?'s':''}`];
+  if (HAS_DATES) metaParts.push('daily charts available');
+  if (HAS_SOURCES) metaParts.push('source analytics available');
+  document.getElementById('topMeta').textContent = metaParts.join(' · ');
 
   const topStats = document.getElementById('topStats');
   topStats.innerHTML = '';
@@ -1475,12 +1736,16 @@ function launchApp() {
   topStats.appendChild(makeStat(totalConversions.toLocaleString(),'Convs',null));
   topStats.appendChild(makeStat(totalRevenue>0?'$'+totalRevenue.toFixed(2):'—','Revenue','var(--green)'));
 
-  // Show/hide Charts tab based on date availability
   const vmCharts = document.getElementById('vmTabCharts');
   if (!HAS_DATES) { vmCharts.style.opacity='0.35'; vmCharts.style.pointerEvents='none'; vmCharts.title='No date/period column detected'; }
   else { vmCharts.style.opacity=''; vmCharts.style.pointerEvents=''; vmCharts.title=''; }
 
+  const vmSource = document.getElementById('vmTabSource');
+  if (!HAS_SOURCES) { vmSource.style.opacity='0.35'; vmSource.style.pointerEvents='none'; vmSource.title='No source column detected'; }
+  else { vmSource.style.opacity=''; vmSource.style.pointerEvents=''; vmSource.title=''; }
+
   document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.slice(0,100); renderCountryList(); });
+  document.getElementById('srcOfferSearch').addEventListener('input', e => { srcOfferSearchQuery = e.target.value.slice(0,100); renderSrcOfferList(); });
 
   renderAffiliateTabs();
   const topAff = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue)[0];
@@ -1491,11 +1756,14 @@ function launchApp() {
 function switchViewMode(mode) {
   currentViewMode = mode;
   document.getElementById('vmTabAnalytics').classList.toggle('active', mode==='analytics');
+  document.getElementById('vmTabSource').classList.toggle('active', mode==='source');
   document.getElementById('vmTabCharts').classList.toggle('active', mode==='charts');
   document.getElementById('analyticsView').style.display = mode==='analytics' ? 'flex' : 'none';
+  document.getElementById('sourceView').classList.toggle('active', mode==='source');
   const cv = document.getElementById('chartsView');
   cv.classList.toggle('active', mode==='charts');
   if (mode==='charts') renderChartsView();
+  if (mode==='source') renderSourceView();
 }
 
 // ── Affiliate Tabs ──
@@ -1518,11 +1786,13 @@ function renderAffiliateTabs() {
 function selectAffiliate(affId) {
   selectedAffiliate = affId;
   selectedFlow = null; selectedCountry = null; activeDeviceType = null; activeDeviceOS = null;
+  srcSelectedOfferKey = null;
   renderAffiliateTabs();
   renderFlowTabs();
   const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
   if (flows.length) selectFlow(flows[0]);
   if (currentViewMode==='charts') renderChartsView();
+  if (currentViewMode==='source') renderSourceView();
 }
 
 // ── Flow Tabs ──
@@ -1559,7 +1829,13 @@ function selectFlow(flowId) {
   renderCountryList();
   const topCountry = sortedCountries(flowData)[0];
   if (topCountry) selectCountry(topCountry[0]);
-  else { const rp=document.getElementById('rightPanel'); rp.innerHTML=''; const es=document.createElement('div'); es.className='empty-state'; const icon=document.createElement('div'); icon.className='empty-icon'; icon.textContent='◎'; const txt=document.createElement('div'); txt.className='empty-text'; txt.textContent='No data for this flow'; es.appendChild(icon); es.appendChild(txt); rp.appendChild(es); }
+  else {
+    const rp=document.getElementById('rightPanel'); rp.innerHTML='';
+    const es=document.createElement('div'); es.className='empty-state';
+    const icon=document.createElement('div'); icon.className='empty-icon'; icon.textContent='◎';
+    const txt=document.createElement('div'); txt.className='empty-text'; txt.textContent='No data for this flow';
+    es.appendChild(icon); es.appendChild(txt); rp.appendChild(es);
+  }
 }
 
 // ── Helpers ──
@@ -1632,15 +1908,320 @@ function selectCountry(code) {
   renderCountryList(); renderRight(code);
 }
 
-// ─────────────────── DAILY CHARTS ─────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// ── SOURCE ANALYTICS ──────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+
+function renderSourceView() {
+  if (!selectedAffiliate) return;
+  renderSrcOfferList();
+  if (srcSelectedOfferKey) {
+    renderSrcRight(srcSelectedOfferKey);
+  }
+}
+
+function getSrcOffers() {
+  if (!selectedAffiliate || !SOURCE_DATA[selectedAffiliate]) return [];
+  // Aggregate totals per offer for display in sidebar
+  return Object.entries(SOURCE_DATA[selectedAffiliate]).map(([key, o]) => {
+    const totClicks = o.sources.reduce((s,x)=>s+x.clicks,0);
+    const totRev = o.sources.reduce((s,x)=>s+x.revenue,0);
+    const totSales = o.sources.reduce((s,x)=>s+x.sales,0);
+    return { key, offer_name: o.offer_name, offer_id: o.offer_id, is_pps: o.is_pps, clicks: totClicks, revenue: totRev, sales: totSales, source_count: o.sources.length };
+  }).sort((a,b) => b.revenue - a.revenue || b.clicks - a.clicks);
+}
+
+function renderSrcOfferList() {
+  const offers = getSrcOffers();
+  const q = srcOfferSearchQuery.toLowerCase();
+  const filtered = q ? offers.filter(o => o.offer_name.toLowerCase().includes(q) || String(o.offer_id).includes(q)) : offers;
+
+  document.getElementById('srcOfferBadge').textContent = filtered.length + ' offers';
+  const list = document.getElementById('srcOfferList');
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    const msg = document.createElement('div'); msg.className='no-sources-msg'; msg.textContent = HAS_SOURCES ? 'No offers match search.' : 'No source data found.';
+    list.appendChild(msg); return;
+  }
+
+  filtered.forEach(o => {
+    const item = document.createElement('div');
+    item.className = 'source-offer-item' + (o.key === srcSelectedOfferKey ? ' selected' : '');
+    item.addEventListener('click', () => { srcSelectedOfferKey = o.key; renderSrcOfferList(); renderSrcRight(o.key); });
+
+    const name = document.createElement('div'); name.className = 'source-offer-name'; name.textContent = o.offer_name; item.appendChild(name);
+
+    const meta = document.createElement('div'); meta.className = 'source-offer-meta';
+    if (o.offer_id) { const idSpan=document.createElement('span'); idSpan.textContent='#'+o.offer_id; idSpan.style.color='var(--dim)'; meta.appendChild(idSpan); }
+    const srcSpan = document.createElement('span'); srcSpan.textContent = o.source_count + ' sources'; meta.appendChild(srcSpan);
+    const revSpan = document.createElement('span'); revSpan.textContent = fmtMoney(o.revenue); revSpan.style.color='var(--green)'; meta.appendChild(revSpan);
+    item.appendChild(meta);
+    list.appendChild(item);
+  });
+
+  // Auto-select first if nothing selected
+  if (!srcSelectedOfferKey && filtered.length > 0) {
+    srcSelectedOfferKey = filtered[0].key;
+    renderSrcOfferList();
+    renderSrcRight(filtered[0].key);
+  }
+}
+
+function sortSources(sources) {
+  // Group 1: has sales → sort by CPS asc (lower = better)
+  // Group 2: no sales but has revenue → sort by revenue desc
+  // Group 3: no revenue, no sales → sort by clicks desc
+  const withSales = sources.filter(s => s.sales > 0).sort((a,b) => a.cps - b.cps);
+  const withRevNoSales = sources.filter(s => s.sales === 0 && s.revenue > 0).sort((a,b) => b.revenue - a.revenue);
+  const noRevNoSales = sources.filter(s => s.sales === 0 && s.revenue === 0).sort((a,b) => b.clicks - a.clicks);
+  return { withSales, withRevNoSales, noRevNoSales };
+}
+
+function renderSrcRight(offerKey) {
+  const panel = document.getElementById('srcRight');
+  if (!selectedAffiliate || !SOURCE_DATA[selectedAffiliate] || !SOURCE_DATA[selectedAffiliate][offerKey]) {
+    panel.innerHTML = '<div class="empty-state"><div class="empty-icon">⊞</div><div class="empty-text">No source data for this offer</div></div>';
+    return;
+  }
+
+  const offerData = SOURCE_DATA[selectedAffiliate][offerKey];
+  const { sources } = offerData;
+  const hasSales = sources.some(s => s.sales > 0);
+  const hasGoalData = offerData.has_goal_data;
+  const hasReplacedSrc = sources.some(s => s.replaced_source);
+
+  panel.innerHTML = '';
+
+  // Header
+  const hdrArea = document.createElement('div'); hdrArea.className = 'source-hdr-area';
+  const title = document.createElement('div'); title.className = 'source-hdr-title'; title.textContent = offerData.offer_name; hdrArea.appendChild(title);
+
+  const subParts = [];
+  if (offerData.offer_id) subParts.push('#' + offerData.offer_id);
+  subParts.push(sources.length + ' sources');
+  const sub = document.createElement('div'); sub.className = 'source-hdr-sub'; sub.textContent = subParts.join(' · '); hdrArea.appendChild(sub);
+
+  // Summary chips
+  const chips = document.createElement('div'); chips.className = 'source-chips';
+  const totClicks = sources.reduce((s,x)=>s+x.clicks,0);
+  const totConvs = sources.reduce((s,x)=>s+x.conversions,0);
+  const totRev = sources.reduce((s,x)=>s+x.revenue,0);
+  const totSales = sources.reduce((s,x)=>s+x.sales,0);
+  const totCplConvs = sources.reduce((s,x)=>s+x.cpl_convs,0);
+
+  function makeChip(v,l,c) {
+    const ch=document.createElement('div'); ch.className='chip';
+    const cv=document.createElement('div'); cv.className='cv'; cv.textContent=v; if(c) cv.style.color=c;
+    const cl=document.createElement('div'); cl.className='cl'; cl.textContent=l;
+    ch.appendChild(cv); ch.appendChild(cl); return ch;
+  }
+  chips.appendChild(makeChip(fmtNum(totClicks),'Clicks',null));
+  chips.appendChild(makeChip(totConvs.toLocaleString(),'Convs',null));
+  chips.appendChild(makeChip(fmtMoney(totRev),'Revenue','var(--green)'));
+  if (totSales > 0) {
+    chips.appendChild(makeChip(totSales.toLocaleString(),'Sales','var(--orange)'));
+    const avgCps = totSales > 0 ? totRev / totSales : 0;
+    chips.appendChild(makeChip('$'+fmt(avgCps,2),'Avg CPS','var(--orange)'));
+    if (totCplConvs > 0) chips.appendChild(makeChip(fmt(totSales/totCplConvs*100,2)+'%','Reg→Sale','var(--orange)'));
+  }
+  chips.appendChild(makeChip(sources.length,'Sources',null));
+  hdrArea.appendChild(chips);
+
+  // Sorting legend
+  const legend = document.createElement('div'); legend.className = 'src-legend';
+  const legendItems = [
+    { color: 'var(--green)', label: 'Has sales → sorted by CPS ↑ (lower = better)' },
+    { color: 'var(--accent)', label: 'Revenue only → sorted by revenue ↓' },
+    { color: 'var(--muted)', label: 'No revenue → sorted by clicks ↓' },
+  ];
+  legendItems.forEach(li => {
+    const item = document.createElement('div'); item.className = 'src-legend-item';
+    const dot = document.createElement('div'); dot.className = 'src-legend-dot'; dot.style.background = li.color;
+    const lbl = document.createElement('span'); lbl.textContent = li.label;
+    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
+  });
+  hdrArea.appendChild(legend);
+  panel.appendChild(hdrArea);
+
+  // Sort sources into groups
+  const { withSales, withRevNoSales, noRevNoSales } = sortSources(sources);
+
+  // Build table
+  const tableWrap = document.createElement('div'); tableWrap.className = 'source-table-wrap';
+  const table = document.createElement('table'); table.className = 'source-table';
+
+  // Table header
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  const colDefs = [
+    { label: '#', key: 'rank', sortable: false },
+    { label: 'Source', key: 'source', sortable: false },
+    { label: 'Clicks', key: 'clicks', sortable: false },
+    { label: 'Convs', key: 'conversions', sortable: false },
+    { label: 'Revenue', key: 'revenue', sortable: false },
+    { label: 'EPC', key: 'epc', sortable: false },
+    { label: 'CR%', key: 'cr', sortable: false },
+    ...(hasSales ? [
+      { label: 'Sales', key: 'sales', sortable: false },
+      { label: 'Reg→Sale', key: 'reg2sale', sortable: false },
+      { label: 'CPS ↑', key: 'cps', sortable: false },
+    ] : []),
+  ];
+  colDefs.forEach((col, i) => {
+    const th = document.createElement('th');
+    if (i < 2) th.style.textAlign = 'left';
+    th.textContent = col.label;
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  function buildSourceRow(s, rank, groupType) {
+    const tr = document.createElement('tr');
+    if (rank === 1) tr.className = 'src-top';
+
+    // Rank cell
+    const rankTd = document.createElement('td'); rankTd.style.textAlign = 'left';
+    const rb = document.createElement('span'); rb.className = 'src-rank-badge';
+    if (groupType === 'sales') rb.classList.add('src-badge-cps');
+    else if (groupType === 'rev') rb.classList.add('src-badge-rev');
+    else if (groupType === 'clk') rb.classList.add('src-badge-clk');
+    else rb.classList.add('src-badge-nosale');
+    rb.textContent = rank <= 9 ? rank : '·';
+    rankTd.appendChild(rb);
+    tr.appendChild(rankTd);
+
+    // Source ID cell
+    const srcTd = document.createElement('td'); srcTd.style.textAlign = 'left';
+    const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.textContent = s.source;
+    srcTd.appendChild(srcMain);
+    if (s.replaced_source) {
+      const srcAlt = document.createElement('div'); srcAlt.className = 'source-id-alt';
+      srcAlt.textContent = s.replaced_source;
+      const badge = document.createElement('span'); badge.className = 'replaced-src-badge'; badge.textContent = 'ALT';
+      srcAlt.appendChild(badge);
+      srcTd.appendChild(srcAlt);
+    }
+    tr.appendChild(srcTd);
+
+    // Clicks
+    const clkTd = document.createElement('td'); clkTd.textContent = fmtNum(s.clicks); tr.appendChild(clkTd);
+
+    // Conversions
+    const convTd = document.createElement('td'); convTd.textContent = s.conversions; tr.appendChild(convTd);
+
+    // Revenue
+    const revTd = document.createElement('td');
+    revTd.textContent = s.revenue > 0 ? fmtMoney(s.revenue) : '—';
+    if (s.revenue > 0) revTd.style.color = 'var(--green)';
+    else revTd.style.color = 'var(--muted)';
+    tr.appendChild(revTd);
+
+    // EPC
+    const epcTd = document.createElement('td');
+    epcTd.textContent = s.epc > 0 ? '$'+fmt(s.epc, 4) : '—';
+    if (s.epc > 0) epcTd.style.color = 'var(--green)';
+    else epcTd.style.color = 'var(--muted)';
+    tr.appendChild(epcTd);
+
+    // CR
+    const crTd = document.createElement('td');
+    crTd.textContent = s.cr > 0 ? fmt(s.cr, 2)+'%' : '—';
+    if (s.cr > 0) crTd.style.color = 'var(--yellow)';
+    else crTd.style.color = 'var(--muted)';
+    tr.appendChild(crTd);
+
+    if (hasSales) {
+      // Sales
+      const salesTd = document.createElement('td');
+      salesTd.textContent = s.sales > 0 ? s.sales.toLocaleString() : '—';
+      if (s.sales > 0) salesTd.style.color = 'var(--orange)';
+      else salesTd.style.color = 'var(--muted)';
+      tr.appendChild(salesTd);
+
+      // Reg→Sale
+      const r2sTd = document.createElement('td');
+      r2sTd.textContent = s.reg2sale > 0 ? fmt(s.reg2sale, 2)+'%' : '—';
+      if (s.reg2sale > 0) r2sTd.style.color = 'var(--orange)';
+      else r2sTd.style.color = 'var(--muted)';
+      tr.appendChild(r2sTd);
+
+      // CPS (lower = better)
+      const cpsTd = document.createElement('td');
+      if (s.cps > 0) {
+        cpsTd.textContent = '$'+fmt(s.cps, 2);
+        // Color by relative CPS — will be highlighted as good/bad
+        cpsTd.style.fontWeight = '600';
+        cpsTd.style.color = 'var(--accent)';
+      } else {
+        cpsTd.textContent = '—';
+        cpsTd.style.color = 'var(--muted)';
+      }
+      tr.appendChild(cpsTd);
+    }
+
+    return tr;
+  }
+
+  // Render group separator
+  function addGroupSep(label) {
+    const sepTr = document.createElement('tr');
+    const sepTd = document.createElement('td');
+    sepTd.colSpan = colDefs.length;
+    sepTd.className = 'src-group-sep';
+    sepTd.textContent = label;
+    sepTr.appendChild(sepTd);
+    tbody.appendChild(sepTr);
+  }
+
+  let globalRank = 1;
+
+  if (withSales.length > 0) {
+    addGroupSep(`▲ Has sales — sorted by CPS (lower = better) · ${withSales.length} source${withSales.length!==1?'s':''}`);
+    withSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'sales')));
+    globalRank += withSales.length;
+  }
+  if (withRevNoSales.length > 0) {
+    addGroupSep(`→ Revenue only (no sales) — sorted by revenue · ${withRevNoSales.length} source${withRevNoSales.length!==1?'s':''}`);
+    withRevNoSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'rev')));
+    globalRank += withRevNoSales.length;
+  }
+  if (noRevNoSales.length > 0) {
+    addGroupSep(`· No revenue — sorted by clicks · ${noRevNoSales.length} source${noRevNoSales.length!==1?'s':''}`);
+    noRevNoSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'clk')));
+  }
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  panel.appendChild(tableWrap);
+
+  // CPS color coding: green=low, red=high among sources with sales
+  if (withSales.length > 1) {
+    const cpsCells = tableWrap.querySelectorAll('tr:not(.src-group-sep)');
+    const minCps = Math.min(...withSales.map(s=>s.cps));
+    const maxCps = Math.max(...withSales.map(s=>s.cps));
+    let idx = 0;
+    // Re-color CPC cells for the sales group rows
+    if (hasSales && maxCps > minCps) {
+      withSales.forEach((s, i) => {
+        // Find the CPS td in the DOM — it's the last td in the row
+        // We'll do this by rebuilding the color after render
+        // The row is the (withSales.length>0 ? 1 sep row + i+1 data rows) part
+      });
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// ── DAILY CHARTS ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
 
 function destroyAllCharts() {
   for (const [id, chart] of Object.entries(chartInstances)) { try { chart.destroy(); } catch(e){} }
   chartInstances = {};
-}
-
-function getCSSVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function getChartColors() {
@@ -1654,7 +2235,6 @@ function getChartColors() {
   };
 }
 
-// Get sorted date keys across the entire affiliate
 function getAllDates(affId) {
   const dates = new Set();
   const da = DAILY_DATA[affId];
@@ -1663,9 +2243,6 @@ function getAllDates(affId) {
   return [...dates].sort();
 }
 
-// Compute daily totals for a given scope:
-// scope = { type:'overall' } | { type:'flow', flowId } | { type:'geo', country } | { type:'offer', offerKey }
-// Returns array of {date, clicks, conversions, revenue, epc}
 function computeDailyTimeseries(affId, scope) {
   const da = DAILY_DATA[affId];
   if (!da) return [];
@@ -1697,10 +2274,7 @@ function computeDailyTimeseries(affId, scope) {
 
 function getDimList_flow(affId) {
   const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
-  return flows.map(f => {
-    const s=getFlowStats(affId,f);
-    return { key:f, name:f==='__no_flow__'?'⊘ No Flow':f, sub:fmtMoney(s.revenue)+' · '+fmtNum(s.clicks)+' clicks' };
-  });
+  return flows.map(f => { const s=getFlowStats(affId,f); return { key:f, name:f==='__no_flow__'?'⊘ No Flow':f, sub:fmtMoney(s.revenue)+' · '+fmtNum(s.clicks)+' clicks' }; });
 }
 
 function getDimList_geo(affId) {
@@ -1784,7 +2358,7 @@ function renderChart(scope, title) {
     return;
   }
 
-  const dates = series.map(d => d.date.slice(5)); // MM-DD
+  const dates = series.map(d => d.date.slice(5));
   const revenueData = series.map(d => parseFloat(d.revenue.toFixed(2)));
   const clicksData = series.map(d => d.clicks);
   const epcData = series.map(d => parseFloat(d.epc.toFixed(4)));
@@ -1796,20 +2370,13 @@ function renderChart(scope, title) {
   const peakRev = Math.max(...revenueData);
   const peakClicks = Math.max(...clicksData);
 
-  // Title
   const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title; chartsRight.appendChild(titleEl);
   const subEl = document.createElement('div'); subEl.className='chart-section-sub'; subEl.textContent=`${series.length} days · ${series[0].date} → ${series[series.length-1].date}`; chartsRight.appendChild(subEl);
 
-  // ── Revenue Chart ──
   chartsRight.appendChild(buildChartCard('revenue-chart', 'Daily Revenue', revenueData, dates, series));
-
-  // ── Clicks Chart ──
   chartsRight.appendChild(buildChartCard('clicks-chart', 'Daily Clicks', clicksData, dates, series));
-
-  // ── EPC Chart ──
   chartsRight.appendChild(buildChartCard('epc-chart', 'Daily EPC (Revenue per Click)', epcData, dates, series));
 
-  // ── Summary chips ──
   const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
   const shdr = document.createElement('div'); shdr.className='chart-card-hdr'; const stitle = document.createElement('div'); stitle.className='chart-card-title'; stitle.textContent='Period Summary'; shdr.appendChild(stitle); summaryCard.appendChild(shdr);
   const chips = document.createElement('div'); chips.className='chart-summary-chips';
@@ -1830,11 +2397,9 @@ function renderChart(scope, title) {
   summaryCard.appendChild(chips);
   chartsRight.appendChild(summaryCard);
 
-  // ── Data Table ──
   const tableCard = document.createElement('div'); tableCard.className='chart-card';
   const thdr = document.createElement('div'); thdr.className='chart-card-hdr';
-  const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent='Day-by-Day Table';
-  thdr.appendChild(ttitle);
+  const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent='Day-by-Day Table'; thdr.appendChild(ttitle);
   const toggleBtn = document.createElement('button');
   toggleBtn.style.cssText='padding:3px 10px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:10px;cursor:pointer;';
   toggleBtn.textContent='Show'; let tableVisible=false;
@@ -1845,7 +2410,7 @@ function renderChart(scope, title) {
   const table = document.createElement('table'); table.className='chart-data-table';
   const thead = document.createElement('thead');
   const hrow = document.createElement('tr');
-  ['Date','Clicks','Conversions','Revenue','EPC'].forEach((h,i)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
+  ['Date','Clicks','Conversions','Revenue','EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
   thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
   series.forEach(d=>{ const tr=document.createElement('tr'); [d.date,fmtNum(d.clicks),d.conversions,'$'+d.revenue.toFixed(2),'$'+d.epc.toFixed(4)].forEach((v,i)=>{ const td=document.createElement('td'); td.textContent=v; if(i===3) td.style.color='var(--green)'; if(i===4) td.style.color='var(--yellow)'; tr.appendChild(td); }); tbody.appendChild(tr); });
@@ -1866,7 +2431,6 @@ function buildChartCard(id, label, data, dates, series) {
   const canvas = document.createElement('canvas'); canvas.id=id; canvas.style.width='100%'; canvas.style.height='100%';
   wrap.appendChild(canvas); card.appendChild(wrap);
 
-  // determine color based on label
   let lineColor = colors.revenue;
   if (label.toLowerCase().includes('click')) lineColor = colors.clicks;
   if (label.toLowerCase().includes('epc')) lineColor = colors.epc;
@@ -1874,8 +2438,6 @@ function buildChartCard(id, label, data, dates, series) {
   requestAnimationFrame(() => {
     if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
     const ctx = canvas.getContext('2d');
-
-    // Gradient fill
     const gradient = ctx.createLinearGradient(0, 0, 0, 180);
     gradient.addColorStop(0, lineColor + '30');
     gradient.addColorStop(1, lineColor + '00');
@@ -1913,10 +2475,7 @@ function buildChartCard(id, label, data, dates, series) {
             bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
             padding: 10,
             callbacks: {
-              title: (items) => {
-                const idx = items[0].dataIndex;
-                return series[idx]?.date || items[0].label;
-              },
+              title: (items) => { const idx = items[0].dataIndex; return series[idx]?.date || items[0].label; },
               label: (item) => {
                 const v = item.raw;
                 if (label.toLowerCase().includes('revenue')) return ' Revenue: $' + v.toFixed(2);
@@ -1928,23 +2487,8 @@ function buildChartCard(id, label, data, dates, series) {
           }
         },
         scales: {
-          x: {
-            grid: { color: colors.grid },
-            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
-            border: { color: colors.grid }
-          },
-          y: {
-            grid: { color: colors.grid },
-            ticks: {
-              color: colors.text,
-              font: { family: "'JetBrains Mono', monospace", size: 9 },
-              callback: (v) => {
-                if (label.toLowerCase().includes('click')) return fmtNum(v);
-                return '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(label.toLowerCase().includes('epc')?3:0));
-              }
-            },
-            border: { color: colors.grid }
-          }
+          x: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, border: { color: colors.grid } },
+          y: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => { if (label.toLowerCase().includes('click')) return fmtNum(v); return '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(label.toLowerCase().includes('epc')?3:0)); } }, border: { color: colors.grid } }
         }
       }
     });
@@ -1953,7 +2497,9 @@ function buildChartCard(id, label, data, dates, series) {
   return card;
 }
 
-// ─────────────────── RIGHT PANEL (Analytics) ──────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// ── RIGHT PANEL (Analytics) ───────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
 
 function getFilteredData(code) {
   const base = FULL_DATA[selectedAffiliate][selectedFlow][code];
@@ -2087,7 +2633,6 @@ function renderRight(code) {
   chips.appendChild(makeChip(offers.length,'Offers',null));
   hdr.appendChild(chips);
 
-  // Device breakdown
   const breakdown=getDeviceBreakdown(code);
   if (breakdown) {
     const dbRow=document.createElement('div'); dbRow.className='device-breakdown-row';
@@ -2189,7 +2734,6 @@ function applyTheme(theme) {
   const icon=theme==='light'?'☾':'☀',title=theme==='light'?'Switch to dark theme':'Switch to light theme';
   ['uploadThemeBtn','appThemeBtn'].forEach(id=>{ const btn=document.getElementById(id); if(btn){btn.textContent=icon;btn.title=title;} });
   localStorage.setItem('aa-theme',theme);
-  // Re-render charts with new theme colors
   if (currentViewMode==='charts' && selectedAffiliate && HAS_DATES) {
     setTimeout(()=>renderChartsView(),50);
   }
