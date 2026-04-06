@@ -902,7 +902,51 @@ body {
   margin-bottom: 4px;
 }
 
-.chart-section-sub { font-size: 10px; color: var(--muted); margin-bottom: 20px; }
+.chart-section-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+
+/* ─── CHART CONTROLS BAR ─── */
+.chart-controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  margin-bottom: 16px;
+}
+
+.cc-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+  color: var(--muted);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.cc-sep { width: 1px; height: 14px; background: var(--border2); margin: 0 6px; flex-shrink: 0; }
+
+.cc-btn {
+  padding: 4px 11px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.cc-btn:hover { border-color: var(--text); color: var(--text); }
+.cc-btn.active-week { border-color: var(--accent2); color: var(--accent2); background: rgba(108,99,255,0.10); }
+.cc-btn.active-ma7 { border-color: var(--yellow); color: var(--yellow); background: rgba(240,192,64,0.10); }
+.cc-btn.active-ma14 { border-color: var(--orange); color: var(--orange); background: rgba(255,140,68,0.10); }
 
 .chart-card {
   background: var(--surface);
@@ -926,7 +970,8 @@ body {
   color: var(--logo-color);
 }
 
-.chart-canvas-wrap { position: relative; height: 200px; }
+.chart-canvas-wrap { position: relative; height: 220px; }
+.chart-canvas-wrap-tall { position: relative; height: 260px; }
 
 .chart-summary-chips {
   display: flex;
@@ -949,6 +994,17 @@ body {
 }
 .summary-chip .sv { font-size: 12px; font-weight: 700; color: var(--logo-color); }
 .summary-chip .sl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.chart-legend-item { display: flex; align-items: center; gap: 5px; }
+.chart-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
 .chart-data-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
 .chart-data-table th { padding: 4px 8px; text-align: right; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); border-bottom: 1px solid var(--border); }
@@ -1006,7 +1062,6 @@ body {
 
 .source-right { overflow-y: auto; padding: 20px 22px; }
 
-/* Source table styles */
 .source-table-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1133,7 +1188,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Source search */
 .source-search-bar {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
@@ -1154,7 +1208,6 @@ body {
 .source-search-bar input:focus { border-color: var(--accent); }
 .source-search-bar input::placeholder { color: var(--muted); }
 
-/* Replaced source indicator */
 .replaced-src-badge {
   display: inline-block;
   font-size: 8px;
@@ -1169,7 +1222,6 @@ body {
   letter-spacing: .04em;
 }
 
-/* Sorting group badges inside source table */
 .src-group-sep {
   font-size: 9px;
   font-weight: 700;
@@ -1233,10 +1285,8 @@ body {
     <button class="theme-toggle" id="appThemeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
   </div>
 
-  <!-- Affiliate tabs -->
   <div class="affiliate-tabs-bar" id="affiliateTabs"></div>
 
-  <!-- View mode tabs -->
   <div class="view-mode-bar" id="viewModeBar">
     <div class="vm-tab active" id="vmTabAnalytics" onclick="switchViewMode('analytics')">
       <span class="vm-icon">◎</span> Analytics
@@ -1276,7 +1326,6 @@ body {
   <!-- SOURCE ANALYTICS VIEW -->
   <div id="sourceView">
     <div class="source-layout">
-      <!-- Left: offer list -->
       <div class="source-left">
         <div class="panel-hdr">
           <h2>Offers</h2>
@@ -1287,7 +1336,6 @@ body {
         </div>
         <div class="source-offer-list" id="srcOfferList"></div>
       </div>
-      <!-- Right: source table -->
       <div class="source-right" id="srcRight">
         <div class="empty-state">
           <div class="empty-icon">⊞</div>
@@ -1332,7 +1380,7 @@ function sanitize(str) {
 // ── State ──
 let FULL_DATA = {};
 let DAILY_DATA = {};
-let SOURCE_DATA = {}; // SOURCE_DATA[affId][offerKey] = { sources: { sourceId: { source, replacedSource, clicks, conversions, revenue, sales, cpl_convs } } }
+let SOURCE_DATA = {};
 let HAS_DATES = false;
 let HAS_SOURCES = false;
 let selectedAffiliate = null;
@@ -1348,14 +1396,19 @@ let activeDeviceType = null;
 let activeDeviceOS = null;
 let currentViewMode = 'analytics';
 
-// Source Analytics state
 let srcSelectedOfferKey = null;
 let srcOfferSearchQuery = '';
 
-// Charts state
 let chartDimension = 'overall';
 let chartSelectedKey = null;
 let chartInstances = {};
+
+// ── Chart display state ──
+let chartGroupWeeks = false;
+let chartMA7 = false;
+let chartMA14 = false;
+let _lastChartScope = null;
+let _lastChartTitle = null;
 
 const FIELDS = [
   { key: 'affiliate_id',    label: 'Affiliate ID',       optional: false },
@@ -1417,6 +1470,8 @@ function resetUpload() {
   selectedAffiliate = null; selectedFlow = null; selectedCountry = null;
   searchQuery = ''; HAS_DATES = false; HAS_SOURCES = false;
   srcSelectedOfferKey = null; srcOfferSearchQuery = '';
+  chartGroupWeeks = false; chartMA7 = false; chartMA14 = false;
+  _lastChartScope = null; _lastChartTitle = null;
   destroyAllCharts();
 }
 
@@ -1523,7 +1578,7 @@ function normalizeDate(raw) {
 function buildData(rows, m, ppsKw) {
   const agg = Object.create(null);
   const dailyAgg = Object.create(null);
-  const srcAgg = Object.create(null); // srcAgg[affId][offerKey][combinedSrcKey] = {...}
+  const srcAgg = Object.create(null);
   const hasGoal = !!m.goal;
   const hasDate = !!m.date;
   const hasSrc = !!m.source;
@@ -1558,7 +1613,6 @@ function buildData(rows, m, ppsKw) {
     const isSale = hasGoal && goalRaw && isSaleGoal(goalRaw);
     const isCPL = hasGoal && goalRaw && !isSaleGoal(goalRaw);
 
-    // ── Regular aggregation ──
     if (!agg[affiliateId]) agg[affiliateId] = {};
     if (!agg[affiliateId][flowId]) agg[affiliateId][flowId] = {};
     const flowData = agg[affiliateId][flowId];
@@ -1594,7 +1648,6 @@ function buildData(rows, m, ppsKw) {
     const P=O.pages[page]; P.clicks+=clicks; P.conversions+=conversions; P.revenue+=revenue;
     if (isSale) P.sales+=conversions; if (isCPL) P.cpl_convs+=conversions;
 
-    // ── Daily aggregation ──
     if (dateRaw && isSafeKey(dateRaw)) {
       HAS_DATES = true;
       if (!dailyAgg[affiliateId]) dailyAgg[affiliateId] = {};
@@ -1606,19 +1659,16 @@ function buildData(rows, m, ppsKw) {
       DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
     }
 
-    // ── Source aggregation ──
     if (hasSrc && sourceRaw && isSafeKey(sourceRaw)) {
       HAS_SOURCES = true;
       if (!srcAgg[affiliateId]) srcAgg[affiliateId] = {};
       if (!srcAgg[affiliateId][offerKey]) srcAgg[affiliateId][offerKey] = {
         offer_id: offerId, offer_name: offerName, is_pps: isPPS, has_goal_data: hasGoal, sources: {}
       };
-      // Use source as key; also store replacedSource if present
       const srcKey = sourceRaw;
       if (!srcAgg[affiliateId][offerKey].sources[srcKey]) {
         srcAgg[affiliateId][offerKey].sources[srcKey] = {
-          source: sourceRaw,
-          replaced_source: replSrcRaw || null,
+          source: sourceRaw, replaced_source: replSrcRaw || null,
           clicks: 0, conversions: 0, revenue: 0, sales: 0, cpl_convs: 0
         };
       } else if (replSrcRaw && !srcAgg[affiliateId][offerKey].sources[srcKey].replaced_source) {
@@ -1631,7 +1681,6 @@ function buildData(rows, m, ppsKw) {
     }
   });
 
-  // Build FULL_DATA
   FULL_DATA = {};
   for (const [affId, flows] of Object.entries(agg)) {
     FULL_DATA[affId] = {};
@@ -1653,7 +1702,6 @@ function buildData(rows, m, ppsKw) {
 
   DAILY_DATA = dailyAgg;
 
-  // Build SOURCE_DATA — flatten with computed metrics per source
   SOURCE_DATA = {};
   for (const [affId, offerMap] of Object.entries(srcAgg)) {
     SOURCE_DATA[affId] = {};
@@ -1666,22 +1714,16 @@ function buildData(rows, m, ppsKw) {
         const reg2sale = (cpl_convs > 0 && sales > 0) ? (sales / cpl_convs * 100) : 0;
         const cps = sales > 0 ? (s.revenue / sales) : 0;
         return {
-          source: s.source,
-          replaced_source: s.replaced_source || null,
+          source: s.source, replaced_source: s.replaced_source || null,
           clicks: s.clicks, conversions: s.conversions, revenue: s.revenue,
           sales, cpl_convs,
-          cr: parseFloat(cr.toFixed(4)),
-          epc: parseFloat(epc.toFixed(6)),
-          reg2sale: parseFloat(reg2sale.toFixed(4)),
-          cps: parseFloat(cps.toFixed(4))
+          cr: parseFloat(cr.toFixed(4)), epc: parseFloat(epc.toFixed(6)),
+          reg2sale: parseFloat(reg2sale.toFixed(4)), cps: parseFloat(cps.toFixed(4))
         };
       });
       SOURCE_DATA[affId][offerKey] = {
-        offer_id: offerData.offer_id,
-        offer_name: offerData.offer_name,
-        is_pps: offerData.is_pps,
-        has_goal_data: offerData.has_goal_data,
-        sources
+        offer_id: offerData.offer_id, offer_name: offerData.offer_name,
+        is_pps: offerData.is_pps, has_goal_data: offerData.has_goal_data, sources
       };
     }
   }
@@ -1915,14 +1957,11 @@ function selectCountry(code) {
 function renderSourceView() {
   if (!selectedAffiliate) return;
   renderSrcOfferList();
-  if (srcSelectedOfferKey) {
-    renderSrcRight(srcSelectedOfferKey);
-  }
+  if (srcSelectedOfferKey) renderSrcRight(srcSelectedOfferKey);
 }
 
 function getSrcOffers() {
   if (!selectedAffiliate || !SOURCE_DATA[selectedAffiliate]) return [];
-  // Aggregate totals per offer for display in sidebar
   return Object.entries(SOURCE_DATA[selectedAffiliate]).map(([key, o]) => {
     const totClicks = o.sources.reduce((s,x)=>s+x.clicks,0);
     const totRev = o.sources.reduce((s,x)=>s+x.revenue,0);
@@ -1935,23 +1974,18 @@ function renderSrcOfferList() {
   const offers = getSrcOffers();
   const q = srcOfferSearchQuery.toLowerCase();
   const filtered = q ? offers.filter(o => o.offer_name.toLowerCase().includes(q) || String(o.offer_id).includes(q)) : offers;
-
   document.getElementById('srcOfferBadge').textContent = filtered.length + ' offers';
   const list = document.getElementById('srcOfferList');
   list.innerHTML = '';
-
   if (!filtered.length) {
     const msg = document.createElement('div'); msg.className='no-sources-msg'; msg.textContent = HAS_SOURCES ? 'No offers match search.' : 'No source data found.';
     list.appendChild(msg); return;
   }
-
   filtered.forEach(o => {
     const item = document.createElement('div');
     item.className = 'source-offer-item' + (o.key === srcSelectedOfferKey ? ' selected' : '');
     item.addEventListener('click', () => { srcSelectedOfferKey = o.key; renderSrcOfferList(); renderSrcRight(o.key); });
-
     const name = document.createElement('div'); name.className = 'source-offer-name'; name.textContent = o.offer_name; item.appendChild(name);
-
     const meta = document.createElement('div'); meta.className = 'source-offer-meta';
     if (o.offer_id) { const idSpan=document.createElement('span'); idSpan.textContent='#'+o.offer_id; idSpan.style.color='var(--dim)'; meta.appendChild(idSpan); }
     const srcSpan = document.createElement('span'); srcSpan.textContent = o.source_count + ' sources'; meta.appendChild(srcSpan);
@@ -1959,8 +1993,6 @@ function renderSrcOfferList() {
     item.appendChild(meta);
     list.appendChild(item);
   });
-
-  // Auto-select first if nothing selected
   if (!srcSelectedOfferKey && filtered.length > 0) {
     srcSelectedOfferKey = filtered[0].key;
     renderSrcOfferList();
@@ -1969,9 +2001,6 @@ function renderSrcOfferList() {
 }
 
 function sortSources(sources) {
-  // Group 1: has sales → sort by CPS asc (lower = better)
-  // Group 2: no sales but has revenue → sort by revenue desc
-  // Group 3: no revenue, no sales → sort by clicks desc
   const withSales = sources.filter(s => s.sales > 0).sort((a,b) => a.cps - b.cps);
   const withRevNoSales = sources.filter(s => s.sales === 0 && s.revenue > 0).sort((a,b) => b.revenue - a.revenue);
   const noRevNoSales = sources.filter(s => s.sales === 0 && s.revenue === 0).sort((a,b) => b.clicks - a.clicks);
@@ -1984,235 +2013,66 @@ function renderSrcRight(offerKey) {
     panel.innerHTML = '<div class="empty-state"><div class="empty-icon">⊞</div><div class="empty-text">No source data for this offer</div></div>';
     return;
   }
-
   const offerData = SOURCE_DATA[selectedAffiliate][offerKey];
   const { sources } = offerData;
   const hasSales = sources.some(s => s.sales > 0);
-  const hasGoalData = offerData.has_goal_data;
-  const hasReplacedSrc = sources.some(s => s.replaced_source);
-
   panel.innerHTML = '';
-
-  // Header
   const hdrArea = document.createElement('div'); hdrArea.className = 'source-hdr-area';
   const title = document.createElement('div'); title.className = 'source-hdr-title'; title.textContent = offerData.offer_name; hdrArea.appendChild(title);
-
-  const subParts = [];
-  if (offerData.offer_id) subParts.push('#' + offerData.offer_id);
-  subParts.push(sources.length + ' sources');
+  const subParts = []; if (offerData.offer_id) subParts.push('#' + offerData.offer_id); subParts.push(sources.length + ' sources');
   const sub = document.createElement('div'); sub.className = 'source-hdr-sub'; sub.textContent = subParts.join(' · '); hdrArea.appendChild(sub);
-
-  // Summary chips
   const chips = document.createElement('div'); chips.className = 'source-chips';
   const totClicks = sources.reduce((s,x)=>s+x.clicks,0);
   const totConvs = sources.reduce((s,x)=>s+x.conversions,0);
   const totRev = sources.reduce((s,x)=>s+x.revenue,0);
   const totSales = sources.reduce((s,x)=>s+x.sales,0);
   const totCplConvs = sources.reduce((s,x)=>s+x.cpl_convs,0);
-
-  function makeChip(v,l,c) {
-    const ch=document.createElement('div'); ch.className='chip';
-    const cv=document.createElement('div'); cv.className='cv'; cv.textContent=v; if(c) cv.style.color=c;
-    const cl=document.createElement('div'); cl.className='cl'; cl.textContent=l;
-    ch.appendChild(cv); ch.appendChild(cl); return ch;
-  }
+  function makeChip(v,l,c) { const ch=document.createElement('div'); ch.className='chip'; const cv=document.createElement('div'); cv.className='cv'; cv.textContent=v; if(c) cv.style.color=c; const cl=document.createElement('div'); cl.className='cl'; cl.textContent=l; ch.appendChild(cv); ch.appendChild(cl); return ch; }
   chips.appendChild(makeChip(fmtNum(totClicks),'Clicks',null));
   chips.appendChild(makeChip(totConvs.toLocaleString(),'Convs',null));
   chips.appendChild(makeChip(fmtMoney(totRev),'Revenue','var(--green)'));
-  if (totSales > 0) {
-    chips.appendChild(makeChip(totSales.toLocaleString(),'Sales','var(--orange)'));
-    const avgCps = totSales > 0 ? totRev / totSales : 0;
-    chips.appendChild(makeChip('$'+fmt(avgCps,2),'Avg CPS','var(--orange)'));
-    if (totCplConvs > 0) chips.appendChild(makeChip(fmt(totSales/totCplConvs*100,2)+'%','Reg→Sale','var(--orange)'));
-  }
+  if (totSales > 0) { chips.appendChild(makeChip(totSales.toLocaleString(),'Sales','var(--orange)')); const avgCps = totSales > 0 ? totRev / totSales : 0; chips.appendChild(makeChip('$'+fmt(avgCps,2),'Avg CPS','var(--orange)')); if (totCplConvs > 0) chips.appendChild(makeChip(fmt(totSales/totCplConvs*100,2)+'%','Reg→Sale','var(--orange)')); }
   chips.appendChild(makeChip(sources.length,'Sources',null));
   hdrArea.appendChild(chips);
-
-  // Sorting legend
   const legend = document.createElement('div'); legend.className = 'src-legend';
-  const legendItems = [
-    { color: 'var(--green)', label: 'Has sales → sorted by CPS ↑ (lower = better)' },
-    { color: 'var(--accent)', label: 'Revenue only → sorted by revenue ↓' },
-    { color: 'var(--muted)', label: 'No revenue → sorted by clicks ↓' },
-  ];
-  legendItems.forEach(li => {
-    const item = document.createElement('div'); item.className = 'src-legend-item';
-    const dot = document.createElement('div'); dot.className = 'src-legend-dot'; dot.style.background = li.color;
-    const lbl = document.createElement('span'); lbl.textContent = li.label;
-    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
-  });
+  [{ color:'var(--green)', label:'Has sales — sorted by CPS ↑ (lower = better)' },{ color:'var(--accent)', label:'Revenue only — sorted by revenue ↓' },{ color:'var(--muted)', label:'No revenue — sorted by clicks ↓' }].forEach(li => { const item=document.createElement('div'); item.className='src-legend-item'; const dot=document.createElement('div'); dot.className='src-legend-dot'; dot.style.background=li.color; const lbl=document.createElement('span'); lbl.textContent=li.label; item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item); });
   hdrArea.appendChild(legend);
   panel.appendChild(hdrArea);
-
-  // Sort sources into groups
   const { withSales, withRevNoSales, noRevNoSales } = sortSources(sources);
-
-  // Build table
   const tableWrap = document.createElement('div'); tableWrap.className = 'source-table-wrap';
   const table = document.createElement('table'); table.className = 'source-table';
-
-  // Table header
-  const thead = document.createElement('thead');
-  const hrow = document.createElement('tr');
-  const colDefs = [
-    { label: '#', key: 'rank', sortable: false },
-    { label: 'Source', key: 'source', sortable: false },
-    { label: 'Clicks', key: 'clicks', sortable: false },
-    { label: 'Convs', key: 'conversions', sortable: false },
-    { label: 'Revenue', key: 'revenue', sortable: false },
-    { label: 'EPC', key: 'epc', sortable: false },
-    { label: 'CR%', key: 'cr', sortable: false },
-    ...(hasSales ? [
-      { label: 'Sales', key: 'sales', sortable: false },
-      { label: 'Reg→Sale', key: 'reg2sale', sortable: false },
-      { label: 'CPS ↑', key: 'cps', sortable: false },
-    ] : []),
-  ];
-  colDefs.forEach((col, i) => {
-    const th = document.createElement('th');
-    if (i < 2) th.style.textAlign = 'left';
-    th.textContent = col.label;
-    hrow.appendChild(th);
-  });
-  thead.appendChild(hrow);
-  table.appendChild(thead);
-
+  const thead = document.createElement('thead'); const hrow = document.createElement('tr');
+  const colDefs = [{ label:'#' },{ label:'Source' },{ label:'Clicks' },{ label:'Convs' },{ label:'Revenue' },{ label:'EPC' },{ label:'CR%' },...(hasSales ? [{ label:'Sales' },{ label:'Reg→Sale' },{ label:'CPS ↑' }] : [])];
+  colDefs.forEach((col, i) => { const th=document.createElement('th'); if(i<2) th.style.textAlign='left'; th.textContent=col.label; hrow.appendChild(th); });
+  thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
-
   function buildSourceRow(s, rank, groupType) {
-    const tr = document.createElement('tr');
-    if (rank === 1) tr.className = 'src-top';
-
-    // Rank cell
+    const tr = document.createElement('tr'); if (rank === 1) tr.className = 'src-top';
     const rankTd = document.createElement('td'); rankTd.style.textAlign = 'left';
     const rb = document.createElement('span'); rb.className = 'src-rank-badge';
-    if (groupType === 'sales') rb.classList.add('src-badge-cps');
-    else if (groupType === 'rev') rb.classList.add('src-badge-rev');
-    else if (groupType === 'clk') rb.classList.add('src-badge-clk');
-    else rb.classList.add('src-badge-nosale');
-    rb.textContent = rank <= 9 ? rank : '·';
-    rankTd.appendChild(rb);
-    tr.appendChild(rankTd);
-
-    // Source ID cell
+    if (groupType==='sales') rb.classList.add('src-badge-cps'); else if (groupType==='rev') rb.classList.add('src-badge-rev'); else rb.classList.add('src-badge-clk');
+    rb.textContent = rank <= 9 ? rank : '·'; rankTd.appendChild(rb); tr.appendChild(rankTd);
     const srcTd = document.createElement('td'); srcTd.style.textAlign = 'left';
-    const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.textContent = s.source;
-    srcTd.appendChild(srcMain);
-    if (s.replaced_source) {
-      const srcAlt = document.createElement('div'); srcAlt.className = 'source-id-alt';
-      srcAlt.textContent = s.replaced_source;
-      const badge = document.createElement('span'); badge.className = 'replaced-src-badge'; badge.textContent = 'ALT';
-      srcAlt.appendChild(badge);
-      srcTd.appendChild(srcAlt);
-    }
+    const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.textContent = s.source; srcTd.appendChild(srcMain);
+    if (s.replaced_source) { const srcAlt=document.createElement('div'); srcAlt.className='source-id-alt'; srcAlt.textContent=s.replaced_source; const badge=document.createElement('span'); badge.className='replaced-src-badge'; badge.textContent='ALT'; srcAlt.appendChild(badge); srcTd.appendChild(srcAlt); }
     tr.appendChild(srcTd);
-
-    // Clicks
     const clkTd = document.createElement('td'); clkTd.textContent = fmtNum(s.clicks); tr.appendChild(clkTd);
-
-    // Conversions
     const convTd = document.createElement('td'); convTd.textContent = s.conversions; tr.appendChild(convTd);
-
-    // Revenue
-    const revTd = document.createElement('td');
-    revTd.textContent = s.revenue > 0 ? fmtMoney(s.revenue) : '—';
-    if (s.revenue > 0) revTd.style.color = 'var(--green)';
-    else revTd.style.color = 'var(--muted)';
-    tr.appendChild(revTd);
-
-    // EPC
-    const epcTd = document.createElement('td');
-    epcTd.textContent = s.epc > 0 ? '$'+fmt(s.epc, 4) : '—';
-    if (s.epc > 0) epcTd.style.color = 'var(--green)';
-    else epcTd.style.color = 'var(--muted)';
-    tr.appendChild(epcTd);
-
-    // CR
-    const crTd = document.createElement('td');
-    crTd.textContent = s.cr > 0 ? fmt(s.cr, 2)+'%' : '—';
-    if (s.cr > 0) crTd.style.color = 'var(--yellow)';
-    else crTd.style.color = 'var(--muted)';
-    tr.appendChild(crTd);
-
+    const revTd = document.createElement('td'); revTd.textContent = s.revenue > 0 ? fmtMoney(s.revenue) : '—'; revTd.style.color = s.revenue > 0 ? 'var(--green)' : 'var(--muted)'; tr.appendChild(revTd);
+    const epcTd = document.createElement('td'); epcTd.textContent = s.epc > 0 ? '$'+fmt(s.epc,4) : '—'; epcTd.style.color = s.epc > 0 ? 'var(--green)' : 'var(--muted)'; tr.appendChild(epcTd);
+    const crTd = document.createElement('td'); crTd.textContent = s.cr > 0 ? fmt(s.cr,2)+'%' : '—'; crTd.style.color = s.cr > 0 ? 'var(--yellow)' : 'var(--muted)'; tr.appendChild(crTd);
     if (hasSales) {
-      // Sales
-      const salesTd = document.createElement('td');
-      salesTd.textContent = s.sales > 0 ? s.sales.toLocaleString() : '—';
-      if (s.sales > 0) salesTd.style.color = 'var(--orange)';
-      else salesTd.style.color = 'var(--muted)';
-      tr.appendChild(salesTd);
-
-      // Reg→Sale
-      const r2sTd = document.createElement('td');
-      r2sTd.textContent = s.reg2sale > 0 ? fmt(s.reg2sale, 2)+'%' : '—';
-      if (s.reg2sale > 0) r2sTd.style.color = 'var(--orange)';
-      else r2sTd.style.color = 'var(--muted)';
-      tr.appendChild(r2sTd);
-
-      // CPS (lower = better)
-      const cpsTd = document.createElement('td');
-      if (s.cps > 0) {
-        cpsTd.textContent = '$'+fmt(s.cps, 2);
-        // Color by relative CPS — will be highlighted as good/bad
-        cpsTd.style.fontWeight = '600';
-        cpsTd.style.color = 'var(--accent)';
-      } else {
-        cpsTd.textContent = '—';
-        cpsTd.style.color = 'var(--muted)';
-      }
-      tr.appendChild(cpsTd);
+      const salesTd = document.createElement('td'); salesTd.textContent = s.sales > 0 ? s.sales.toLocaleString() : '—'; salesTd.style.color = s.sales > 0 ? 'var(--orange)' : 'var(--muted)'; tr.appendChild(salesTd);
+      const r2sTd = document.createElement('td'); r2sTd.textContent = s.reg2sale > 0 ? fmt(s.reg2sale,2)+'%' : '—'; r2sTd.style.color = s.reg2sale > 0 ? 'var(--orange)' : 'var(--muted)'; tr.appendChild(r2sTd);
+      const cpsTd = document.createElement('td'); if (s.cps > 0) { cpsTd.textContent='$'+fmt(s.cps,2); cpsTd.style.fontWeight='600'; cpsTd.style.color='var(--accent)'; } else { cpsTd.textContent='—'; cpsTd.style.color='var(--muted)'; } tr.appendChild(cpsTd);
     }
-
     return tr;
   }
-
-  // Render group separator
-  function addGroupSep(label) {
-    const sepTr = document.createElement('tr');
-    const sepTd = document.createElement('td');
-    sepTd.colSpan = colDefs.length;
-    sepTd.className = 'src-group-sep';
-    sepTd.textContent = label;
-    sepTr.appendChild(sepTd);
-    tbody.appendChild(sepTr);
-  }
-
-  let globalRank = 1;
-
-  if (withSales.length > 0) {
-    addGroupSep(`▲ Has sales — sorted by CPS (lower = better) · ${withSales.length} source${withSales.length!==1?'s':''}`);
-    withSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'sales')));
-    globalRank += withSales.length;
-  }
-  if (withRevNoSales.length > 0) {
-    addGroupSep(`→ Revenue only (no sales) — sorted by revenue · ${withRevNoSales.length} source${withRevNoSales.length!==1?'s':''}`);
-    withRevNoSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'rev')));
-    globalRank += withRevNoSales.length;
-  }
-  if (noRevNoSales.length > 0) {
-    addGroupSep(`· No revenue — sorted by clicks · ${noRevNoSales.length} source${noRevNoSales.length!==1?'s':''}`);
-    noRevNoSales.forEach((s, i) => tbody.appendChild(buildSourceRow(s, i+1, 'clk')));
-  }
-
-  table.appendChild(tbody);
-  tableWrap.appendChild(table);
-  panel.appendChild(tableWrap);
-
-  // CPS color coding: green=low, red=high among sources with sales
-  if (withSales.length > 1) {
-    const cpsCells = tableWrap.querySelectorAll('tr:not(.src-group-sep)');
-    const minCps = Math.min(...withSales.map(s=>s.cps));
-    const maxCps = Math.max(...withSales.map(s=>s.cps));
-    let idx = 0;
-    // Re-color CPC cells for the sales group rows
-    if (hasSales && maxCps > minCps) {
-      withSales.forEach((s, i) => {
-        // Find the CPS td in the DOM — it's the last td in the row
-        // We'll do this by rebuilding the color after render
-        // The row is the (withSales.length>0 ? 1 sep row + i+1 data rows) part
-      });
-    }
-  }
+  function addGroupSep(label) { const sepTr=document.createElement('tr'); const sepTd=document.createElement('td'); sepTd.colSpan=colDefs.length; sepTd.className='src-group-sep'; sepTd.textContent=label; sepTr.appendChild(sepTd); tbody.appendChild(sepTr); }
+  if (withSales.length > 0) { addGroupSep(`▲ Has sales — sorted by CPS · ${withSales.length} source${withSales.length!==1?'s':''}`); withSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'sales'))); }
+  if (withRevNoSales.length > 0) { addGroupSep(`→ Revenue only — sorted by revenue · ${withRevNoSales.length} source${withRevNoSales.length!==1?'s':''}`); withRevNoSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'rev'))); }
+  if (noRevNoSales.length > 0) { addGroupSep(`· No revenue — sorted by clicks · ${noRevNoSales.length} source${noRevNoSales.length!==1?'s':''}`); noRevNoSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'clk'))); }
+  table.appendChild(tbody); tableWrap.appendChild(table); panel.appendChild(tableWrap);
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -2230,6 +2090,8 @@ function getChartColors() {
     revenue: isDark ? '#22d98a' : '#16a865',
     clicks:  isDark ? '#3d8bff' : '#2678f0',
     epc:     isDark ? '#f0c040' : '#c89010',
+    ma7:     isDark ? '#f0c040' : '#c89010',
+    ma14:    isDark ? '#ff8c44' : '#d06020',
     grid:    isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
     text:    isDark ? '#4a5a78' : '#7a8baa',
   };
@@ -2249,7 +2111,6 @@ function computeDailyTimeseries(affId, scope) {
   const dates = getAllDates(affId);
   const byDate = {};
   for (const d of dates) byDate[d] = {clicks:0,conversions:0,revenue:0};
-
   for (const [flowId, countries] of Object.entries(da)) {
     if (scope.type==='flow' && flowId!==scope.flowId) continue;
     for (const [country, offers] of Object.entries(countries)) {
@@ -2265,10 +2126,47 @@ function computeDailyTimeseries(affId, scope) {
       }
     }
   }
-
   return dates.map(date => {
     const d = byDate[date]||{clicks:0,conversions:0,revenue:0};
     return { date, ...d, epc: d.clicks>0 ? d.revenue/d.clicks : 0 };
+  });
+}
+
+// ── Week grouping ──
+// Calendar week: week number = Math.ceil((dayOfYear) / 7), where week 01 starts Jan 1.
+function getWeekKey(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const startOfYear = new Date(y, 0, 1);
+  const date = new Date(y, m-1, d);
+  const dayOfYear = Math.floor((date - startOfYear) / 86400000) + 1;
+  const weekNum = Math.ceil(dayOfYear / 7);
+  return `${y}-W${String(weekNum).padStart(2,'0')}`;
+}
+
+function groupByWeeks(series) {
+  const weekMap = {};
+  const weekOrder = [];
+  for (const row of series) {
+    const wk = getWeekKey(row.date);
+    if (!weekMap[wk]) { weekMap[wk] = {label: wk, clicks:0, conversions:0, revenue:0, days:0}; weekOrder.push(wk); }
+    weekMap[wk].clicks += row.clicks;
+    weekMap[wk].conversions += row.conversions;
+    weekMap[wk].revenue += row.revenue;
+    weekMap[wk].days++;
+  }
+  return weekOrder.map(wk => {
+    const w = weekMap[wk];
+    return { date: w.label, clicks: w.clicks, conversions: w.conversions, revenue: parseFloat(w.revenue.toFixed(2)), epc: w.clicks > 0 ? w.revenue / w.clicks : 0 };
+  });
+}
+
+// ── Moving average ──
+function computeMA(data, window) {
+  return data.map((_, i) => {
+    const start = Math.max(0, i - window + 1);
+    const slice = data.slice(start, i + 1);
+    const avg = slice.reduce((s,v)=>s+v,0) / slice.length;
+    return parseFloat(avg.toFixed(4));
   });
 }
 
@@ -2312,13 +2210,11 @@ function renderDimList() {
   const list = document.getElementById('dimList');
   list.innerHTML = '';
   if (!selectedAffiliate) return;
-  if (chartDimension==='overall') { list.innerHTML = ''; return; }
-
+  if (chartDimension==='overall') return;
   let items = [];
   if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
   else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
   else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
-
   items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
@@ -2346,9 +2242,21 @@ function renderChartsView() {
   if (chartDimension==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
 }
 
+// ── Toggle chart controls ──
+function toggleChartControl(control) {
+  if (control === 'weeks') chartGroupWeeks = !chartGroupWeeks;
+  else if (control === 'ma7') chartMA7 = !chartMA7;
+  else if (control === 'ma14') chartMA14 = !chartMA14;
+  if (_lastChartScope && _lastChartTitle) renderChart(_lastChartScope, _lastChartTitle);
+}
+
+// ── Main chart renderer ──
 function renderChart(scope, title) {
+  _lastChartScope = scope;
+  _lastChartTitle = title;
+
   const affId = selectedAffiliate;
-  const series = computeDailyTimeseries(affId, scope);
+  let series = computeDailyTimeseries(affId, scope);
   const chartsRight = document.getElementById('chartsRight');
   chartsRight.innerHTML = '';
   destroyAllCharts();
@@ -2358,25 +2266,56 @@ function renderChart(scope, title) {
     return;
   }
 
-  const dates = series.map(d => d.date.slice(5));
-  const revenueData = series.map(d => parseFloat(d.revenue.toFixed(2)));
-  const clicksData = series.map(d => d.clicks);
-  const epcData = series.map(d => parseFloat(d.epc.toFixed(4)));
+  // Apply week grouping
+  const displaySeries = chartGroupWeeks ? groupByWeeks(series) : series;
+  const periodLabel = chartGroupWeeks ? 'weeks' : 'days';
 
-  const totalRev = series.reduce((s,d)=>s+d.revenue,0);
-  const totalClicks2 = series.reduce((s,d)=>s+d.clicks,0);
+  const labels = displaySeries.map(d => chartGroupWeeks ? d.date : d.date.slice(5));
+  const revenueData = displaySeries.map(d => parseFloat(d.revenue.toFixed(2)));
+  const clicksData = displaySeries.map(d => d.clicks);
+  const epcData = displaySeries.map(d => parseFloat(d.epc.toFixed(4)));
+
+  const totalRev = displaySeries.reduce((s,d)=>s+d.revenue,0);
+  const totalClicks2 = displaySeries.reduce((s,d)=>s+d.clicks,0);
   const totalConvs = series.reduce((s,d)=>s+d.conversions,0);
   const avgEPC = totalClicks2>0?totalRev/totalClicks2:0;
   const peakRev = Math.max(...revenueData);
   const peakClicks = Math.max(...clicksData);
 
+  // Title
   const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title; chartsRight.appendChild(titleEl);
-  const subEl = document.createElement('div'); subEl.className='chart-section-sub'; subEl.textContent=`${series.length} days · ${series[0].date} → ${series[series.length-1].date}`; chartsRight.appendChild(subEl);
+  const subEl = document.createElement('div'); subEl.className='chart-section-sub';
+  subEl.textContent=`${displaySeries.length} ${periodLabel} · ${displaySeries[0].date} → ${displaySeries[displaySeries.length-1].date}`;
+  chartsRight.appendChild(subEl);
 
-  chartsRight.appendChild(buildChartCard('revenue-chart', 'Daily Revenue', revenueData, dates, series));
-  chartsRight.appendChild(buildChartCard('clicks-chart', 'Daily Clicks', clicksData, dates, series));
-  chartsRight.appendChild(buildChartCard('epc-chart', 'Daily EPC (Revenue per Click)', epcData, dates, series));
+  // Controls bar
+  const ctrlBar = document.createElement('div'); ctrlBar.className = 'chart-controls-bar';
 
+  const groupLbl = document.createElement('span'); groupLbl.className = 'cc-label'; groupLbl.textContent = 'Group:'; ctrlBar.appendChild(groupLbl);
+  const weekBtn = document.createElement('button'); weekBtn.className = 'cc-btn' + (chartGroupWeeks ? ' active-week' : ''); weekBtn.textContent = chartGroupWeeks ? '▪ Weeks' : '◦ Weeks';
+  weekBtn.onclick = () => toggleChartControl('weeks'); ctrlBar.appendChild(weekBtn);
+
+  const sep1 = document.createElement('div'); sep1.className = 'cc-sep'; ctrlBar.appendChild(sep1);
+
+  const maLbl = document.createElement('span'); maLbl.className = 'cc-label'; maLbl.textContent = 'Moving avg:'; ctrlBar.appendChild(maLbl);
+  const ma7Btn = document.createElement('button'); ma7Btn.className = 'cc-btn' + (chartMA7 ? ' active-ma7' : ''); ma7Btn.textContent = chartMA7 ? '▪ MA 7' : '◦ MA 7';
+  ma7Btn.onclick = () => toggleChartControl('ma7'); ctrlBar.appendChild(ma7Btn);
+  const ma14Btn = document.createElement('button'); ma14Btn.className = 'cc-btn' + (chartMA14 ? ' active-ma14' : ''); ma14Btn.textContent = chartMA14 ? '▪ MA 14' : '◦ MA 14';
+  ma14Btn.onclick = () => toggleChartControl('ma14'); ctrlBar.appendChild(ma14Btn);
+
+  if (chartGroupWeeks && (chartMA7 || chartMA14)) {
+    const note = document.createElement('span'); note.style.cssText='font-size:9px;color:var(--orange);margin-left:auto;white-space:nowrap;opacity:0.85;'; note.textContent = '⚡ MA applied to weekly buckets'; ctrlBar.appendChild(note);
+  }
+
+  chartsRight.appendChild(ctrlBar);
+
+  // Combined Revenue + Clicks chart
+  chartsRight.appendChild(buildCombinedChart('combined-rev-clk', labels, revenueData, clicksData));
+
+  // EPC chart
+  chartsRight.appendChild(buildEPCChart('epc-chart', labels, epcData));
+
+  // Summary chips
   const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
   const shdr = document.createElement('div'); shdr.className='chart-card-hdr'; const stitle = document.createElement('div'); stitle.className='chart-card-title'; stitle.textContent='Period Summary'; shdr.appendChild(stitle); summaryCard.appendChild(shdr);
   const chips = document.createElement('div'); chips.className='chart-summary-chips';
@@ -2397,68 +2336,128 @@ function renderChart(scope, title) {
   summaryCard.appendChild(chips);
   chartsRight.appendChild(summaryCard);
 
+  // Day-by-day table
   const tableCard = document.createElement('div'); tableCard.className='chart-card';
   const thdr = document.createElement('div'); thdr.className='chart-card-hdr';
-  const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent='Day-by-Day Table'; thdr.appendChild(ttitle);
+  const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent=chartGroupWeeks?'Week-by-Week Table':'Day-by-Day Table'; thdr.appendChild(ttitle);
   const toggleBtn = document.createElement('button');
   toggleBtn.style.cssText='padding:3px 10px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:10px;cursor:pointer;';
   toggleBtn.textContent='Show'; let tableVisible=false;
   const tableWrap = document.createElement('div'); tableWrap.style.display='none';
   toggleBtn.onclick=()=>{ tableVisible=!tableVisible; tableWrap.style.display=tableVisible?'block':'none'; toggleBtn.textContent=tableVisible?'Hide':'Show'; };
   thdr.appendChild(toggleBtn); tableCard.appendChild(thdr);
-
   const table = document.createElement('table'); table.className='chart-data-table';
-  const thead = document.createElement('thead');
-  const hrow = document.createElement('tr');
-  ['Date','Clicks','Conversions','Revenue','EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
+  const thead = document.createElement('thead'); const hrow = document.createElement('tr');
+  [chartGroupWeeks?'Week':'Date','Clicks','Conversions','Revenue','EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
   thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
-  series.forEach(d=>{ const tr=document.createElement('tr'); [d.date,fmtNum(d.clicks),d.conversions,'$'+d.revenue.toFixed(2),'$'+d.epc.toFixed(4)].forEach((v,i)=>{ const td=document.createElement('td'); td.textContent=v; if(i===3) td.style.color='var(--green)'; if(i===4) td.style.color='var(--yellow)'; tr.appendChild(td); }); tbody.appendChild(tr); });
-  table.appendChild(tbody);
-  tableWrap.appendChild(table); tableCard.appendChild(tableWrap);
+  displaySeries.forEach(d=>{ const tr=document.createElement('tr'); [d.date,fmtNum(d.clicks),Math.round(d.conversions),'$'+d.revenue.toFixed(2),'$'+d.epc.toFixed(4)].forEach((v,i)=>{ const td=document.createElement('td'); td.textContent=v; if(i===3) td.style.color='var(--green)'; if(i===4) td.style.color='var(--yellow)'; tr.appendChild(td); }); tbody.appendChild(tr); });
+  table.appendChild(tbody); tableWrap.appendChild(table); tableCard.appendChild(tableWrap);
   chartsRight.appendChild(tableCard);
 }
 
-function buildChartCard(id, label, data, dates, series) {
+// ── Combined Revenue + Clicks dual-axis chart ──
+function buildCombinedChart(id, labels, revenueData, clicksData) {
   const colors = getChartColors();
   const card = document.createElement('div'); card.className='chart-card';
 
   const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
-  const title = document.createElement('div'); title.className='chart-card-title'; title.textContent=label; hdr.appendChild(title);
+  const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='Revenue & Clicks'; hdr.appendChild(titleEl);
   card.appendChild(hdr);
 
-  const wrap = document.createElement('div'); wrap.className='chart-canvas-wrap';
-  const canvas = document.createElement('canvas'); canvas.id=id; canvas.style.width='100%'; canvas.style.height='100%';
-  wrap.appendChild(canvas); card.appendChild(wrap);
+  // Legend
+  const legend = document.createElement('div'); legend.className = 'chart-legend';
+  const legendItems = [
+    { color: colors.revenue, label: 'Revenue' },
+    { color: colors.clicks,  label: 'Clicks' },
+  ];
+  if (chartMA7)  legendItems.push({ color: colors.ma7,  label: 'MA 7 (Rev)' });
+  if (chartMA14) legendItems.push({ color: colors.ma14, label: 'MA 14 (Rev)' });
+  legendItems.forEach(li => {
+    const item = document.createElement('div'); item.className = 'chart-legend-item';
+    const dot = document.createElement('div'); dot.className = 'chart-legend-dot'; dot.style.background = li.color;
+    const lbl = document.createElement('span'); lbl.textContent = li.label;
+    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
+  });
+  card.appendChild(legend);
 
-  let lineColor = colors.revenue;
-  if (label.toLowerCase().includes('click')) lineColor = colors.clicks;
-  if (label.toLowerCase().includes('epc')) lineColor = colors.epc;
+  const wrap = document.createElement('div'); wrap.className='chart-canvas-wrap-tall';
+  const canvas = document.createElement('canvas'); canvas.id=id;
+  wrap.appendChild(canvas); card.appendChild(wrap);
 
   requestAnimationFrame(() => {
     if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
     const ctx = canvas.getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
-    gradient.addColorStop(0, lineColor + '30');
-    gradient.addColorStop(1, lineColor + '00');
+
+    const datasets = [
+      {
+        label: 'Revenue',
+        data: revenueData,
+        borderColor: colors.revenue,
+        backgroundColor: colors.revenue + '18',
+        borderWidth: 2,
+        pointRadius: labels.length > 60 ? 0 : 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: colors.revenue,
+        tension: 0.3,
+        fill: true,
+        yAxisID: 'yRev',
+        order: 3,
+      },
+      {
+        label: 'Clicks',
+        data: clicksData,
+        borderColor: colors.clicks,
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [],
+        pointRadius: labels.length > 60 ? 0 : 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: colors.clicks,
+        tension: 0.3,
+        fill: false,
+        yAxisID: 'yClk',
+        order: 2,
+      },
+    ];
+
+    if (chartMA7) {
+      const ma7Rev = computeMA(revenueData, 7);
+      datasets.push({
+        label: 'MA 7',
+        data: ma7Rev,
+        borderColor: colors.ma7,
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [5, 3],
+        pointRadius: 0,
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'yRev',
+        order: 1,
+      });
+    }
+
+    if (chartMA14) {
+      const ma14Rev = computeMA(revenueData, 14);
+      datasets.push({
+        label: 'MA 14',
+        data: ma14Rev,
+        borderColor: colors.ma14,
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [8, 4],
+        pointRadius: 0,
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'yRev',
+        order: 0,
+      });
+    }
 
     chartInstances[id] = new Chart(ctx, {
       type: 'line',
-      data: {
-        labels: dates,
-        datasets: [{
-          label: label,
-          data: data,
-          borderColor: lineColor,
-          backgroundColor: gradient,
-          borderWidth: 2,
-          pointRadius: data.length > 60 ? 0 : 3,
-          pointHoverRadius: 5,
-          pointBackgroundColor: lineColor,
-          tension: 0.3,
-          fill: true,
-        }]
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -2475,20 +2474,170 @@ function buildChartCard(id, label, data, dates, series) {
             bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
             padding: 10,
             callbacks: {
-              title: (items) => { const idx = items[0].dataIndex; return series[idx]?.date || items[0].label; },
               label: (item) => {
                 const v = item.raw;
-                if (label.toLowerCase().includes('revenue')) return ' Revenue: $' + v.toFixed(2);
-                if (label.toLowerCase().includes('click')) return ' Clicks: ' + fmtNum(v);
-                if (label.toLowerCase().includes('epc')) return ' EPC: $' + v.toFixed(4);
+                if (item.dataset.label === 'Revenue') return ' Revenue: $' + v.toFixed(2);
+                if (item.dataset.label === 'Clicks') return ' Clicks: ' + fmtNum(v);
+                if (item.dataset.label === 'MA 7') return ' MA 7: $' + v.toFixed(2);
+                if (item.dataset.label === 'MA 14') return ' MA 14: $' + v.toFixed(2);
                 return ' ' + v;
               }
             }
           }
         },
         scales: {
-          x: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, border: { color: colors.grid } },
-          y: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => { if (label.toLowerCase().includes('click')) return fmtNum(v); return '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(label.toLowerCase().includes('epc')?3:0)); } }, border: { color: colors.grid } }
+          x: {
+            grid: { color: colors.grid },
+            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
+            border: { color: colors.grid }
+          },
+          yRev: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: colors.grid },
+            ticks: {
+              color: colors.revenue,
+              font: { family: "'JetBrains Mono', monospace", size: 9 },
+              callback: (v) => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0))
+            },
+            border: { color: colors.grid }
+          },
+          yClk: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: colors.clicks,
+              font: { family: "'JetBrains Mono', monospace", size: 9 },
+              callback: (v) => fmtNum(v)
+            },
+            border: { color: colors.grid }
+          }
+        }
+      }
+    });
+  });
+
+  return card;
+}
+
+// ── EPC chart with optional MA ──
+function buildEPCChart(id, labels, epcData) {
+  const colors = getChartColors();
+  const card = document.createElement('div'); card.className='chart-card';
+
+  const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
+  const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='EPC (Revenue per Click)'; hdr.appendChild(titleEl);
+  card.appendChild(hdr);
+
+  // Legend
+  const legend = document.createElement('div'); legend.className = 'chart-legend';
+  const legendItems = [{ color: colors.epc, label: 'EPC' }];
+  if (chartMA7)  legendItems.push({ color: colors.ma7,  label: 'MA 7' });
+  if (chartMA14) legendItems.push({ color: colors.ma14, label: 'MA 14' });
+  legendItems.forEach(li => {
+    const item = document.createElement('div'); item.className = 'chart-legend-item';
+    const dot = document.createElement('div'); dot.className = 'chart-legend-dot'; dot.style.background = li.color;
+    const lbl = document.createElement('span'); lbl.textContent = li.label;
+    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
+  });
+  card.appendChild(legend);
+
+  const wrap = document.createElement('div'); wrap.className='chart-canvas-wrap';
+  const canvas = document.createElement('canvas'); canvas.id=id;
+  wrap.appendChild(canvas); card.appendChild(wrap);
+
+  requestAnimationFrame(() => {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, colors.epc + '28');
+    gradient.addColorStop(1, colors.epc + '00');
+
+    const datasets = [
+      {
+        label: 'EPC',
+        data: epcData,
+        borderColor: colors.epc,
+        backgroundColor: gradient,
+        borderWidth: 2,
+        pointRadius: labels.length > 60 ? 0 : 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: colors.epc,
+        tension: 0.3,
+        fill: true,
+        order: 3,
+      }
+    ];
+
+    if (chartMA7) {
+      datasets.push({
+        label: 'MA 7',
+        data: computeMA(epcData, 7),
+        borderColor: colors.ma7,
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [5, 3],
+        pointRadius: 0,
+        tension: 0.4,
+        fill: false,
+        order: 1,
+      });
+    }
+
+    if (chartMA14) {
+      datasets.push({
+        label: 'MA 14',
+        data: computeMA(epcData, 14),
+        borderColor: colors.ma14,
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [8, 4],
+        pointRadius: 0,
+        tension: 0.4,
+        fill: false,
+        order: 0,
+      });
+    }
+
+    chartInstances[id] = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(13,16,24,0.95)',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            titleColor: '#c8d4e8',
+            bodyColor: '#c8d4e8',
+            titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
+            bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+            padding: 10,
+            callbacks: {
+              label: (item) => {
+                const v = item.raw;
+                const pfx = item.dataset.label === 'EPC' ? ' EPC: ' : ` ${item.dataset.label}: `;
+                return pfx + '$' + v.toFixed(4);
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: colors.grid },
+            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
+            border: { color: colors.grid }
+          },
+          y: {
+            grid: { color: colors.grid },
+            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => '$' + v.toFixed(3) },
+            border: { color: colors.grid }
+          }
         }
       }
     });
@@ -2622,7 +2771,6 @@ function renderRight(code) {
 
   const hdr=document.createElement('div'); hdr.className='country-hdr';
   const nameEl=document.createElement('div'); nameEl.className='country-name'; nameEl.textContent=code; hdr.appendChild(nameEl);
-
   const chips=document.createElement('div'); chips.className='stat-chips';
   function makeChip(value,label,color) { const chip=document.createElement('div'); chip.className='chip'; const cv=document.createElement('div'); cv.className='cv'; cv.textContent=value; if(color) cv.style.color=color; const cl=document.createElement('div'); cl.className='cl'; cl.textContent=label; chip.appendChild(cv); chip.appendChild(cl); return chip; }
   chips.appendChild(makeChip(fmtNum(data.clicks),'Clicks',null));
@@ -2654,7 +2802,6 @@ function renderRight(code) {
   renderDeviceFilterBar(panel,code);
 
   const sectionLbl=document.createElement('div'); sectionLbl.className='section-lbl'; sectionLbl.textContent='Offers — sorted by EPC · offers without EPC sorted by clicks'; panel.appendChild(sectionLbl);
-
   if (!offers.length) { const empty=document.createElement('p'); empty.style.cssText='color:var(--muted);padding:20px;'; empty.textContent='No offer data for selected filter'; panel.appendChild(empty); return; }
 
   offers.forEach((o,idx)=>{
@@ -2734,8 +2881,8 @@ function applyTheme(theme) {
   const icon=theme==='light'?'☾':'☀',title=theme==='light'?'Switch to dark theme':'Switch to light theme';
   ['uploadThemeBtn','appThemeBtn'].forEach(id=>{ const btn=document.getElementById(id); if(btn){btn.textContent=icon;btn.title=title;} });
   localStorage.setItem('aa-theme',theme);
-  if (currentViewMode==='charts' && selectedAffiliate && HAS_DATES) {
-    setTimeout(()=>renderChartsView(),50);
+  if (currentViewMode==='charts' && selectedAffiliate && HAS_DATES && _lastChartScope) {
+    setTimeout(()=>renderChart(_lastChartScope, _lastChartTitle),50);
   }
 }
 function toggleTheme() { const current=document.documentElement.getAttribute('data-theme')||getSystemTheme(); applyTheme(current==='dark'?'light':'dark'); }
