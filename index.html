@@ -1142,6 +1142,7 @@ body {
 .src-badge-cps { background: rgba(34,217,138,0.15); color: var(--green); }
 .src-badge-rev { background: rgba(61,139,255,0.12); color: var(--accent); }
 .src-badge-clk { background: rgba(240,192,64,0.12); color: var(--yellow); }
+.src-badge-nosrc { background: rgba(74,90,120,0.18); color: var(--dim); }
 .src-badge-nosale { background: rgba(74,90,120,0.15); color: var(--muted); }
 
 .no-sources-msg {
@@ -1666,22 +1667,23 @@ function buildData(rows, m, ppsKw) {
       DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
     }
 
-    if (hasSrc && sourceRaw && isSafeKey(sourceRaw)) {
+    if (hasSrc) {
+      const effectiveSrcKey = (sourceRaw && isSafeKey(sourceRaw)) ? sourceRaw : '__no_source__';
       HAS_SOURCES = true;
       if (!srcAgg[affiliateId]) srcAgg[affiliateId] = {};
       if (!srcAgg[affiliateId][offerKey]) srcAgg[affiliateId][offerKey] = {
         offer_id: offerId, offer_name: offerName, is_pps: isPPS, has_goal_data: hasGoal, sources: {}
       };
-      const srcKey = sourceRaw;
-      if (!srcAgg[affiliateId][offerKey].sources[srcKey]) {
-        srcAgg[affiliateId][offerKey].sources[srcKey] = {
-          source: sourceRaw, replaced_source: replSrcRaw || null,
-          clicks: 0, conversions: 0, revenue: 0, sales: 0, cpl_convs: 0
+      if (!srcAgg[affiliateId][offerKey].sources[effectiveSrcKey]) {
+        srcAgg[affiliateId][offerKey].sources[effectiveSrcKey] = {
+          source: effectiveSrcKey, replaced_source: replSrcRaw || null,
+          clicks: 0, conversions: 0, revenue: 0, sales: 0, cpl_convs: 0,
+          is_no_source: effectiveSrcKey === '__no_source__'
         };
-      } else if (replSrcRaw && !srcAgg[affiliateId][offerKey].sources[srcKey].replaced_source) {
-        srcAgg[affiliateId][offerKey].sources[srcKey].replaced_source = replSrcRaw;
+      } else if (replSrcRaw && !srcAgg[affiliateId][offerKey].sources[effectiveSrcKey].replaced_source) {
+        srcAgg[affiliateId][offerKey].sources[effectiveSrcKey].replaced_source = replSrcRaw;
       }
-      const S = srcAgg[affiliateId][offerKey].sources[srcKey];
+      const S = srcAgg[affiliateId][offerKey].sources[effectiveSrcKey];
       S.clicks += clicks; S.conversions += conversions; S.revenue += revenue;
       if (isSale) S.sales += conversions;
       if (isCPL) S.cpl_convs += conversions;
@@ -1725,7 +1727,8 @@ function buildData(rows, m, ppsKw) {
           clicks: s.clicks, conversions: s.conversions, revenue: s.revenue,
           sales, cpl_convs,
           cr: parseFloat(cr.toFixed(4)), epc: parseFloat(epc.toFixed(6)),
-          reg2sale: parseFloat(reg2sale.toFixed(4)), cps: parseFloat(cps.toFixed(4))
+          reg2sale: parseFloat(reg2sale.toFixed(4)), cps: parseFloat(cps.toFixed(4)),
+          is_no_source: s.is_no_source || false
         };
       });
       SOURCE_DATA[affId][offerKey] = {
@@ -2008,10 +2011,12 @@ function renderSrcOfferList() {
 }
 
 function sortSources(sources) {
-  const withSales = sources.filter(s => s.sales > 0).sort((a,b) => a.cps - b.cps);
-  const withRevNoSales = sources.filter(s => s.sales === 0 && s.revenue > 0).sort((a,b) => b.revenue - a.revenue);
-  const noRevNoSales = sources.filter(s => s.sales === 0 && s.revenue === 0).sort((a,b) => b.clicks - a.clicks);
-  return { withSales, withRevNoSales, noRevNoSales };
+  const named = sources.filter(s => !s.is_no_source);
+  const noSource = sources.filter(s => s.is_no_source);
+  const withSales = named.filter(s => s.sales > 0).sort((a,b) => a.cps - b.cps);
+  const withRevNoSales = named.filter(s => s.sales === 0 && s.revenue > 0).sort((a,b) => b.revenue - a.revenue);
+  const noRevNoSales = named.filter(s => s.sales === 0 && s.revenue === 0).sort((a,b) => b.clicks - a.clicks);
+  return { withSales, withRevNoSales, noRevNoSales, noSource };
 }
 
 function renderSrcRight(offerKey) {
@@ -2026,7 +2031,8 @@ function renderSrcRight(offerKey) {
   panel.innerHTML = '';
   const hdrArea = document.createElement('div'); hdrArea.className = 'source-hdr-area';
   const title = document.createElement('div'); title.className = 'source-hdr-title'; title.textContent = offerData.offer_name; hdrArea.appendChild(title);
-  const subParts = []; if (offerData.offer_id) subParts.push('#' + offerData.offer_id); subParts.push(sources.length + ' sources');
+  const subParts = []; if (offerData.offer_id) subParts.push('#' + offerData.offer_id); subParts.push(sources.filter(s=>!s.is_no_source).length + ' sources');
+  const noSrcEntry = sources.find(s=>s.is_no_source); if (noSrcEntry) subParts.push('+ no-source traffic');
   const sub = document.createElement('div'); sub.className = 'source-hdr-sub'; sub.textContent = subParts.join(' · '); hdrArea.appendChild(sub);
   const chips = document.createElement('div'); chips.className = 'source-chips';
   const totClicks = sources.reduce((s,x)=>s+x.clicks,0);
@@ -2042,10 +2048,10 @@ function renderSrcRight(offerKey) {
   chips.appendChild(makeChip(sources.length,'Sources',null));
   hdrArea.appendChild(chips);
   const legend = document.createElement('div'); legend.className = 'src-legend';
-  [{ color:'var(--green)', label:'Has sales — sorted by CPS ↑ (lower = better)' },{ color:'var(--accent)', label:'Revenue only — sorted by revenue ↓' },{ color:'var(--muted)', label:'No revenue — sorted by clicks ↓' }].forEach(li => { const item=document.createElement('div'); item.className='src-legend-item'; const dot=document.createElement('div'); dot.className='src-legend-dot'; dot.style.background=li.color; const lbl=document.createElement('span'); lbl.textContent=li.label; item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item); });
+  [{ color:'var(--green)', label:'Has sales — sorted by CPS ↑ (lower = better)' },{ color:'var(--accent)', label:'Revenue only — sorted by revenue ↓' },{ color:'var(--muted)', label:'No revenue — sorted by clicks ↓' },{ color:'var(--dim)', label:'No source — traffic without a source identifier' }].forEach(li => { const item=document.createElement('div'); item.className='src-legend-item'; const dot=document.createElement('div'); dot.className='src-legend-dot'; dot.style.background=li.color; const lbl=document.createElement('span'); lbl.textContent=li.label; item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item); });
   hdrArea.appendChild(legend);
   panel.appendChild(hdrArea);
-  const { withSales, withRevNoSales, noRevNoSales } = sortSources(sources);
+  const { withSales, withRevNoSales, noRevNoSales, noSource } = sortSources(sources);
   const tableWrap = document.createElement('div'); tableWrap.className = 'source-table-wrap';
   const table = document.createElement('table'); table.className = 'source-table';
   const thead = document.createElement('thead'); const hrow = document.createElement('tr');
@@ -2057,11 +2063,15 @@ function renderSrcRight(offerKey) {
     const tr = document.createElement('tr'); if (rank === 1) tr.className = 'src-top';
     const rankTd = document.createElement('td'); rankTd.style.textAlign = 'left';
     const rb = document.createElement('span'); rb.className = 'src-rank-badge';
-    if (groupType==='sales') rb.classList.add('src-badge-cps'); else if (groupType==='rev') rb.classList.add('src-badge-rev'); else rb.classList.add('src-badge-clk');
+    if (groupType==='sales') rb.classList.add('src-badge-cps'); else if (groupType==='rev') rb.classList.add('src-badge-rev'); else if (groupType==='nosrc') rb.classList.add('src-badge-nosrc'); else rb.classList.add('src-badge-clk');
     rb.textContent = rank <= 9 ? rank : '·'; rankTd.appendChild(rb); tr.appendChild(rankTd);
     const srcTd = document.createElement('td'); srcTd.style.textAlign = 'left';
-    const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.textContent = s.source; srcTd.appendChild(srcMain);
-    if (s.replaced_source) { const srcAlt=document.createElement('div'); srcAlt.className='source-id-alt'; srcAlt.textContent=s.replaced_source; const badge=document.createElement('span'); badge.className='replaced-src-badge'; badge.textContent='ALT'; srcAlt.appendChild(badge); srcTd.appendChild(srcAlt); }
+    if (s.is_no_source) {
+      const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.style.color='var(--dim)'; srcMain.style.fontStyle='italic'; srcMain.textContent = '(no source)'; srcTd.appendChild(srcMain);
+    } else {
+      const srcMain = document.createElement('div'); srcMain.className = 'source-id-main'; srcMain.textContent = s.source; srcTd.appendChild(srcMain);
+      if (s.replaced_source) { const srcAlt=document.createElement('div'); srcAlt.className='source-id-alt'; srcAlt.textContent=s.replaced_source; const badge=document.createElement('span'); badge.className='replaced-src-badge'; badge.textContent='ALT'; srcAlt.appendChild(badge); srcTd.appendChild(srcAlt); }
+    }
     tr.appendChild(srcTd);
     const clkTd = document.createElement('td'); clkTd.textContent = fmtNum(s.clicks); tr.appendChild(clkTd);
     const convTd = document.createElement('td'); convTd.textContent = s.conversions; tr.appendChild(convTd);
@@ -2079,6 +2089,7 @@ function renderSrcRight(offerKey) {
   if (withSales.length > 0) { addGroupSep(`▲ Has sales — sorted by CPS · ${withSales.length} source${withSales.length!==1?'s':''}`); withSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'sales'))); }
   if (withRevNoSales.length > 0) { addGroupSep(`→ Revenue only — sorted by revenue · ${withRevNoSales.length} source${withRevNoSales.length!==1?'s':''}`); withRevNoSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'rev'))); }
   if (noRevNoSales.length > 0) { addGroupSep(`· No revenue — sorted by clicks · ${noRevNoSales.length} source${noRevNoSales.length!==1?'s':''}`); noRevNoSales.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'clk'))); }
+  if (noSource.length > 0) { addGroupSep(`⊘ No source — traffic without source identifier`); noSource.forEach((s,i) => tbody.appendChild(buildSourceRow(s,i+1,'nosrc'))); }
   table.appendChild(tbody); tableWrap.appendChild(table); panel.appendChild(tableWrap);
 }
 
