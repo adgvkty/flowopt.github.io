@@ -11,7 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
 
 :root {
   --bg: #080a0f;
@@ -809,7 +809,7 @@ body {
 
 .charts-layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 300px 1fr;
   flex: 1;
   overflow: hidden;
 }
@@ -862,6 +862,29 @@ body {
 
 .dim-list { overflow-y: auto; flex: 1; }
 
+/* ─── Dimension search bar ─── */
+.dim-search-bar {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.dim-search-bar input {
+  width: 100%;
+  padding: 5px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  outline: none;
+  transition: border-color .12s;
+  box-sizing: border-box;
+}
+.dim-search-bar input:focus { border-color: var(--accent); }
+.dim-search-bar input::placeholder { color: var(--dim); }
+
 .dim-item {
   padding: 7px 14px;
   cursor: pointer;
@@ -870,10 +893,17 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  position: relative;
 }
 .dim-item:hover { background: var(--surface2); }
 .dim-item.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 12px; }
 
+.dim-item-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
 .dim-item-name {
   font-size: 11px;
   font-weight: 600;
@@ -881,6 +911,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 .dim-item.selected .dim-item-name { color: var(--accent); }
 .dim-item-sub {
@@ -891,18 +923,154 @@ body {
   white-space: nowrap;
 }
 
+/* Copy button inside dim list + chart title */
+.dim-copy-btn {
+  flex-shrink: 0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all .12s;
+  line-height: 1;
+  opacity: 0;
+}
+.dim-item:hover .dim-copy-btn,
+.dim-tree-flow-hdr:hover .dim-copy-btn,
+.dim-copy-btn:focus { opacity: 1; }
+.dim-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(61,139,255,0.08); }
+.dim-copy-btn.copied { border-color: var(--green); color: var(--green); background: rgba(34,217,138,0.08); opacity: 1; }
+
+/* ─── Tree view ─── */
+.dim-tree-node {
+  border-bottom: 1px solid var(--border);
+}
+.dim-tree-flow-hdr {
+  padding: 6px 10px 6px 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  transition: background .1s;
+}
+.dim-tree-flow-hdr:hover { background: rgba(34,217,138,0.06); }
+.dim-tree-flow-hdr .twisty {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--muted);
+  width: 10px;
+  display: inline-block;
+}
+.dim-tree-flow-hdr .flow-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--green);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dim-tree-flow-hdr.flow-selected { background: rgba(34,217,138,0.1); }
+
+.dim-tree-child {
+  padding: 6px 10px 6px 28px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+.dim-tree-child:hover { background: var(--surface2); }
+.dim-tree-child.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 26px; }
+.dim-tree-child .twisty {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--muted);
+  width: 10px;
+  display: inline-block;
+}
+.dim-tree-child .icon {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--muted);
+  width: 14px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+.dim-tree-child .main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+.dim-tree-child .main .n {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dim-tree-child.selected .main .n { color: var(--accent); }
+.dim-tree-child .main .s {
+  font-size: 9px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dim-tree-grandchild {
+  padding-left: 46px;
+}
+.dim-tree-grandchild.selected { padding-left: 44px; }
+
+/* Chart title copy button */
+.chart-title-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .12s;
+  vertical-align: middle;
+  line-height: 1;
+}
+.chart-title-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(61,139,255,0.08); }
+.chart-title-copy-btn.copied { border-color: var(--green); color: var(--green); background: rgba(34,217,138,0.08); }
+
 .charts-right { overflow-y: auto; padding: 20px 24px; }
 
 .chart-section-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--logo-color);
   letter-spacing: -0.01em;
   margin-bottom: 4px;
 }
 
-.chart-section-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+.chart-section-sub { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
 
 /* ─── CHART CONTROLS BAR ─── */
 .chart-controls-bar {
@@ -964,10 +1132,11 @@ body {
 }
 
 .chart-card-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 12px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
   font-weight: 700;
   color: var(--logo-color);
+  letter-spacing: -0.005em;
 }
 
 .chart-canvas-wrap { position: relative; height: 220px; }
@@ -1355,6 +1524,7 @@ body {
           <h2>Dimension</h2>
           <div class="dim-tabs">
             <button class="dim-tab active" id="dimTabOverall" onclick="selectDimension('overall')">All</button>
+            <button class="dim-tab" id="dimTabTree" onclick="selectDimension('tree')">Tree</button>
             <button class="dim-tab" id="dimTabFlow" onclick="selectDimension('flow')">Flow</button>
             <button class="dim-tab" id="dimTabGeo" onclick="selectDimension('geo')">GEO</button>
             <button class="dim-tab" id="dimTabOffer" onclick="selectDimension('offer')">Offer</button>
@@ -1362,6 +1532,9 @@ body {
           <div id="groupByFlowRow" style="display:none;margin-top:8px;">
             <button id="groupByFlowBtn" onclick="toggleGroupByFlow()" style="width:100%;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:all .12s;text-align:left;">◦ Group by Flow</button>
           </div>
+        </div>
+        <div class="dim-search-bar" id="dimSearchBar" style="display:none;">
+          <input type="text" id="dimSearchInput" placeholder="Search flow / geo / offer…" maxlength="100" autocomplete="off">
         </div>
         <div class="dim-list" id="dimList"></div>
       </div>
@@ -1409,6 +1582,9 @@ let chartSelectedFlowId = null;
 let chartGroupByFlow = false;
 let collapsedFlows = new Set();
 let chartInstances = {};
+let dimSearchQuery = '';
+let treeExpandedFlows = new Set();
+let treeExpandedGeos = new Set();  // keys: `${flowId}::${country}`
 
 // ── Chart display state ──
 let chartGroupWeeks = false;
@@ -1798,6 +1974,10 @@ function launchApp() {
 
   document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.slice(0,100); renderCountryList(); });
   document.getElementById('srcOfferSearch').addEventListener('input', e => { srcOfferSearchQuery = e.target.value.slice(0,100); renderSrcOfferList(); });
+  const dimSearchInputEl = document.getElementById('dimSearchInput');
+  if (dimSearchInputEl) {
+    dimSearchInputEl.oninput = e => { dimSearchQuery = e.target.value.slice(0,100); renderDimList(); };
+  }
 
   renderAffiliateTabs();
   const topAff = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue)[0];
@@ -2133,12 +2313,15 @@ function computeDailyTimeseries(affId, scope) {
     if (scope.type==='flow' && flowId!==scope.flowId) continue;
     if (scope.type==='geo_flow' && flowId!==scope.flowId) continue;
     if (scope.type==='offer_flow' && flowId!==scope.flowId) continue;
+    if (scope.type==='offer_flow_geo' && flowId!==scope.flowId) continue;
     for (const [country, offers] of Object.entries(countries)) {
       if (scope.type==='geo' && country!==scope.country) continue;
       if (scope.type==='geo_flow' && country!==scope.country) continue;
+      if (scope.type==='offer_flow_geo' && country!==scope.country) continue;
       for (const [offerKey, dayData] of Object.entries(offers)) {
         if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow' && offerKey!==scope.offerKey) continue;
+        if (scope.type==='offer_flow_geo' && offerKey!==scope.offerKey) continue;
         for (const [date, d] of Object.entries(dayData)) {
           if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
           byDate[date].clicks += d.clicks;
@@ -2240,15 +2423,26 @@ function selectDimension(dim) {
   chartSelectedKey = null;
   chartSelectedFlowId = null;
   collapsedFlows = new Set();
-  ['overall','flow','geo','offer'].forEach(d => document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1)).classList.toggle('active', d===dim));
+  ['overall','tree','flow','geo','offer'].forEach(d => {
+    const el = document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1));
+    if (el) el.classList.toggle('active', d===dim);
+  });
   // Show "Group by Flow" toggle only for GEO and Offer dims
   const gbfRow = document.getElementById('groupByFlowRow');
   if (gbfRow) gbfRow.style.display = (dim==='geo'||dim==='offer') ? 'block' : 'none';
+  // Show search bar for any non-overall dim
+  const searchBar = document.getElementById('dimSearchBar');
+  if (searchBar) searchBar.style.display = (dim==='overall') ? 'none' : 'block';
+  // Reset search when switching dimensions
+  dimSearchQuery = '';
+  const searchInput = document.getElementById('dimSearchInput');
+  if (searchInput) searchInput.value = '';
   renderDimList();
   if (dim==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
   else {
     const chartsRight = document.getElementById('chartsRight');
-    chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+dim+' from the left</div></div>';
+    const label = dim==='tree' ? 'item' : dim;
+    chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+label+' from the left</div></div>';
   }
 }
 
@@ -2276,38 +2470,104 @@ function toggleGroupByFlow() {
   chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select an item from the left</div></div>';
 }
 
+// ── Copy helper + flow copy button factory ──
+function copyTextToClipboard(text, btn, origText) {
+  const done = () => {
+    if (!btn) return;
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = origText; btn.classList.remove('copied'); }, 1200);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(e){}
+      document.body.removeChild(ta); done();
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta); done();
+  }
+}
+function makeFlowCopyBtn(flowId, cls) {
+  const btn = document.createElement('button');
+  btn.className = cls || 'dim-copy-btn';
+  btn.title = 'Copy Flow ID';
+  btn.textContent = '⎘';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    copyTextToClipboard(flowId, btn, '⎘');
+  });
+  return btn;
+}
+
+function dimMatchesSearch(item, q) {
+  if (!q) return true;
+  const name = (item.name || '').toLowerCase();
+  const sub = (item.sub || '').toLowerCase();
+  return name.includes(q) || sub.includes(q);
+}
+
 function renderDimList() {
   const list = document.getElementById('dimList');
   list.innerHTML = '';
   if (!selectedAffiliate) return;
   if (chartDimension==='overall') return;
 
+  const q = (dimSearchQuery || '').toLowerCase().trim();
+
+  if (chartDimension === 'tree') {
+    renderDimTree(list, q);
+    return;
+  }
+
   if (chartGroupByFlow && (chartDimension==='geo' || chartDimension==='offer')) {
     // Grouped mode: show items under each flow as sub-headers
     const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a,b)=>getFlowStats(selectedAffiliate,b).revenue-getFlowStats(selectedAffiliate,a).revenue);
+    let anyRendered = false;
     flows.forEach(flowId => {
       let items = [];
       if (chartDimension==='geo') items = getDimList_geoForFlow(selectedAffiliate, flowId);
       else items = getDimList_offerForFlow(selectedAffiliate, flowId);
       if (!items.length) return;
 
-      const isCollapsed = collapsedFlows.has(flowId);
       const flowLabel = flowId === '__no_flow__' ? '⊘ No Flow' : flowId;
+      // When searching: if flow name matches, show all items under it; otherwise filter items
+      const flowMatches = q && flowLabel.toLowerCase().includes(q);
+      const filteredItems = q && !flowMatches ? items.filter(it => dimMatchesSearch(it, q)) : items;
+      if (!filteredItems.length) return;
+
+      const isCollapsed = collapsedFlows.has(flowId);
+      // Auto-expand when searching
+      const effectiveCollapsed = q ? false : isCollapsed;
 
       // Flow sub-header (clickable to collapse/expand)
       const hdr = document.createElement('div');
-      hdr.style.cssText = 'padding:5px 10px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);background:var(--bg);border-bottom:1px solid var(--border);border-top:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:background .1s;';
-      hdr.title = isCollapsed ? 'Click to expand' : 'Click to collapse';
+      hdr.style.cssText = 'padding:5px 10px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);background:var(--bg);border-bottom:1px solid var(--border);border-top:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:background .1s;gap:6px;';
+      hdr.title = effectiveCollapsed ? 'Click to expand' : 'Click to collapse';
 
       const hdrLeft = document.createElement('span');
       hdrLeft.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;';
       hdrLeft.textContent = flowLabel;
 
-      const hdrRight = document.createElement('span');
-      hdrRight.style.cssText = 'flex-shrink:0;margin-left:6px;font-size:10px;opacity:0.7;transition:transform .15s;display:inline-block;';
-      hdrRight.textContent = isCollapsed ? '▶' : '▼';
+      // Copy button for flow (only if it's a real flow, not __no_flow__)
+      if (flowId !== '__no_flow__') {
+        const copyBtn = makeFlowCopyBtn(flowId);
+        copyBtn.style.opacity = '1';
+        hdr.appendChild(hdrLeft);
+        hdr.appendChild(copyBtn);
+      } else {
+        hdr.appendChild(hdrLeft);
+      }
 
-      hdr.appendChild(hdrLeft);
+      const hdrRight = document.createElement('span');
+      hdrRight.style.cssText = 'flex-shrink:0;margin-left:2px;font-size:10px;opacity:0.7;display:inline-block;';
+      hdrRight.textContent = effectiveCollapsed ? '▶' : '▼';
       hdr.appendChild(hdrRight);
 
       hdr.addEventListener('mouseenter', () => { hdr.style.background = 'rgba(34,217,138,0.06)'; });
@@ -2319,34 +2579,243 @@ function renderDimList() {
       });
 
       list.appendChild(hdr);
+      anyRendered = true;
 
-      if (!isCollapsed) {
-        items.forEach(item => {
+      if (!effectiveCollapsed) {
+        filteredItems.forEach(item => {
           const div = document.createElement('div');
           const isSelected = item.key===chartSelectedKey && flowId===chartSelectedFlowId;
           div.className = 'dim-item' + (isSelected ? ' selected' : '');
           div.addEventListener('click', () => selectDimItem(item, flowId));
-          const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name; div.appendChild(name);
+          const row = document.createElement('div'); row.className = 'dim-item-row';
+          const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
+          row.appendChild(name);
+          div.appendChild(row);
           const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
           list.appendChild(div);
         });
       }
     });
+    if (!anyRendered && q) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
+      empty.textContent = 'No matches for "' + dimSearchQuery + '"';
+      list.appendChild(empty);
+    }
   } else {
     // Flat mode (original behavior)
     let items = [];
     if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
     else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
     else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
+    if (q) items = items.filter(it => dimMatchesSearch(it, q));
+    if (!items.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
+      empty.textContent = q ? ('No matches for "' + dimSearchQuery + '"') : 'No items';
+      list.appendChild(empty);
+      return;
+    }
     items.forEach(item => {
       const div = document.createElement('div');
       div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
       div.addEventListener('click', () => selectDimItem(item, null));
-      const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name; div.appendChild(name);
+      const row = document.createElement('div'); row.className = 'dim-item-row';
+      const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
+      row.appendChild(name);
+      // Copy button for Flow dimension
+      if (chartDimension === 'flow' && item.key !== '__no_flow__') {
+        row.appendChild(makeFlowCopyBtn(item.key));
+      }
+      div.appendChild(row);
       const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
       list.appendChild(div);
     });
   }
+}
+
+// ── Tree view renderer ──
+// Structure: Flow → GEO → Offer (scoped to that flow + geo)
+function renderDimTree(list, q) {
+  const aff = selectedAffiliate;
+  const affData = FULL_DATA[aff];
+  if (!affData) return;
+
+  const flows = Object.keys(affData).sort((a,b)=>getFlowStats(aff,b).revenue-getFlowStats(aff,a).revenue);
+  let anyRendered = false;
+
+  flows.forEach(flowId => {
+    const flowStats = getFlowStats(aff, flowId);
+    const flowLabel = flowId === '__no_flow__' ? '⊘ No Flow' : flowId;
+    const flowSub = fmtMoney(flowStats.revenue) + ' · ' + fmtNum(flowStats.clicks) + ' clicks';
+
+    // Build geos for this flow
+    const geos = getDimList_geoForFlow(aff, flowId);
+    // Filter logic: if search query present, keep flow if flow label matches,
+    // otherwise keep only matching geos/offers under it.
+    const flowMatches = q && flowLabel.toLowerCase().includes(q);
+
+    // For each geo under this flow, compute its offers (scoped to flow+geo)
+    const geoNodes = [];
+    geos.forEach(geo => {
+      const geoKey = flowId + '::' + geo.key;
+      const offersForGeo = getOfferListForFlowGeo(aff, flowId, geo.key);
+      const geoMatches = q && geo.name.toLowerCase().includes(q);
+      let visibleOffers = offersForGeo;
+      if (q && !flowMatches && !geoMatches) {
+        visibleOffers = offersForGeo.filter(o => dimMatchesSearch(o, q));
+        if (!visibleOffers.length) return; // skip this geo
+      }
+      geoNodes.push({ geo, geoKey, offers: visibleOffers, geoMatches });
+    });
+
+    if (q && !flowMatches && geoNodes.length === 0) return;
+
+    anyRendered = true;
+
+    // Auto-expand when searching
+    const flowExpanded = q ? true : treeExpandedFlows.has(flowId);
+
+    // Flow header row
+    const flowHdr = document.createElement('div');
+    flowHdr.className = 'dim-tree-flow-hdr';
+    if (chartSelectedFlowId === flowId && chartSelectedKey === '__flow__' + flowId) {
+      flowHdr.classList.add('flow-selected');
+    }
+    const twisty = document.createElement('span');
+    twisty.className = 'twisty';
+    twisty.textContent = flowExpanded ? '▼' : '▶';
+    flowHdr.appendChild(twisty);
+
+    const label = document.createElement('div');
+    label.className = 'flow-label';
+    label.textContent = flowLabel;
+    label.title = 'Click to view this flow';
+    flowHdr.appendChild(label);
+
+    // Stats chip
+    const statsSpan = document.createElement('span');
+    statsSpan.style.cssText = 'font-size:9px;color:var(--muted);white-space:nowrap;flex-shrink:0;font-weight:500;text-transform:none;letter-spacing:0;';
+    statsSpan.textContent = flowSub;
+    flowHdr.appendChild(statsSpan);
+
+    // Copy button for real flows
+    if (flowId !== '__no_flow__') {
+      const copyBtn = makeFlowCopyBtn(flowId);
+      flowHdr.appendChild(copyBtn);
+    }
+
+    // Click header: expand/collapse AND select flow as chart scope
+    flowHdr.addEventListener('click', () => {
+      if (treeExpandedFlows.has(flowId)) treeExpandedFlows.delete(flowId);
+      else treeExpandedFlows.add(flowId);
+      // Also select the flow as the active chart scope
+      chartSelectedKey = '__flow__' + flowId;
+      chartSelectedFlowId = flowId;
+      renderDimList();
+      renderChart(
+        { type: 'flow', flowId },
+        'Flow: ' + flowLabel
+      );
+    });
+    list.appendChild(flowHdr);
+
+    if (!flowExpanded) return;
+
+    // GEO children
+    geoNodes.forEach(({ geo, geoKey, offers }) => {
+      const geoExpanded = q ? true : treeExpandedGeos.has(geoKey);
+      const geoRow = document.createElement('div');
+      geoRow.className = 'dim-tree-child';
+      const geoSelKey = 'geo_flow::' + flowId + '::' + geo.key;
+      if (chartSelectedKey === geoSelKey) geoRow.classList.add('selected');
+
+      const gTw = document.createElement('span');
+      gTw.className = 'twisty';
+      gTw.textContent = offers.length ? (geoExpanded ? '▼' : '▶') : '·';
+      geoRow.appendChild(gTw);
+
+      const gMain = document.createElement('div');
+      gMain.className = 'main';
+      const gn = document.createElement('div'); gn.className = 'n'; gn.textContent = geo.name; gMain.appendChild(gn);
+      const gs = document.createElement('div'); gs.className = 's'; gs.textContent = geo.sub; gMain.appendChild(gs);
+      geoRow.appendChild(gMain);
+
+      geoRow.addEventListener('click', (e) => {
+        // Toggle expand when twisty area clicked OR shift-click; otherwise select chart scope
+        // For simplicity: clicking toggles expansion AND selects
+        if (offers.length) {
+          if (treeExpandedGeos.has(geoKey)) treeExpandedGeos.delete(geoKey);
+          else treeExpandedGeos.add(geoKey);
+        }
+        chartSelectedKey = geoSelKey;
+        chartSelectedFlowId = flowId;
+        renderDimList();
+        renderChart(
+          { type: 'geo_flow', country: geo.key, flowId },
+          'GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
+        );
+      });
+      list.appendChild(geoRow);
+
+      if (geoExpanded && offers.length) {
+        offers.forEach(off => {
+          const offRow = document.createElement('div');
+          offRow.className = 'dim-tree-child dim-tree-grandchild';
+          const offSelKey = 'offer_flow_geo::' + flowId + '::' + geo.key + '::' + off.key;
+          if (chartSelectedKey === offSelKey) offRow.classList.add('selected');
+
+          const oTw = document.createElement('span');
+          oTw.className = 'twisty';
+          oTw.textContent = '·';
+          offRow.appendChild(oTw);
+
+          const oMain = document.createElement('div');
+          oMain.className = 'main';
+          const on = document.createElement('div'); on.className = 'n'; on.textContent = off.name; oMain.appendChild(on);
+          const os = document.createElement('div'); os.className = 's'; os.textContent = off.sub; oMain.appendChild(os);
+          offRow.appendChild(oMain);
+
+          offRow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chartSelectedKey = offSelKey;
+            chartSelectedFlowId = flowId;
+            renderDimList();
+            renderChart(
+              { type: 'offer_flow_geo', offerKey: off.key, flowId, country: geo.key },
+              off.name + ' · GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
+            );
+          });
+          list.appendChild(offRow);
+        });
+      }
+    });
+  });
+
+  if (!anyRendered) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
+    empty.textContent = q ? ('No matches for "' + dimSearchQuery + '"') : 'No data';
+    list.appendChild(empty);
+  }
+}
+
+// Get offer list scoped to a specific flow + geo
+function getOfferListForFlowGeo(affId, flowId, country) {
+  const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
+  if (!flowData) return [];
+  const geoData = flowData[country];
+  if (!geoData) return [];
+  const offerMap = {};
+  for (const o of geoData.offers) {
+    const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+    if (!offerMap[k]) offerMap[k] = { name: o.offer_name, clicks: 0, revenue: 0 };
+    offerMap[k].clicks += o.clicks;
+    offerMap[k].revenue += o.revenue;
+  }
+  return Object.entries(offerMap)
+    .sort((a,b) => b[1].revenue - a[1].revenue)
+    .map(([k,d]) => ({ key: k, name: d.name, sub: fmtMoney(d.revenue) + ' · ' + fmtNum(d.clicks) + ' clicks' }));
 }
 
 function selectDimItem(item, flowId) {
@@ -2425,7 +2894,21 @@ function renderChart(scope, title) {
   const peakClicks = Math.max(...clicksData);
 
   // Title
-  const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title; chartsRight.appendChild(titleEl);
+  const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title;
+  // Add copy button for any scope involving a specific flow
+  const flowIdForCopy = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
+  if (flowIdForCopy && flowIdForCopy !== '__no_flow__') {
+    const tCopy = document.createElement('button');
+    tCopy.className = 'chart-title-copy-btn';
+    tCopy.title = 'Copy Flow ID';
+    tCopy.textContent = '⎘ Flow';
+    tCopy.addEventListener('click', e => {
+      e.stopPropagation();
+      copyTextToClipboard(flowIdForCopy, tCopy, '⎘ Flow');
+    });
+    titleEl.appendChild(tCopy);
+  }
+  chartsRight.appendChild(titleEl);
   const subEl = document.createElement('div'); subEl.className='chart-section-sub';
   subEl.textContent=`${displaySeries.length} ${periodLabel} · ${displaySeries[0].date} → ${displaySeries[displaySeries.length-1].date}`;
   chartsRight.appendChild(subEl);
@@ -2451,11 +2934,8 @@ function renderChart(scope, title) {
 
   chartsRight.appendChild(ctrlBar);
 
-  // Combined Revenue + Clicks chart
-  chartsRight.appendChild(buildCombinedChart('combined-rev-clk', labels, revenueData, clicksData));
-
-  // EPC chart
-  chartsRight.appendChild(buildEPCChart('epc-chart', labels, epcData));
+  // Combined Revenue + Clicks + EPC chart
+  chartsRight.appendChild(buildCombinedChart('combined-rev-clk-epc', labels, revenueData, clicksData, epcData));
 
   // Summary chips
   const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
@@ -2498,13 +2978,13 @@ function renderChart(scope, title) {
   chartsRight.appendChild(tableCard);
 }
 
-// ── Combined Revenue + Clicks dual-axis chart ──
-function buildCombinedChart(id, labels, revenueData, clicksData) {
+// ── Combined Revenue + Clicks + EPC chart ──
+function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
   const colors = getChartColors();
   const card = document.createElement('div'); card.className='chart-card';
 
   const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
-  const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='Revenue & Clicks'; hdr.appendChild(titleEl);
+  const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='Revenue, Clicks & EPC'; hdr.appendChild(titleEl);
   card.appendChild(hdr);
 
   // Legend
@@ -2512,6 +2992,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
   const legendItems = [
     { color: colors.revenue, label: 'Revenue' },
     { color: colors.clicks,  label: 'Clicks' },
+    { color: colors.epc,     label: 'EPC' },
   ];
   if (chartMA7)  legendItems.push({ color: colors.ma7,  label: 'MA 7 (Rev)' });
   if (chartMA14) legendItems.push({ color: colors.ma14, label: 'MA 14 (Rev)' });
@@ -2560,6 +3041,21 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
         fill: false,
         yAxisID: 'yClk',
         order: 2,
+      },
+      {
+        label: 'EPC',
+        data: epcData,
+        borderColor: colors.epc,
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [4, 3],
+        pointRadius: labels.length > 60 ? 0 : 2,
+        pointHoverRadius: 5,
+        pointBackgroundColor: colors.epc,
+        tension: 0.3,
+        fill: false,
+        yAxisID: 'yEPC',
+        order: 1,
       },
     ];
 
@@ -2620,6 +3116,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
                 const v = item.raw;
                 if (item.dataset.label === 'Revenue') return ' Revenue: $' + v.toFixed(2);
                 if (item.dataset.label === 'Clicks') return ' Clicks: ' + fmtNum(v);
+                if (item.dataset.label === 'EPC') return ' EPC: $' + v.toFixed(4);
                 if (item.dataset.label === 'MA 7') return ' MA 7: $' + v.toFixed(2);
                 if (item.dataset.label === 'MA 14') return ' MA 14: $' + v.toFixed(2);
                 return ' ' + v;
@@ -2636,6 +3133,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
           yRev: {
             type: 'linear',
             position: 'left',
+            beginAtZero: true,
             grid: { color: colors.grid },
             ticks: {
               color: colors.revenue,
@@ -2647,11 +3145,25 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
           yClk: {
             type: 'linear',
             position: 'right',
+            beginAtZero: true,
             grid: { drawOnChartArea: false },
             ticks: {
               color: colors.clicks,
               font: { family: "'JetBrains Mono', monospace", size: 9 },
               callback: (v) => fmtNum(v)
+            },
+            border: { color: colors.grid }
+          },
+          yEPC: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            offset: true,
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: colors.epc,
+              font: { family: "'JetBrains Mono', monospace", size: 9 },
+              callback: (v) => '$' + v.toFixed(3)
             },
             border: { color: colors.grid }
           }
@@ -2663,130 +3175,6 @@ function buildCombinedChart(id, labels, revenueData, clicksData) {
   return card;
 }
 
-// ── EPC chart with optional MA ──
-function buildEPCChart(id, labels, epcData) {
-  const colors = getChartColors();
-  const card = document.createElement('div'); card.className='chart-card';
-
-  const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
-  const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='EPC (Revenue per Click)'; hdr.appendChild(titleEl);
-  card.appendChild(hdr);
-
-  // Legend
-  const legend = document.createElement('div'); legend.className = 'chart-legend';
-  const legendItems = [{ color: colors.epc, label: 'EPC' }];
-  if (chartMA7)  legendItems.push({ color: colors.ma7,  label: 'MA 7' });
-  if (chartMA14) legendItems.push({ color: colors.ma14, label: 'MA 14' });
-  legendItems.forEach(li => {
-    const item = document.createElement('div'); item.className = 'chart-legend-item';
-    const dot = document.createElement('div'); dot.className = 'chart-legend-dot'; dot.style.background = li.color;
-    const lbl = document.createElement('span'); lbl.textContent = li.label;
-    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
-  });
-  card.appendChild(legend);
-
-  const wrap = document.createElement('div'); wrap.className='chart-canvas-wrap';
-  const canvas = document.createElement('canvas'); canvas.id=id;
-  wrap.appendChild(canvas); card.appendChild(wrap);
-
-  requestAnimationFrame(() => {
-    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
-    const ctx = canvas.getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
-    gradient.addColorStop(0, colors.epc + '28');
-    gradient.addColorStop(1, colors.epc + '00');
-
-    const datasets = [
-      {
-        label: 'EPC',
-        data: epcData,
-        borderColor: colors.epc,
-        backgroundColor: gradient,
-        borderWidth: 2,
-        pointRadius: labels.length > 60 ? 0 : 3,
-        pointHoverRadius: 5,
-        pointBackgroundColor: colors.epc,
-        tension: 0.3,
-        fill: true,
-        order: 3,
-      }
-    ];
-
-    if (chartMA7) {
-      datasets.push({
-        label: 'MA 7',
-        data: computeMA(epcData, 7),
-        borderColor: colors.ma7,
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        borderDash: [5, 3],
-        pointRadius: 0,
-        tension: 0.4,
-        fill: false,
-        order: 1,
-      });
-    }
-
-    if (chartMA14) {
-      datasets.push({
-        label: 'MA 14',
-        data: computeMA(epcData, 14),
-        borderColor: colors.ma14,
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        borderDash: [8, 4],
-        pointRadius: 0,
-        tension: 0.4,
-        fill: false,
-        order: 0,
-      });
-    }
-
-    chartInstances[id] = new Chart(ctx, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(13,16,24,0.95)',
-            borderColor: 'rgba(255,255,255,0.08)',
-            borderWidth: 1,
-            titleColor: '#c8d4e8',
-            bodyColor: '#c8d4e8',
-            titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
-            bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
-            padding: 10,
-            callbacks: {
-              label: (item) => {
-                const v = item.raw;
-                const pfx = item.dataset.label === 'EPC' ? ' EPC: ' : ` ${item.dataset.label}: `;
-                return pfx + '$' + v.toFixed(4);
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: colors.grid },
-            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
-            border: { color: colors.grid }
-          },
-          y: {
-            grid: { color: colors.grid },
-            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => '$' + v.toFixed(3) },
-            border: { color: colors.grid }
-          }
-        }
-      }
-    });
-  });
-
-  return card;
-}
 
 // ─────────────────────────────────────────────────────────────────────────
 // ── RIGHT PANEL (Analytics) ───────────────────────────────────────────────
