@@ -1528,13 +1528,14 @@ body {
             <button class="dim-tab" id="dimTabFlow" onclick="selectDimension('flow')">Flow</button>
             <button class="dim-tab" id="dimTabGeo" onclick="selectDimension('geo')">GEO</button>
             <button class="dim-tab" id="dimTabOffer" onclick="selectDimension('offer')">Offer</button>
+            <button class="dim-tab" id="dimTabSource" onclick="selectDimension('source')">Source</button>
           </div>
           <div id="groupByFlowRow" style="display:none;margin-top:8px;">
             <button id="groupByFlowBtn" onclick="toggleGroupByFlow()" style="width:100%;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:all .12s;text-align:left;">◦ Group by Flow</button>
           </div>
         </div>
         <div class="dim-search-bar" id="dimSearchBar" style="display:none;">
-          <input type="text" id="dimSearchInput" placeholder="Search flow / geo / offer…" maxlength="100" autocomplete="off">
+          <input type="text" id="dimSearchInput" placeholder="Search flow / geo / offer / source…" maxlength="100" autocomplete="off">
         </div>
         <div class="dim-list" id="dimList"></div>
       </div>
@@ -1585,6 +1586,7 @@ let chartInstances = {};
 let dimSearchQuery = '';
 let treeExpandedFlows = new Set();
 let treeExpandedGeos = new Set();  // keys: `${flowId}::${country}`
+let treeExpandedOffers = new Set(); // keys: `${flowId}::${country}::${offerKey}`
 
 // ── Chart display state ──
 let chartGroupWeeks = false;
@@ -1834,13 +1836,29 @@ function buildData(rows, m, ppsKw) {
 
     if (dateRaw && isSafeKey(dateRaw)) {
       HAS_DATES = true;
+      const srcKeyDaily = hasSrc
+        ? ((sourceRaw && isSafeKey(sourceRaw)) ? sourceRaw : '__no_source__')
+        : '__all__';
       if (!dailyAgg[affiliateId]) dailyAgg[affiliateId] = {};
       if (!dailyAgg[affiliateId][flowId]) dailyAgg[affiliateId][flowId] = {};
       if (!dailyAgg[affiliateId][flowId][country]) dailyAgg[affiliateId][flowId][country] = {};
-      if (!dailyAgg[affiliateId][flowId][country][offerKey]) dailyAgg[affiliateId][flowId][country][offerKey] = {};
-      if (!dailyAgg[affiliateId][flowId][country][offerKey][dateRaw]) dailyAgg[affiliateId][flowId][country][offerKey][dateRaw] = {clicks:0,conversions:0,revenue:0};
-      const DD2 = dailyAgg[affiliateId][flowId][country][offerKey][dateRaw];
+      if (!dailyAgg[affiliateId][flowId][country][offerKey]) dailyAgg[affiliateId][flowId][country][offerKey] = {__sources:{}};
+      const offerNode = dailyAgg[affiliateId][flowId][country][offerKey];
+      if (!offerNode.__sources[srcKeyDaily]) {
+        offerNode.__sources[srcKeyDaily] = { replaced_source: replSrcRaw || null, dates: {} };
+      } else if (replSrcRaw && !offerNode.__sources[srcKeyDaily].replaced_source) {
+        offerNode.__sources[srcKeyDaily].replaced_source = replSrcRaw;
+      }
+      const srcNode = offerNode.__sources[srcKeyDaily];
+      if (!srcNode.dates[dateRaw]) srcNode.dates[dateRaw] = {clicks:0,conversions:0,revenue:0};
+      const DD2 = srcNode.dates[dateRaw];
       DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
+      // Also maintain flat date aggregate on offer node for back-compat / fast path
+      if (!offerNode[dateRaw] || typeof offerNode[dateRaw] !== 'object' || offerNode[dateRaw].clicks === undefined) {
+        offerNode[dateRaw] = {clicks:0,conversions:0,revenue:0};
+      }
+      const FLAT = offerNode[dateRaw];
+      FLAT.clicks += clicks; FLAT.conversions += conversions; FLAT.revenue += revenue;
     }
 
     if (hasSrc) {
@@ -1971,6 +1989,12 @@ function launchApp() {
   const vmSource = document.getElementById('vmTabSource');
   if (!HAS_SOURCES) { vmSource.style.opacity='0.35'; vmSource.style.pointerEvents='none'; vmSource.title='No source column detected'; }
   else { vmSource.style.opacity=''; vmSource.style.pointerEvents=''; vmSource.title=''; }
+
+  const dimSrc = document.getElementById('dimTabSource');
+  if (dimSrc) {
+    if (!HAS_SOURCES) { dimSrc.style.opacity='0.35'; dimSrc.style.pointerEvents='none'; dimSrc.title='No source column detected'; }
+    else { dimSrc.style.opacity=''; dimSrc.style.pointerEvents=''; dimSrc.title=''; }
+  }
 
   document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.slice(0,100); renderCountryList(); });
   document.getElementById('srcOfferSearch').addEventListener('input', e => { srcOfferSearchQuery = e.target.value.slice(0,100); renderSrcOfferList(); });
@@ -2299,7 +2323,10 @@ function getAllDates(affId) {
   const dates = new Set();
   const da = DAILY_DATA[affId];
   if (!da) return [];
-  for (const flows of Object.values(da)) for (const countries of Object.values(flows)) for (const offers of Object.values(countries)) for (const date of Object.keys(offers)) dates.add(date);
+  for (const flows of Object.values(da)) for (const countries of Object.values(flows)) for (const offers of Object.values(countries)) for (const date of Object.keys(offers)) {
+    if (date === '__sources') continue;
+    dates.add(date);
+  }
   return [...dates].sort();
 }
 
@@ -2314,15 +2341,44 @@ function computeDailyTimeseries(affId, scope) {
     if (scope.type==='geo_flow' && flowId!==scope.flowId) continue;
     if (scope.type==='offer_flow' && flowId!==scope.flowId) continue;
     if (scope.type==='offer_flow_geo' && flowId!==scope.flowId) continue;
+    if (scope.type==='source_tree' && flowId!==scope.flowId) continue;
     for (const [country, offers] of Object.entries(countries)) {
       if (scope.type==='geo' && country!==scope.country) continue;
       if (scope.type==='geo_flow' && country!==scope.country) continue;
       if (scope.type==='offer_flow_geo' && country!==scope.country) continue;
-      for (const [offerKey, dayData] of Object.entries(offers)) {
+      if (scope.type==='source_tree' && country!==scope.country) continue;
+      for (const [offerKey, offerNode] of Object.entries(offers)) {
         if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow_geo' && offerKey!==scope.offerKey) continue;
-        for (const [date, d] of Object.entries(dayData)) {
+        if (scope.type==='source_tree' && offerKey!==scope.offerKey) continue;
+
+        // For source-scoped queries, pull from __sources subtree
+        if (scope.type==='source_tree') {
+          const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
+          if (!srcBucket) continue;
+          for (const [date, d] of Object.entries(srcBucket.dates)) {
+            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+            byDate[date].clicks += d.clicks;
+            byDate[date].conversions += d.conversions;
+            byDate[date].revenue += d.revenue;
+          }
+          continue;
+        }
+        if (scope.type==='source') {
+          const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
+          if (!srcBucket) continue;
+          for (const [date, d] of Object.entries(srcBucket.dates)) {
+            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+            byDate[date].clicks += d.clicks;
+            byDate[date].conversions += d.conversions;
+            byDate[date].revenue += d.revenue;
+          }
+          continue;
+        }
+
+        for (const [date, d] of Object.entries(offerNode)) {
+          if (date === '__sources') continue;
           if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
           byDate[date].clicks += d.clicks;
           byDate[date].conversions += d.conversions;
@@ -2412,10 +2468,73 @@ function getDimList_offer(affId) {
   const offerMap = {};
   for (const flowData of Object.values(FULL_DATA[affId])) for (const d of Object.values(flowData)) for (const o of d.offers) {
     const k = o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
-    if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0};
+    if (!offerMap[k]) offerMap[k] = {name:o.offer_name,clicks:0,revenue:0};
     offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue;
   }
   return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+}
+
+// Aggregate all sources across all offers for this affiliate (from DAILY_DATA)
+function getDimList_source(affId) {
+  const da = DAILY_DATA[affId];
+  if (!da) return [];
+  const srcMap = {};
+  for (const countries of Object.values(da)) {
+    for (const offers of Object.values(countries)) {
+      for (const offerNode of Object.values(offers)) {
+        const sources = offerNode.__sources || {};
+        for (const [srcKey, bucket] of Object.entries(sources)) {
+          if (!srcMap[srcKey]) srcMap[srcKey] = {
+            key: srcKey,
+            replaced_source: bucket.replaced_source || null,
+            clicks: 0, conversions: 0, revenue: 0,
+            is_no_source: srcKey === '__no_source__'
+          };
+          if (bucket.replaced_source && !srcMap[srcKey].replaced_source) {
+            srcMap[srcKey].replaced_source = bucket.replaced_source;
+          }
+          for (const d of Object.values(bucket.dates)) {
+            srcMap[srcKey].clicks += d.clicks;
+            srcMap[srcKey].conversions += d.conversions;
+            srcMap[srcKey].revenue += d.revenue;
+          }
+        }
+      }
+    }
+  }
+  return Object.values(srcMap)
+    .sort((a,b) => b.revenue - a.revenue)
+    .map(s => ({
+      key: s.key,
+      name: s.is_no_source ? '(no source)' : s.key,
+      replaced_source: s.replaced_source,
+      is_no_source: s.is_no_source,
+      sub: fmtMoney(s.revenue) + ' · ' + fmtNum(s.clicks) + ' clicks'
+    }));
+}
+
+// Sources scoped to a single flow+country+offer from DAILY_DATA (for tree expansion)
+function getSourcesForFlowGeoOffer(affId, flowId, country, offerKey) {
+  const da = DAILY_DATA[affId];
+  if (!da || !da[flowId] || !da[flowId][country] || !da[flowId][country][offerKey]) return [];
+  const offerNode = da[flowId][country][offerKey];
+  const sources = offerNode.__sources || {};
+  const out = [];
+  for (const [srcKey, bucket] of Object.entries(sources)) {
+    let clicks=0, revenue=0, conversions=0;
+    for (const d of Object.values(bucket.dates)) {
+      clicks += d.clicks; conversions += d.conversions; revenue += d.revenue;
+    }
+    out.push({
+      key: srcKey,
+      name: srcKey === '__no_source__' ? '(no source)' : srcKey,
+      replaced_source: bucket.replaced_source || null,
+      is_no_source: srcKey === '__no_source__',
+      clicks, revenue, conversions,
+      sub: fmtMoney(revenue) + ' · ' + fmtNum(clicks) + ' clicks'
+    });
+  }
+  return out.sort((a,b) => b.revenue - a.revenue);
 }
 
 function selectDimension(dim) {
@@ -2423,7 +2542,7 @@ function selectDimension(dim) {
   chartSelectedKey = null;
   chartSelectedFlowId = null;
   collapsedFlows = new Set();
-  ['overall','tree','flow','geo','offer'].forEach(d => {
+  ['overall','tree','flow','geo','offer','source'].forEach(d => {
     const el = document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1));
     if (el) el.classList.toggle('active', d===dim);
   });
@@ -2608,7 +2727,15 @@ function renderDimList() {
     if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
     else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
     else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
-    if (q) items = items.filter(it => dimMatchesSearch(it, q));
+    else if (chartDimension==='source') items = getDimList_source(selectedAffiliate);
+    if (q) items = items.filter(it => {
+      if (!dimMatchesSearch(it, q)) {
+        // Also match against replaced_source text for source dim
+        if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
+        return false;
+      }
+      return true;
+    });
     if (!items.length) {
       const empty = document.createElement('div');
       empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
@@ -2621,13 +2748,28 @@ function renderDimList() {
       div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
       div.addEventListener('click', () => selectDimItem(item, null));
       const row = document.createElement('div'); row.className = 'dim-item-row';
-      const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
+      const name = document.createElement('div'); name.className='dim-item-name';
+      if (chartDimension==='source' && item.is_no_source) {
+        name.textContent = '(no source)';
+        name.style.fontStyle = 'italic';
+        name.style.color = 'var(--dim)';
+      } else {
+        name.textContent = item.name;
+      }
       row.appendChild(name);
       // Copy button for Flow dimension
       if (chartDimension === 'flow' && item.key !== '__no_flow__') {
         row.appendChild(makeFlowCopyBtn(item.key));
       }
       div.appendChild(row);
+      // For source dim: if replaced source, show it as a secondary line above stats
+      if (chartDimension==='source' && item.replaced_source) {
+        const alt = document.createElement('div');
+        alt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+        alt.textContent = '↳ ' + item.replaced_source;
+        alt.title = 'Replaced source: ' + item.replaced_source;
+        div.appendChild(alt);
+      }
       const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
       list.appendChild(div);
     });
@@ -2765,9 +2907,16 @@ function renderDimTree(list, q) {
           const offSelKey = 'offer_flow_geo::' + flowId + '::' + geo.key + '::' + off.key;
           if (chartSelectedKey === offSelKey) offRow.classList.add('selected');
 
+          // Sources under this flow+geo+offer (only when source data is available)
+          const offerExpandKey = flowId + '::' + geo.key + '::' + off.key;
+          const srcList = HAS_SOURCES ? getSourcesForFlowGeoOffer(aff, flowId, geo.key, off.key) : [];
+          const hasSources = srcList.length > 0;
+          // When searching, auto-expand if matches somewhere; otherwise respect user state
+          const offerExpanded = q ? true : treeExpandedOffers.has(offerExpandKey);
+
           const oTw = document.createElement('span');
           oTw.className = 'twisty';
-          oTw.textContent = '·';
+          oTw.textContent = hasSources ? (offerExpanded ? '▼' : '▶') : '·';
           offRow.appendChild(oTw);
 
           const oMain = document.createElement('div');
@@ -2778,6 +2927,10 @@ function renderDimTree(list, q) {
 
           offRow.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (hasSources) {
+              if (treeExpandedOffers.has(offerExpandKey)) treeExpandedOffers.delete(offerExpandKey);
+              else treeExpandedOffers.add(offerExpandKey);
+            }
             chartSelectedKey = offSelKey;
             chartSelectedFlowId = flowId;
             renderDimList();
@@ -2787,6 +2940,71 @@ function renderDimTree(list, q) {
             );
           });
           list.appendChild(offRow);
+
+          // Source children (4th level)
+          if (offerExpanded && hasSources) {
+            // Filter sources by search query if applicable
+            let visibleSrcs = srcList;
+            if (q) {
+              const flowMatches_ = flowLabel.toLowerCase().includes(q);
+              const geoMatches_ = geo.name.toLowerCase().includes(q);
+              const offerMatches_ = off.name.toLowerCase().includes(q);
+              if (!flowMatches_ && !geoMatches_ && !offerMatches_) {
+                visibleSrcs = srcList.filter(s => {
+                  const n = (s.name || '').toLowerCase();
+                  const r = (s.replaced_source || '').toLowerCase();
+                  return n.includes(q) || r.includes(q);
+                });
+              }
+            }
+            visibleSrcs.forEach(src => {
+              const srcRow = document.createElement('div');
+              srcRow.className = 'dim-tree-child dim-tree-grandchild';
+              srcRow.style.paddingLeft = '42px';
+              const srcSelKey = 'source_tree::' + flowId + '::' + geo.key + '::' + off.key + '::' + src.key;
+              if (chartSelectedKey === srcSelKey) srcRow.classList.add('selected');
+
+              const sTw = document.createElement('span');
+              sTw.className = 'twisty';
+              sTw.textContent = '·';
+              srcRow.appendChild(sTw);
+
+              const sMain = document.createElement('div');
+              sMain.className = 'main';
+              const sn = document.createElement('div'); sn.className = 'n';
+              if (src.is_no_source) {
+                sn.textContent = '(no source)';
+                sn.style.fontStyle = 'italic';
+                sn.style.color = 'var(--dim)';
+              } else {
+                sn.textContent = src.name;
+                sn.style.fontFamily = "'JetBrains Mono', monospace";
+              }
+              sMain.appendChild(sn);
+              if (src.replaced_source) {
+                const sAlt = document.createElement('div');
+                sAlt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+                sAlt.textContent = '↳ ' + src.replaced_source;
+                sAlt.title = 'Replaced source: ' + src.replaced_source;
+                sMain.appendChild(sAlt);
+              }
+              const ss = document.createElement('div'); ss.className = 's'; ss.textContent = src.sub; sMain.appendChild(ss);
+              srcRow.appendChild(sMain);
+
+              srcRow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                chartSelectedKey = srcSelKey;
+                chartSelectedFlowId = flowId;
+                renderDimList();
+                const srcLabel = src.is_no_source ? '(no source)' : src.name;
+                renderChart(
+                  { type: 'source_tree', flowId, country: geo.key, offerKey: off.key, source: src.key },
+                  'Source: ' + srcLabel + (src.replaced_source ? ' ↳ ' + src.replaced_source : '') + ' · ' + off.name + ' · GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
+                );
+              });
+              list.appendChild(srcRow);
+            });
+          }
         });
       }
     });
@@ -2842,6 +3060,10 @@ function selectDimItem(item, flowId) {
       scope={type:'offer', offerKey:item.key};
       title=item.name;
     }
+  } else if (chartDimension==='source') {
+    scope={type:'source', source:item.key};
+    const label = item.is_no_source ? '(no source)' : item.key;
+    title = 'Source: ' + label + (item.replaced_source ? ' ↳ ' + item.replaced_source : '');
   }
   renderChart(scope, title);
 }
