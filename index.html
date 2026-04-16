@@ -413,6 +413,69 @@ body {
 .flow-tab.no-flow-tab { color: var(--muted); opacity: 0.7; border-style: dashed; }
 .flow-tab.no-flow-tab.active { color: var(--orange); border-bottom-color: var(--orange); opacity: 1; }
 
+.flow-geo-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(61,139,255,0.1);
+  border: 1px solid rgba(61,139,255,0.25);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.flow-tab.active .flow-geo-badge { background: rgba(34,217,138,0.12); border-color: rgba(34,217,138,0.3); color: var(--green); }
+
+.dim-geo-badge {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(61,139,255,0.1);
+  border: 1px solid rgba(61,139,255,0.22);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.chart-title-geo-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgba(61,139,255,0.12);
+  border: 1px solid rgba(61,139,255,0.3);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+/* "multi geo" variant — uses a warm amber tone so it reads as a label rather
+   than a country code, and distinguishes multi-GEO flows at a glance. */
+.flow-geo-badge.multi,
+.dim-geo-badge.multi,
+.chart-title-geo-badge.multi {
+  background: rgba(245,158,11,0.12);
+  border-color: rgba(245,158,11,0.35);
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.flow-tab.active .flow-geo-badge.multi { background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.45); color: #f59e0b; }
+
 .flow-tab-copy-btn {
   display: inline-flex;
   align-items: center;
@@ -923,6 +986,56 @@ body {
   white-space: nowrap;
 }
 
+/* Expandable dim items (geo/offer with children) */
+.dim-item-twisty {
+  display: inline-block;
+  width: 10px;
+  font-size: 9px;
+  color: var(--muted);
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1;
+  user-select: none;
+  transition: color .1s;
+}
+.dim-item:hover .dim-item-twisty { color: var(--text); }
+
+.dim-child {
+  padding: 5px 14px 5px 30px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  transition: background 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  position: relative;
+}
+[data-theme="light"] .dim-child,
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .dim-child { background: rgba(0,0,0,0.025); } }
+.dim-child:hover { background: var(--surface2); }
+.dim-child.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 28px; }
+.dim-child-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dim-child.selected .dim-child-name { color: var(--accent); }
+.dim-child-sub {
+  font-size: 9px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* In grouped-by-flow mode, children are already indented under the flow header */
+.dim-child.in-grouped { padding-left: 34px; }
+.dim-child.in-grouped.selected { padding-left: 32px; }
+
 /* Copy button inside dim list + chart title */
 .dim-copy-btn {
   flex-shrink: 0;
@@ -1037,6 +1150,14 @@ body {
   padding-left: 46px;
 }
 .dim-tree-grandchild.selected { padding-left: 44px; }
+
+/* When tree-style children render under a flow sub-header (grouped-by-flow
+   mode in the GEO / Offer dimensions), nudge them in one more step so the
+   nesting reads correctly against the flow header above them. */
+.dim-tree-child.in-grouped { padding-left: 36px; }
+.dim-tree-child.in-grouped.selected { padding-left: 34px; }
+.dim-tree-grandchild.in-grouped { padding-left: 54px; }
+.dim-tree-grandchild.in-grouped.selected { padding-left: 52px; }
 
 /* Chart title copy button */
 .chart-title-copy-btn {
@@ -1587,6 +1708,11 @@ let dimSearchQuery = '';
 let treeExpandedFlows = new Set();
 let treeExpandedGeos = new Set();  // keys: `${flowId}::${country}`
 let treeExpandedOffers = new Set(); // keys: `${flowId}::${country}::${offerKey}`
+// Expansion in non-tree GEO and Offer dimensions.
+// Flat-mode keys: `${country}` (geo dim) or `${offerKey}` (offer dim)
+// Grouped-by-flow mode keys: `${flowId}::${country}` (geo dim) or `${flowId}::${offerKey}` (offer dim)
+let dimExpandedGeos = new Set();
+let dimExpandedOffers = new Set();
 
 // ── Chart display state ──
 let chartGroupWeeks = false;
@@ -1657,6 +1783,8 @@ function resetUpload() {
   srcSelectedOfferKey = null; srcOfferSearchQuery = '';
   chartGroupWeeks = false; chartMA7 = false; chartMA14 = false;
   chartGroupByFlow = false; collapsedFlows = new Set(); chartSelectedFlowId = null;
+  dimExpandedGeos = new Set(); dimExpandedOffers = new Set();
+  treeExpandedFlows = new Set(); treeExpandedGeos = new Set(); treeExpandedOffers = new Set();
   _lastChartScope = null; _lastChartTitle = null;
   destroyAllCharts();
 }
@@ -1676,7 +1804,7 @@ function handleFile(file) {
       if (!rows.length) { showError('File is empty or unreadable.'); return; }
       if (rows.length > 200000) { showError(`File has too many rows (${rows.length.toLocaleString()}). Maximum is 200,000.`); return; }
       parsedRows = rows; detectedColumns = Object.keys(rows[0]);
-      showMappingUI(file.name, rows.length);
+      tryAutoLaunch(file.name, rows.length);
     } catch(err) {
       const safeMsg = (err && err.message && err.message.length < 120) ? err.message.replace(/[<>"'`]/g,'') : 'Unexpected error';
       showError('Could not parse file: ' + safeMsg);
@@ -1703,6 +1831,35 @@ function parseCSV(text) {
   if (rows.length < 2) return [];
   const headers = rows[0].map(h => h.trim());
   return rows.slice(1).filter(c => c.some(v => v.trim() !== '')).map(cols => { const obj = {}; headers.forEach((h,i) => obj[h] = (cols[i]??'').trim()); return obj; });
+}
+
+function tryAutoLaunch(filename, rowCount) {
+  // Attempt to auto-detect every field. If all REQUIRED fields match, launch directly.
+  const autoMapping = {};
+  const missing = [];
+  for (const f of FIELDS) {
+    const match = autoDetect(f.key, detectedColumns);
+    autoMapping[f.key] = match || '';
+    if (!f.optional && !match) missing.push(f.label);
+  }
+  if (missing.length === 0) {
+    // All required columns auto-matched — go straight to the dashboard
+    const ppsKw = 'pps'; // default keyword, same as the input's default value
+    try {
+      buildData(parsedRows, autoMapping, ppsKw);
+      launchApp();
+    } catch(err) {
+      const safeMsg = (err && err.message && err.message.length < 160) ? err.message.replace(/[<>"'`]/g,'') : 'Unexpected error while processing data';
+      // Fall back to the mapping UI so the user can fix things manually
+      showMappingUI(filename, rowCount);
+      showError('Could not build dashboard automatically: ' + safeMsg + '. Please check the column mapping below.');
+    }
+    return;
+  }
+  // Some required columns didn't match — show mapping UI with a clear error
+  showMappingUI(filename, rowCount);
+  const plural = missing.length === 1 ? 'column' : 'columns';
+  showError(`Couldn't auto-detect required ${plural}: ${missing.join(', ')}. Please map ${missing.length === 1 ? 'it' : 'them'} below.`);
 }
 
 function showMappingUI(filename, rowCount) {
@@ -1962,6 +2119,112 @@ function getFlowStats(affId, flowId) {
   return {clicks,conversions,revenue};
 }
 
+// Return the top GEO (by revenue, fallback to clicks) for a given flow, or null.
+// When multiple GEOs meaningfully contribute (each holds >=15% share of the dominant
+// metric), returns 'MULTI' to indicate a multi-GEO flow instead of a single top GEO.
+// still reported as the dominant single GEO.
+function getMainGeoForFlow(affId, flowId) {
+  const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
+  if (!flowData) return null;
+  const entries = Object.entries(flowData);
+  if (!entries.length) return null;
+
+  // Pick metric: prefer revenue; if all zero, fall back to clicks.
+  let totalRev = 0, totalClk = 0;
+  for (const [, d] of entries) { totalRev += d.revenue || 0; totalClk += d.clicks || 0; }
+  const useRevenue = totalRev > 0;
+  const total = useRevenue ? totalRev : totalClk;
+  if (!total) return null;
+
+  const HEADLINE_SHARE = 0.15; // >= 15% share counts as a headlining GEO
+
+  let best = null;
+  let headliners = 0;
+  for (const [code, d] of entries) {
+    const v = useRevenue ? (d.revenue || 0) : (d.clicks || 0);
+    if (v / total >= HEADLINE_SHARE) headliners++;
+    if (!best) { best = { code, revenue: d.revenue || 0, clicks: d.clicks || 0 }; continue; }
+    const bv = useRevenue ? best.revenue : best.clicks;
+    if (v > bv || (v === bv && (d.clicks || 0) > best.clicks)) {
+      best = { code, revenue: d.revenue || 0, clicks: d.clicks || 0 };
+    }
+  }
+  if (headliners >= 2) return 'MULTI';
+  return best ? best.code : null;
+}
+
+// Build a badge element for the main-GEO marker. Uses `baseClass` so the same
+// helper works for dim-list, flow-tab, and chart-title contexts. Shows "multi
+// geo" with a distinct style when the flow has multiple headlining GEOs.
+function makeMainGeoBadge(mg, baseClass) {
+  if (!mg) return null;
+  const badge = document.createElement('span');
+  if (mg === 'MULTI') {
+    badge.className = baseClass + ' multi';
+    badge.textContent = 'multi geo';
+    badge.title = 'Multiple GEOs contribute meaningfully to this flow';
+  } else {
+    badge.className = baseClass;
+    badge.textContent = mg;
+    badge.title = 'Top GEO by revenue';
+  }
+  return badge;
+}
+
+// Compute total sales and weighted CPS (revenue/sales) for an arbitrary chart scope,
+// using FULL_DATA (which carries sales). Returns { sales, revenueForCPS, cps }.
+// Source-scoped queries go through SOURCE_DATA since FULL_DATA isn't source-split.
+function computeSalesCPSForScope(affId, scope) {
+  let sales = 0, revenueForCPS = 0;
+
+  const addFromGeoData = (gd) => {
+    sales += gd.sales || 0;
+    revenueForCPS += gd.revenue || 0;
+  };
+  const addFromOffer = (o) => {
+    sales += o.sales || 0;
+    revenueForCPS += o.revenue || 0;
+  };
+
+  if (scope.type === 'source' || scope.type === 'source_tree') {
+    const srcMap = SOURCE_DATA[affId];
+    if (!srcMap) return { sales:0, revenueForCPS:0, cps:0 };
+    for (const [offerKey, offerData] of Object.entries(srcMap)) {
+      if (scope.type === 'source_tree' && offerKey !== scope.offerKey) continue;
+      for (const s of offerData.sources) {
+        if (s.source !== scope.source) continue;
+        sales += s.sales || 0;
+        revenueForCPS += s.revenue || 0;
+      }
+    }
+    const cps = sales > 0 ? revenueForCPS / sales : 0;
+    return { sales, revenueForCPS, cps };
+  }
+
+  const affData = FULL_DATA[affId];
+  if (!affData) return { sales:0, revenueForCPS:0, cps:0 };
+
+  for (const [flowId, flowData] of Object.entries(affData)) {
+    if ((scope.type === 'flow' || scope.type === 'geo_flow' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo') && flowId !== scope.flowId) continue;
+    for (const [country, gd] of Object.entries(flowData)) {
+      if ((scope.type === 'geo' || scope.type === 'geo_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo') && country !== scope.country) continue;
+
+      if (scope.type === 'overall' || scope.type === 'flow' || scope.type === 'geo' || scope.type === 'geo_flow') {
+        addFromGeoData(gd);
+        continue;
+      }
+      // Offer-scoped: iterate offers
+      for (const o of gd.offers) {
+        const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+        if ((scope.type === 'offer' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo') && k !== scope.offerKey) continue;
+        addFromOffer(o);
+      }
+    }
+  }
+  const cps = sales > 0 ? revenueForCPS / sales : 0;
+  return { sales, revenueForCPS, cps };
+}
+
 function launchApp() {
   document.getElementById('uploadScreen').style.display = 'none';
   const app = document.getElementById('appScreen');
@@ -2065,6 +2328,9 @@ function renderFlowTabs() {
     div.addEventListener('click',()=>selectFlow(flowId));
     div.appendChild(document.createTextNode(isNoFlow?'⊘ No Flow':flowId));
     if (!isNoFlow) {
+      const mainGeo = getMainGeoForFlow(selectedAffiliate, flowId);
+      const geoBadge = makeMainGeoBadge(mainGeo, 'flow-geo-badge');
+      if (geoBadge) div.appendChild(geoBadge);
       const copyBtn=document.createElement('button'); copyBtn.className='flow-tab-copy-btn'; copyBtn.title='Copy Flow ID'; copyBtn.textContent='⎘';
       copyBtn.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(flowId).then(()=>{ copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=flowId; ta.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }); });
       div.appendChild(copyBtn);
@@ -2346,11 +2612,13 @@ function computeDailyTimeseries(affId, scope) {
       if (scope.type==='geo' && country!==scope.country) continue;
       if (scope.type==='geo_flow' && country!==scope.country) continue;
       if (scope.type==='offer_flow_geo' && country!==scope.country) continue;
+      if (scope.type==='offer_geo' && country!==scope.country) continue;
       if (scope.type==='source_tree' && country!==scope.country) continue;
       for (const [offerKey, offerNode] of Object.entries(offers)) {
         if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow_geo' && offerKey!==scope.offerKey) continue;
+        if (scope.type==='offer_geo' && offerKey!==scope.offerKey) continue;
         if (scope.type==='source_tree' && offerKey!==scope.offerKey) continue;
 
         // For source-scoped queries, pull from __sources subtree
@@ -2431,10 +2699,21 @@ function computeMA(data, window) {
   });
 }
 
+// Build a compact sub-label with revenue, clicks, and (if sales > 0) sales count + CPS.
+function buildSubLabel(d) {
+  let out = fmtMoney(d.revenue) + ' · ' + fmtNum(d.clicks) + ' clicks';
+  const sales = d.sales || 0;
+  if (sales > 0) {
+    const cps = sales > 0 ? d.revenue / sales : 0;
+    out += ' · ' + sales.toLocaleString() + ' sales · $' + cps.toFixed(2) + ' CPS';
+  }
+  return out;
+}
+
 function getDimList_geoForFlow(affId, flowId) {
   const flowData = FULL_DATA[affId][flowId];
   if (!flowData) return [];
-  return Object.entries(flowData).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+  return Object.entries(flowData).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:buildSubLabel(d) }));
 }
 
 function getDimList_offerForFlow(affId, flowId) {
@@ -2443,35 +2722,124 @@ function getDimList_offerForFlow(affId, flowId) {
   const offerMap = {};
   for (const d of Object.values(flowData)) for (const o of d.offers) {
     const k = o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
-    if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0};
-    offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue;
+    if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0,sales:0};
+    offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:buildSubLabel(d) }));
 }
 
 
 function getDimList_flow(affId) {
   const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
-  return flows.map(f => { const s=getFlowStats(affId,f); return { key:f, name:f==='__no_flow__'?'⊘ No Flow':f, sub:fmtMoney(s.revenue)+' · '+fmtNum(s.clicks)+' clicks' }; });
+  return flows.map(f => {
+    const s=getFlowStats(affId,f);
+    // accumulate sales across the flow
+    let sales = 0;
+    for (const cdata of Object.values(FULL_DATA[affId][f])) sales += (cdata.sales || 0);
+    const d = { revenue: s.revenue, clicks: s.clicks, sales };
+    return { key:f, name:f==='__no_flow__'?'⊘ No Flow':f, sub:buildSubLabel(d) };
+  });
 }
 
 function getDimList_geo(affId) {
   const geoMap = {};
   for (const flowData of Object.values(FULL_DATA[affId])) for (const [c,d] of Object.entries(flowData)) {
-    if (!geoMap[c]) geoMap[c]={clicks:0,revenue:0};
-    geoMap[c].clicks+=d.clicks; geoMap[c].revenue+=d.revenue;
+    if (!geoMap[c]) geoMap[c]={clicks:0,revenue:0,sales:0};
+    geoMap[c].clicks+=d.clicks; geoMap[c].revenue+=d.revenue; geoMap[c].sales+=(d.sales||0);
   }
-  return Object.entries(geoMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+  return Object.entries(geoMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:buildSubLabel(d) }));
 }
 
 function getDimList_offer(affId) {
   const offerMap = {};
   for (const flowData of Object.values(FULL_DATA[affId])) for (const d of Object.values(flowData)) for (const o of d.offers) {
     const k = o.offer_id?`${o.offer_id}::${o.offer_name}`:o.offer_name;
-    if (!offerMap[k]) offerMap[k] = {name:o.offer_name,clicks:0,revenue:0};
-    offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue;
+    if (!offerMap[k]) offerMap[k] = {name:o.offer_name,clicks:0,revenue:0,sales:0};
+    offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:fmtMoney(d.revenue)+' · '+fmtNum(d.clicks)+' clicks' }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:buildSubLabel(d) }));
+}
+
+// Children of a geo in flat mode: offers aggregated across flows for that geo
+function getOffersForGeo(affId, country) {
+  const affData = FULL_DATA[affId];
+  if (!affData) return [];
+  const offerMap = {};
+  for (const flowData of Object.values(affData)) {
+    const gd = flowData[country];
+    if (!gd) continue;
+    for (const o of gd.offers) {
+      const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+      if (!offerMap[k]) offerMap[k] = { name: o.offer_name, clicks: 0, revenue: 0, sales: 0 };
+      offerMap[k].clicks += o.clicks;
+      offerMap[k].revenue += o.revenue;
+      offerMap[k].sales += (o.sales || 0);
+    }
+  }
+  return Object.entries(offerMap)
+    .sort((a,b) => b[1].revenue - a[1].revenue)
+    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
+}
+
+// Children of an offer in flat mode: geos aggregated across flows for that offer
+function getGeosForOffer(affId, offerKey) {
+  const affData = FULL_DATA[affId];
+  if (!affData) return [];
+  const geoMap = {};
+  for (const flowData of Object.values(affData)) {
+    for (const [country, gd] of Object.entries(flowData)) {
+      for (const o of gd.offers) {
+        const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+        if (k !== offerKey) continue;
+        if (!geoMap[country]) geoMap[country] = { clicks: 0, revenue: 0, sales: 0 };
+        geoMap[country].clicks += o.clicks;
+        geoMap[country].revenue += o.revenue;
+        geoMap[country].sales += (o.sales || 0);
+      }
+    }
+  }
+  return Object.entries(geoMap)
+    .sort((a,b) => b[1].revenue - a[1].revenue)
+    .map(([c,d]) => ({ key: c, name: c, sub: buildSubLabel(d) }));
+}
+
+// Children of a geo scoped to a specific flow: offers in that flow+geo
+function getOffersForFlowGeoFull(affId, flowId, country) {
+  const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
+  if (!flowData) return [];
+  const gd = flowData[country];
+  if (!gd) return [];
+  const offerMap = {};
+  for (const o of gd.offers) {
+    const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+    if (!offerMap[k]) offerMap[k] = { name: o.offer_name, clicks: 0, revenue: 0, sales: 0 };
+    offerMap[k].clicks += o.clicks;
+    offerMap[k].revenue += o.revenue;
+    offerMap[k].sales += (o.sales || 0);
+  }
+  return Object.entries(offerMap)
+    .sort((a,b) => b[1].revenue - a[1].revenue)
+    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
+}
+
+// Children of an offer scoped to a specific flow: geos in that flow that carry this offer
+function getGeosForFlowOffer(affId, flowId, offerKey) {
+  const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
+  if (!flowData) return [];
+  const geoMap = {};
+  for (const [country, gd] of Object.entries(flowData)) {
+    for (const o of gd.offers) {
+      const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+      if (k !== offerKey) continue;
+      if (!geoMap[country]) geoMap[country] = { clicks: 0, revenue: 0, sales: 0 };
+      geoMap[country].clicks += o.clicks;
+      geoMap[country].revenue += o.revenue;
+      geoMap[country].sales += (o.sales || 0);
+    }
+  }
+  return Object.entries(geoMap)
+    .sort((a,b) => b[1].revenue - a[1].revenue)
+    .map(([c,d]) => ({ key: c, name: c, sub: buildSubLabel(d) }));
 }
 
 // Aggregate all sources across all offers for this affiliate (from DAILY_DATA)
@@ -2502,6 +2870,17 @@ function getDimList_source(affId) {
       }
     }
   }
+  // Enrich with sales from SOURCE_DATA where available
+  const srcAgg = SOURCE_DATA[affId] || {};
+  for (const offerData of Object.values(srcAgg)) {
+    for (const s of offerData.sources) {
+      const key = s.source;
+      if (srcMap[key]) {
+        if (srcMap[key].sales === undefined) srcMap[key].sales = 0;
+        srcMap[key].sales += (s.sales || 0);
+      }
+    }
+  }
   return Object.values(srcMap)
     .sort((a,b) => b.revenue - a.revenue)
     .map(s => ({
@@ -2509,7 +2888,7 @@ function getDimList_source(affId) {
       name: s.is_no_source ? '(no source)' : s.key,
       replaced_source: s.replaced_source,
       is_no_source: s.is_no_source,
-      sub: fmtMoney(s.revenue) + ' · ' + fmtNum(s.clicks) + ' clicks'
+      sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks, sales: s.sales || 0 })
     }));
 }
 
@@ -2519,6 +2898,14 @@ function getSourcesForFlowGeoOffer(affId, flowId, country, offerKey) {
   if (!da || !da[flowId] || !da[flowId][country] || !da[flowId][country][offerKey]) return [];
   const offerNode = da[flowId][country][offerKey];
   const sources = offerNode.__sources || {};
+  // Build a map of src -> sales from SOURCE_DATA for this offer (sources are offer-scoped in SOURCE_DATA,
+  // not flow+geo-scoped, so we use it as a best-effort sales lookup; the per-date revenue/clicks still
+  // come from the flow+geo+offer daily bucket).
+  const salesByKey = {};
+  const srcAgg = SOURCE_DATA[affId] && SOURCE_DATA[affId][offerKey];
+  if (srcAgg) {
+    for (const s of srcAgg.sources) salesByKey[s.source] = s.sales || 0;
+  }
   const out = [];
   for (const [srcKey, bucket] of Object.entries(sources)) {
     let clicks=0, revenue=0, conversions=0;
@@ -2531,7 +2918,7 @@ function getSourcesForFlowGeoOffer(affId, flowId, country, offerKey) {
       replaced_source: bucket.replaced_source || null,
       is_no_source: srcKey === '__no_source__',
       clicks, revenue, conversions,
-      sub: fmtMoney(revenue) + ' · ' + fmtNum(clicks) + ' clicks'
+      sub: buildSubLabel({ revenue, clicks, sales: 0 })  // tree-scoped sales not stored; keep sub simple
     });
   }
   return out.sort((a,b) => b.revenue - a.revenue);
@@ -2542,6 +2929,8 @@ function selectDimension(dim) {
   chartSelectedKey = null;
   chartSelectedFlowId = null;
   collapsedFlows = new Set();
+  dimExpandedGeos = new Set();
+  dimExpandedOffers = new Set();
   ['overall','tree','flow','geo','offer','source'].forEach(d => {
     const el = document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1));
     if (el) el.classList.toggle('active', d===dim);
@@ -2570,6 +2959,8 @@ function toggleGroupByFlow() {
   chartSelectedKey = null;
   chartSelectedFlowId = null;
   collapsedFlows = new Set();
+  dimExpandedGeos = new Set();
+  dimExpandedOffers = new Set();
   const btn = document.getElementById('groupByFlowBtn');
   if (btn) {
     if (chartGroupByFlow) {
@@ -2645,6 +3036,134 @@ function renderDimList() {
     return;
   }
 
+  // Helper: render a child row (offer under a geo, or geo under an offer).
+  // Styled to match the Tree dimension's grandchild rows so expansion feels
+  // consistent across dimensions. `grouped` adds an extra indent step to
+  // account for the flow sub-header above in grouped-by-flow mode.
+  function appendChildRow(child, selKey, onSelect, grouped) {
+    const cdiv = document.createElement('div');
+    cdiv.className = 'dim-tree-child dim-tree-grandchild'
+      + (grouped ? ' in-grouped' : '')
+      + (selKey===chartSelectedKey ? ' selected' : '');
+    cdiv.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onSelect();
+    });
+    // Leaf twisty placeholder, matches tree leaf rows
+    const tw = document.createElement('span');
+    tw.className = 'twisty';
+    tw.textContent = '·';
+    cdiv.appendChild(tw);
+
+    const main = document.createElement('div');
+    main.className = 'main';
+    const n = document.createElement('div'); n.className = 'n'; n.textContent = child.name; main.appendChild(n);
+    const s = document.createElement('div'); s.className = 's'; s.textContent = child.sub; main.appendChild(s);
+    cdiv.appendChild(main);
+
+    list.appendChild(cdiv);
+  }
+
+  // Helper: render an expandable parent row for geo/offer dims.
+  // parentKind: 'geo' | 'offer'
+  // flowId: the flow scope, or null in flat mode
+  function appendExpandableDimItem(item, parentKind, flowId) {
+    const isGrouped = !!flowId;
+    const expandKey = isGrouped ? (flowId + '::' + item.key) : item.key;
+    const expandedSet = parentKind === 'geo' ? dimExpandedGeos : dimExpandedOffers;
+    // Compute children early (cheap) so we can decide whether to show twisty
+    let children;
+    if (parentKind === 'geo') {
+      children = isGrouped
+        ? getOffersForFlowGeoFull(selectedAffiliate, flowId, item.key)
+        : getOffersForGeo(selectedAffiliate, item.key);
+    } else {
+      children = isGrouped
+        ? getGeosForFlowOffer(selectedAffiliate, flowId, item.key)
+        : getGeosForOffer(selectedAffiliate, item.key);
+    }
+    // Filter children by search query
+    const filteredChildren = q ? children.filter(c => dimMatchesSearch(c, q)) : children;
+    // Auto-expand when searching and children match (or parent itself doesn't match but children do)
+    const userExpanded = expandedSet.has(expandKey);
+    const parentMatches = !q || dimMatchesSearch(item, q);
+    const autoExpand = q && !parentMatches && filteredChildren.length > 0;
+    const isExpanded = autoExpand || userExpanded;
+
+    const div = document.createElement('div');
+    const isSelected = item.key===chartSelectedKey && (flowId||null)===chartSelectedFlowId;
+    div.className = 'dim-item' + (isSelected ? ' selected' : '');
+    const row = document.createElement('div'); row.className = 'dim-item-row';
+
+    // Twisty (only if there are children)
+    if (children.length) {
+      const tw = document.createElement('span');
+      tw.className = 'dim-item-twisty';
+      tw.textContent = isExpanded ? '▼' : '▶';
+      tw.title = isExpanded ? 'Collapse' : 'Expand';
+      tw.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (expandedSet.has(expandKey)) expandedSet.delete(expandKey);
+        else expandedSet.add(expandKey);
+        renderDimList();
+      });
+      row.appendChild(tw);
+    } else {
+      // Spacer to keep names aligned with twisty rows
+      const sp = document.createElement('span'); sp.className='dim-item-twisty'; sp.textContent=''; row.appendChild(sp);
+    }
+
+    const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
+    row.appendChild(name);
+    div.appendChild(row);
+    const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
+
+    // Clicking anywhere else on the row selects the chart scope
+    div.addEventListener('click', () => selectDimItem(item, flowId));
+
+    list.appendChild(div);
+
+    // Render children rows if expanded
+    if (isExpanded && filteredChildren.length) {
+      filteredChildren.forEach(c => {
+        let childScope, childTitle, childSelKey;
+        if (parentKind === 'geo') {
+          // Child is an offer; scope depends on whether we're flow-scoped
+          if (isGrouped) {
+            childScope = { type: 'offer_flow_geo', offerKey: c.key, flowId, country: item.key };
+            childTitle = c.name + ' · GEO: ' + item.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId);
+            childSelKey = 'offer_flow_geo::' + flowId + '::' + item.key + '::' + c.key;
+          } else {
+            // Flat geo → flat offer-in-geo. We don't have a separate type for that, so
+            // render a chart that aggregates across all flows for this offer+country.
+            childScope = { type: 'offer_flow_geo', offerKey: c.key, flowId: '__ALL__', country: item.key };
+            // Override: use a pseudo type that filters by country + offer across all flows
+            childScope = { type: 'offer_geo', offerKey: c.key, country: item.key };
+            childTitle = c.name + ' · GEO: ' + item.key;
+            childSelKey = 'offer_geo::' + item.key + '::' + c.key;
+          }
+        } else {
+          // Parent is offer, child is geo
+          if (isGrouped) {
+            childScope = { type: 'offer_flow_geo', offerKey: item.key, flowId, country: c.key };
+            childTitle = item.name + ' · GEO: ' + c.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId);
+            childSelKey = 'offer_flow_geo::' + flowId + '::' + c.key + '::' + item.key;
+          } else {
+            childScope = { type: 'offer_geo', offerKey: item.key, country: c.key };
+            childTitle = item.name + ' · GEO: ' + c.key;
+            childSelKey = 'offer_geo::' + c.key + '::' + item.key;
+          }
+        }
+        appendChildRow(c, childSelKey, () => {
+          chartSelectedKey = childSelKey;
+          chartSelectedFlowId = flowId || null;
+          renderDimList();
+          renderChart(childScope, childTitle);
+        }, isGrouped);
+      });
+    }
+  }
+
   if (chartGroupByFlow && (chartDimension==='geo' || chartDimension==='offer')) {
     // Grouped mode: show items under each flow as sub-headers
     const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a,b)=>getFlowStats(selectedAffiliate,b).revenue-getFlowStats(selectedAffiliate,a).revenue);
@@ -2671,17 +3190,24 @@ function renderDimList() {
       hdr.title = effectiveCollapsed ? 'Click to expand' : 'Click to collapse';
 
       const hdrLeft = document.createElement('span');
-      hdrLeft.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;';
-      hdrLeft.textContent = flowLabel;
+      hdrLeft.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;display:flex;align-items:center;gap:4px;';
+      const flowLbl = document.createElement('span');
+      flowLbl.textContent = flowLabel;
+      flowLbl.style.cssText = 'overflow:hidden;text-overflow:ellipsis;';
+      hdrLeft.appendChild(flowLbl);
+      // Main GEO badge
+      if (flowId !== '__no_flow__') {
+        const mg = getMainGeoForFlow(selectedAffiliate, flowId);
+        const badge = makeMainGeoBadge(mg, 'dim-geo-badge');
+        if (badge) hdrLeft.appendChild(badge);
+      }
 
+      hdr.appendChild(hdrLeft);
       // Copy button for flow (only if it's a real flow, not __no_flow__)
       if (flowId !== '__no_flow__') {
         const copyBtn = makeFlowCopyBtn(flowId);
         copyBtn.style.opacity = '1';
-        hdr.appendChild(hdrLeft);
         hdr.appendChild(copyBtn);
-      } else {
-        hdr.appendChild(hdrLeft);
       }
 
       const hdrRight = document.createElement('span');
@@ -2702,16 +3228,7 @@ function renderDimList() {
 
       if (!effectiveCollapsed) {
         filteredItems.forEach(item => {
-          const div = document.createElement('div');
-          const isSelected = item.key===chartSelectedKey && flowId===chartSelectedFlowId;
-          div.className = 'dim-item' + (isSelected ? ' selected' : '');
-          div.addEventListener('click', () => selectDimItem(item, flowId));
-          const row = document.createElement('div'); row.className = 'dim-item-row';
-          const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
-          row.appendChild(name);
-          div.appendChild(row);
-          const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
-          list.appendChild(div);
+          appendExpandableDimItem(item, chartDimension, flowId);
         });
       }
     });
@@ -2722,19 +3239,25 @@ function renderDimList() {
       list.appendChild(empty);
     }
   } else {
-    // Flat mode (original behavior)
+    // Flat mode
     let items = [];
     if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
     else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
     else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
     else if (chartDimension==='source') items = getDimList_source(selectedAffiliate);
+
+    // For geo/offer we also accept items that don't match directly but whose children would match
+    const useChildMatching = (chartDimension==='geo' || chartDimension==='offer');
     if (q) items = items.filter(it => {
-      if (!dimMatchesSearch(it, q)) {
-        // Also match against replaced_source text for source dim
-        if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
-        return false;
+      if (dimMatchesSearch(it, q)) return true;
+      if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
+      if (useChildMatching) {
+        const children = chartDimension==='geo'
+          ? getOffersForGeo(selectedAffiliate, it.key)
+          : getGeosForOffer(selectedAffiliate, it.key);
+        if (children.some(c => dimMatchesSearch(c, q))) return true;
       }
-      return true;
+      return false;
     });
     if (!items.length) {
       const empty = document.createElement('div');
@@ -2743,6 +3266,14 @@ function renderDimList() {
       list.appendChild(empty);
       return;
     }
+
+    // Geo and Offer dimensions get expandable rows
+    if (chartDimension === 'geo' || chartDimension === 'offer') {
+      items.forEach(item => appendExpandableDimItem(item, chartDimension, null));
+      return;
+    }
+
+    // Flow and Source dimensions: original flat render
     items.forEach(item => {
       const div = document.createElement('div');
       div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
@@ -2757,6 +3288,12 @@ function renderDimList() {
         name.textContent = item.name;
       }
       row.appendChild(name);
+      // Main GEO badge for the Flow dimension (flat)
+      if (chartDimension === 'flow' && item.key !== '__no_flow__') {
+        const mg = getMainGeoForFlow(selectedAffiliate, item.key);
+        const badge = makeMainGeoBadge(mg, 'dim-geo-badge');
+        if (badge) row.appendChild(badge);
+      }
       // Copy button for Flow dimension
       if (chartDimension === 'flow' && item.key !== '__no_flow__') {
         row.appendChild(makeFlowCopyBtn(item.key));
@@ -2834,6 +3371,13 @@ function renderDimTree(list, q) {
     label.textContent = flowLabel;
     label.title = 'Click to view this flow';
     flowHdr.appendChild(label);
+
+    // Main GEO badge (before stats)
+    if (flowId !== '__no_flow__') {
+      const mg = getMainGeoForFlow(aff, flowId);
+      const badge = makeMainGeoBadge(mg, 'dim-geo-badge');
+      if (badge) flowHdr.appendChild(badge);
+    }
 
     // Stats chip
     const statsSpan = document.createElement('span');
@@ -3027,13 +3571,14 @@ function getOfferListForFlowGeo(affId, flowId, country) {
   const offerMap = {};
   for (const o of geoData.offers) {
     const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-    if (!offerMap[k]) offerMap[k] = { name: o.offer_name, clicks: 0, revenue: 0 };
+    if (!offerMap[k]) offerMap[k] = { name: o.offer_name, clicks: 0, revenue: 0, sales: 0 };
     offerMap[k].clicks += o.clicks;
     offerMap[k].revenue += o.revenue;
+    offerMap[k].sales += (o.sales || 0);
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: d.name, sub: fmtMoney(d.revenue) + ' · ' + fmtNum(d.clicks) + ' clicks' }));
+    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
 }
 
 function selectDimItem(item, flowId) {
@@ -3120,6 +3665,10 @@ function renderChart(scope, title) {
   // Add copy button for any scope involving a specific flow
   const flowIdForCopy = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
   if (flowIdForCopy && flowIdForCopy !== '__no_flow__') {
+    // Main GEO badge next to the flow
+    const mg = getMainGeoForFlow(affId, flowIdForCopy);
+    const badge = makeMainGeoBadge(mg, 'chart-title-geo-badge');
+    if (badge) titleEl.appendChild(badge);
     const tCopy = document.createElement('button');
     tCopy.className = 'chart-title-copy-btn';
     tCopy.title = 'Copy Flow ID';
@@ -3163,14 +3712,21 @@ function renderChart(scope, title) {
   const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
   const shdr = document.createElement('div'); shdr.className='chart-card-hdr'; const stitle = document.createElement('div'); stitle.className='chart-card-title'; stitle.textContent='Period Summary'; shdr.appendChild(stitle); summaryCard.appendChild(shdr);
   const chips = document.createElement('div'); chips.className='chart-summary-chips';
+  // Compute sales & CPS for the current scope from FULL_DATA/SOURCE_DATA (goal-aware)
+  const scopeSales = computeSalesCPSForScope(affId, scope);
   const chipDefs = [
     {v:fmtMoney(totalRev),l:'Total Revenue',c:'var(--green)'},
     {v:fmtNum(totalClicks2),l:'Total Clicks',c:null},
     {v:totalConvs.toLocaleString(),l:'Total Convs',c:null},
     {v:'$'+avgEPC.toFixed(4),l:'Avg EPC',c:'var(--yellow)'},
-    {v:fmtMoney(peakRev),l:'Peak Revenue',c:'var(--orange)'},
-    {v:fmtNum(peakClicks),l:'Peak Clicks',c:null},
   ];
+  // Only show Sales/CPS chips when there's actual sales data for this scope
+  if (scopeSales.sales > 0) {
+    chipDefs.push({v:scopeSales.sales.toLocaleString(),l:'Total Sales',c:'var(--accent)'});
+    chipDefs.push({v:'$'+scopeSales.cps.toFixed(2),l:'Avg CPS',c:'var(--accent2)'});
+  }
+  chipDefs.push({v:fmtMoney(peakRev),l:'Peak Revenue',c:'var(--orange)'});
+  chipDefs.push({v:fmtNum(peakClicks),l:'Peak Clicks',c:null});
   chipDefs.forEach(({v,l,c}) => {
     const chip=document.createElement('div'); chip.className='summary-chip';
     const sv=document.createElement('div'); sv.className='sv'; sv.textContent=v; if(c) sv.style.color=c; chip.appendChild(sv);
