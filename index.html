@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BsyYavTx4snrO/7xORyJP+xfJ8LL8I0tBhMV5aQpKxs=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-/p6wFGjPR3xm7P5+4GkG77jRVNLID9Jw2EzRO9X3da8=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
@@ -1529,7 +1529,7 @@ body {
 
 <!-- UPLOAD SCREEN -->
 <div id="uploadScreen">
-  <button class="theme-toggle upload-theme-toggle" id="uploadThemeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+  <button class="theme-toggle upload-theme-toggle" id="uploadThemeBtn" title="Toggle theme">☀</button>
   <div class="upload-logo"><div class="dot"></div> Affiliate Analytics</div>
 
   <div class="upload-zone" id="dropZone">
@@ -1540,7 +1540,7 @@ body {
       Must contain columns: Affiliate Id, Flow Id, Offer, Clicks, Conversions, Revenue, Offer Page, Country<br>
       Optional: <span class="hl">Period</span> (date), <span class="hl">Source</span>, <span class="hl">Replaced Source</span> columns
     </div>
-    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+    <button class="upload-btn" id="chooseFileBtn">Choose File</button>
     <div class="upload-error" id="uploadError"></div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
   </div>
@@ -1560,8 +1560,8 @@ body {
       <input type="text" id="ppsKeyword" value="PPS" placeholder="e.g. PPS, pps, pay-per-sale" maxlength="64" autocomplete="off" spellcheck="false">
     </div>
     <div class="map-actions">
-      <button class="btn-secondary" onclick="resetUpload()">← Back</button>
-      <button class="btn-primary" onclick="buildAndLaunch()">Launch Dashboard →</button>
+      <button class="btn-secondary" id="backBtn">← Back</button>
+      <button class="btn-primary" id="launchBtn">Launch Dashboard →</button>
     </div>
   </div>
 </div>
@@ -1572,20 +1572,20 @@ body {
     <div class="top-logo"><div class="dot"></div>Affiliate Analytics</div>
     <div class="top-meta" id="topMeta"></div>
     <div class="top-stats" id="topStats"></div>
-    <button class="reload-btn" onclick="resetUpload()">↺ Load New File</button>
-    <button class="theme-toggle" id="appThemeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+    <button class="reload-btn" id="reloadBtn">↺ Load New File</button>
+    <button class="theme-toggle" id="appThemeBtn" title="Toggle theme">☀</button>
   </div>
 
   <div class="affiliate-tabs-bar" id="affiliateTabs"></div>
 
   <div class="view-mode-bar" id="viewModeBar">
-    <div class="vm-tab active" id="vmTabAnalytics" onclick="switchViewMode('analytics')">
+    <div class="vm-tab active" id="vmTabAnalytics">
       <span class="vm-icon">◎</span> Analytics
     </div>
-    <div class="vm-tab" id="vmTabSource" onclick="switchViewMode('source')">
+    <div class="vm-tab" id="vmTabSource">
       <span class="vm-icon">⊞</span> Source Analytics
     </div>
-    <div class="vm-tab" id="vmTabCharts" onclick="switchViewMode('charts')">
+    <div class="vm-tab" id="vmTabCharts">
       <span class="vm-icon">⟋</span> Daily Charts
     </div>
   </div>
@@ -1644,15 +1644,15 @@ body {
         <div class="charts-left-hdr">
           <h2>Dimension</h2>
           <div class="dim-tabs">
-            <button class="dim-tab active" id="dimTabOverall" onclick="selectDimension('overall')">All</button>
-            <button class="dim-tab" id="dimTabTree" onclick="selectDimension('tree')">Tree</button>
-            <button class="dim-tab" id="dimTabFlow" onclick="selectDimension('flow')">Flow</button>
-            <button class="dim-tab" id="dimTabGeo" onclick="selectDimension('geo')">GEO</button>
-            <button class="dim-tab" id="dimTabOffer" onclick="selectDimension('offer')">Offer</button>
-            <button class="dim-tab" id="dimTabSource" onclick="selectDimension('source')">Source</button>
+            <button class="dim-tab active" id="dimTabOverall">All</button>
+            <button class="dim-tab" id="dimTabTree">Tree</button>
+            <button class="dim-tab" id="dimTabFlow">Flow</button>
+            <button class="dim-tab" id="dimTabGeo">GEO</button>
+            <button class="dim-tab" id="dimTabOffer">Offer</button>
+            <button class="dim-tab" id="dimTabSource">Source</button>
           </div>
           <div id="groupByFlowRow" style="display:none;margin-top:8px;">
-            <button id="groupByFlowBtn" onclick="toggleGroupByFlow()" style="width:100%;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:all .12s;text-align:left;">◦ Group by Flow</button>
+            <button id="groupByFlowBtn" style="width:100%;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:all .12s;text-align:left;">◦ Group by Flow</button>
           </div>
         </div>
         <div class="dim-search-bar" id="dimSearchBar" style="display:none;">
@@ -1666,6 +1666,30 @@ body {
 </div>
 
 <script>
+// ── CSP-safe event wiring (replaces inline onclick handlers) ──
+document.addEventListener('DOMContentLoaded', function() {
+  var bind = function(id, handler) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', handler);
+  };
+  bind('uploadThemeBtn',   function(){ toggleTheme(); });
+  bind('appThemeBtn',      function(){ toggleTheme(); });
+  bind('chooseFileBtn',    function(){ document.getElementById('fileInput').click(); });
+  bind('backBtn',          function(){ resetUpload(); });
+  bind('launchBtn',        function(){ buildAndLaunch(); });
+  bind('reloadBtn',        function(){ resetUpload(); });
+  bind('vmTabAnalytics',   function(){ switchViewMode('analytics'); });
+  bind('vmTabSource',      function(){ switchViewMode('source'); });
+  bind('vmTabCharts',      function(){ switchViewMode('charts'); });
+  bind('dimTabOverall',    function(){ selectDimension('overall'); });
+  bind('dimTabTree',       function(){ selectDimension('tree'); });
+  bind('dimTabFlow',       function(){ selectDimension('flow'); });
+  bind('dimTabGeo',        function(){ selectDimension('geo'); });
+  bind('dimTabOffer',      function(){ selectDimension('offer'); });
+  bind('dimTabSource',     function(){ selectDimension('source'); });
+  bind('groupByFlowBtn',   function(){ toggleGroupByFlow(); });
+});
+
 // ── Security helpers ──
 function esc(str) {
   const d = document.createElement('div');
