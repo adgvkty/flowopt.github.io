@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BsyYavTx4snrO/7xORyJP+xfJ8LL8I0tBhMV5aQpKxs=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
@@ -4021,11 +4021,41 @@ function renderDeviceFilterBar(panel,code) {
   panel.appendChild(bar);
 }
 
+// SVG DOM builder — constructs SVG elements via createElementNS instead of innerHTML.
+// Spec shape: { tag, attrs, children? } — children is an array of the same shape.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function buildSvg(spec) {
+  const el = document.createElementNS(SVG_NS, spec.tag);
+  if (spec.attrs) for (const k in spec.attrs) el.setAttribute(k, spec.attrs[k]);
+  if (spec.children) for (const c of spec.children) el.appendChild(buildSvg(c));
+  return el;
+}
+
 const DW_SVGS = {
-  desktop:{label:'Desktop',color:'var(--accent)',svg:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`},
-  mobile:{label:'Mobile',color:'var(--accent2)',svg:`<svg width="10" height="14" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`},
-  ios:{label:'iOS',color:'#a0b4d0',svg:`<svg width="12" height="14" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8.5" cy="2" r="1.2" fill="currentColor" opacity="0.7"/><path d="M8.5 0.8 C8.5 0.8 8.5 2.8 6.5 3.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 4 C3.8 4 2 6 2 8.2 C2 11 3.8 14 6 14 C7 14 7.6 13.5 8.2 13.5 C8.8 13.5 9.4 14 10.5 14 C11.3 12.8 11.8 10.8 11 9.1 C10.5 8.1 9.6 7.4 8.5 7.4 C7.8 7.4 7.2 7.9 6.6 7.9 C6.2 7.9 6 4 6 4 Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" fill="none"/></svg>`},
-  android:{label:'Android',color:'#78c878',svg:`<svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.8 5 L0.8 9.5 C0.8 10.1 1.3 10.6 1.9 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12.2 5 L12.2 9.5 C12.2 10.1 11.7 10.6 11.1 10.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="2.2" y="4.5" width="8.6" height="8" rx="1.4" stroke="currentColor" stroke-width="1.3"/><circle cx="4.8" cy="8" r="0.75" fill="currentColor"/><circle cx="8.2" cy="8" r="0.75" fill="currentColor"/><path d="M3.5 4.5 L2 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 4.5 L11 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`}
+  desktop:{label:'Desktop',color:'var(--accent)',spec:{tag:'svg',attrs:{width:'14',height:'14',viewBox:'0 0 16 16',fill:'none'},children:[
+    {tag:'rect',attrs:{x:'1',y:'2',width:'14',height:'9',rx:'1.5',stroke:'currentColor','stroke-width':'1.4'}},
+    {tag:'path',attrs:{d:'M5.5 11L5 14',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}},
+    {tag:'path',attrs:{d:'M10.5 11L11 14',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}},
+    {tag:'path',attrs:{d:'M4 14h8',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}}
+  ]}},
+  mobile:{label:'Mobile',color:'var(--accent2)',spec:{tag:'svg',attrs:{width:'10',height:'14',viewBox:'0 0 10 16',fill:'none'},children:[
+    {tag:'rect',attrs:{x:'1',y:'1',width:'8',height:'14',rx:'2',stroke:'currentColor','stroke-width':'1.4'}},
+    {tag:'circle',attrs:{cx:'5',cy:'12.5',r:'0.85',fill:'currentColor'}}
+  ]}},
+  ios:{label:'iOS',color:'#a0b4d0',spec:{tag:'svg',attrs:{width:'12',height:'14',viewBox:'0 0 12 15',fill:'none'},children:[
+    {tag:'circle',attrs:{cx:'8.5',cy:'2',r:'1.2',fill:'currentColor',opacity:'0.7'}},
+    {tag:'path',attrs:{d:'M8.5 0.8 C8.5 0.8 8.5 2.8 6.5 3.3',stroke:'currentColor','stroke-width':'1.2','stroke-linecap':'round'}},
+    {tag:'path',attrs:{d:'M6 4 C3.8 4 2 6 2 8.2 C2 11 3.8 14 6 14 C7 14 7.6 13.5 8.2 13.5 C8.8 13.5 9.4 14 10.5 14 C11.3 12.8 11.8 10.8 11 9.1 C10.5 8.1 9.6 7.4 8.5 7.4 C7.8 7.4 7.2 7.9 6.6 7.9 C6.2 7.9 6 4 6 4 Z',stroke:'currentColor','stroke-width':'1.25','stroke-linejoin':'round',fill:'none'}}
+  ]}},
+  android:{label:'Android',color:'#78c878',spec:{tag:'svg',attrs:{width:'13',height:'14',viewBox:'0 0 13 14',fill:'none'},children:[
+    {tag:'path',attrs:{d:'M0.8 5 L0.8 9.5 C0.8 10.1 1.3 10.6 1.9 10.6',stroke:'currentColor','stroke-width':'1.3','stroke-linecap':'round'}},
+    {tag:'path',attrs:{d:'M12.2 5 L12.2 9.5 C12.2 10.1 11.7 10.6 11.1 10.6',stroke:'currentColor','stroke-width':'1.3','stroke-linecap':'round'}},
+    {tag:'rect',attrs:{x:'2.2',y:'4.5',width:'8.6',height:'8',rx:'1.4',stroke:'currentColor','stroke-width':'1.3'}},
+    {tag:'circle',attrs:{cx:'4.8',cy:'8',r:'0.75',fill:'currentColor'}},
+    {tag:'circle',attrs:{cx:'8.2',cy:'8',r:'0.75',fill:'currentColor'}},
+    {tag:'path',attrs:{d:'M3.5 4.5 L2 1.8',stroke:'currentColor','stroke-width':'1.3','stroke-linecap':'round'}},
+    {tag:'path',attrs:{d:'M9.5 4.5 L11 1.8',stroke:'currentColor','stroke-width':'1.3','stroke-linecap':'round'}}
+  ]}}
 };
 
 function getDeviceWinnerPages(code, offerKey) {
@@ -4093,12 +4123,23 @@ function renderRight(code) {
   if (breakdown) {
     const dbRow=document.createElement('div'); dbRow.className='device-breakdown-row';
     const DEVICE_ORDER=['mobile','desktop'];
-    const DEVICE_DEFS={mobile:{label:'Mobile',color:'var(--accent2)',svg:`<svg width="9" height="12" viewBox="0 0 10 16" fill="none"><rect x="1" y="1" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12.5" r="0.85" fill="currentColor"/></svg>`},desktop:{label:'Desktop',color:'var(--accent)',svg:`<svg width="13" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 11L5 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10.5 11L11 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 14h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`}};
+    const DEVICE_DEFS={
+      mobile:{label:'Mobile',color:'var(--accent2)',spec:{tag:'svg',attrs:{width:'9',height:'12',viewBox:'0 0 10 16',fill:'none'},children:[
+        {tag:'rect',attrs:{x:'1',y:'1',width:'8',height:'14',rx:'2',stroke:'currentColor','stroke-width':'1.4'}},
+        {tag:'circle',attrs:{cx:'5',cy:'12.5',r:'0.85',fill:'currentColor'}}
+      ]}},
+      desktop:{label:'Desktop',color:'var(--accent)',spec:{tag:'svg',attrs:{width:'13',height:'12',viewBox:'0 0 16 16',fill:'none'},children:[
+        {tag:'rect',attrs:{x:'1',y:'2',width:'14',height:'9',rx:'1.5',stroke:'currentColor','stroke-width':'1.4'}},
+        {tag:'path',attrs:{d:'M5.5 11L5 14',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}},
+        {tag:'path',attrs:{d:'M10.5 11L11 14',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}},
+        {tag:'path',attrs:{d:'M4 14h8',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round'}}
+      ]}}
+    };
     const OS_DEFS={android:{label:'And'},ios:{label:'iOS'}};
     DEVICE_ORDER.filter(k=>breakdown[k]).forEach(dtKey=>{
       const d=breakdown[dtKey],def=DEVICE_DEFS[dtKey]; if (!def) return;
       const seg=document.createElement('div'); seg.className='db-segment';
-      const ico=document.createElement('span'); ico.className='db-icon'; ico.style.color=def.color; ico.innerHTML=def.svg; seg.appendChild(ico);
+      const ico=document.createElement('span'); ico.className='db-icon'; ico.style.color=def.color; ico.appendChild(buildSvg(def.spec)); seg.appendChild(ico);
       const pctEl=document.createElement('span'); pctEl.className='db-pct'; pctEl.style.color=def.color; pctEl.textContent=Math.round(d.pct)+'%'; seg.appendChild(pctEl);
       const lbl=document.createElement('span'); lbl.className='db-label'; lbl.textContent=def.label; seg.appendChild(lbl);
       if (dtKey==='mobile'&&d.os) { const osPO=['android','ios'].filter(k=>d.os[k]); if (osPO.length>0) { const sub=document.createElement('div'); sub.className='db-sub'; osPO.forEach(osKey=>{ const osData=d.os[osKey],osDef=OS_DEFS[osKey]; const item=document.createElement('span'); item.className='db-sub-item'; const pct=document.createElement('span'); pct.className='db-sub-pct'; pct.textContent=Math.round(osData.pct)+'%'; const osLbl=document.createElement('span'); osLbl.textContent=osDef.label; item.appendChild(pct); item.appendChild(osLbl); sub.appendChild(item); }); seg.appendChild(sub); } }
@@ -4157,7 +4198,7 @@ function renderRight(code) {
       const rankBadge=document.createElement('div'); rankBadge.className='rank-badge '+ri; rankBadge.textContent=rLabel; row.appendChild(rankBadge);
       const pageName=document.createElement('div'); pageName.className='page-name'; pageName.title=p.page; pageName.textContent=p.page;
       const winners=deviceWinners[p.page];
-      if (winners&&winners.length>0) { const iconsWrap=document.createElement('span'); iconsWrap.className='device-winner-icons'; winners.forEach(w=>{ const ico=document.createElement('span'); ico.className='dw-icon'; ico.title=`Best EPC: ${w.label}`; ico.style.color=w.color; ico.innerHTML=w.svg; iconsWrap.appendChild(ico); }); pageName.appendChild(iconsWrap); }
+      if (winners&&winners.length>0) { const iconsWrap=document.createElement('span'); iconsWrap.className='device-winner-icons'; winners.forEach(w=>{ const ico=document.createElement('span'); ico.className='dw-icon'; ico.title=`Best EPC: ${w.label}`; ico.style.color=w.color; ico.appendChild(buildSvg(w.spec)); iconsWrap.appendChild(ico); }); pageName.appendChild(iconsWrap); }
       row.appendChild(pageName);
       const clicksCell=document.createElement('div'); clicksCell.className='pnum'; clicksCell.textContent=fmtNum(p.clicks); row.appendChild(clicksCell);
       const convsCell=document.createElement('div'); convsCell.className='pnum'; convsCell.textContent=p.conversions; row.appendChild(convsCell);
