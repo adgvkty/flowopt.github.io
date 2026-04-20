@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-/p6wFGjPR3xm7P5+4GkG77jRVNLID9Jw2EzRO9X3da8=' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
 <title>Affiliate Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1190,6 +1188,7 @@ body {
   letter-spacing: -0.01em;
   margin-bottom: 4px;
 }
+.chart-section-title > span:first-child:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; text-decoration-color: var(--muted); }
 
 .chart-section-sub { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: var(--muted); margin-bottom: 12px; }
 
@@ -2489,7 +2488,7 @@ function renderSrcOfferList() {
     const item = document.createElement('div');
     item.className = 'source-offer-item' + (o.key === srcSelectedOfferKey ? ' selected' : '');
     item.addEventListener('click', () => { srcSelectedOfferKey = o.key; renderSrcOfferList(); renderSrcRight(o.key); });
-    const name = document.createElement('div'); name.className = 'source-offer-name'; name.textContent = o.offer_name; item.appendChild(name);
+    const name = document.createElement('div'); name.className = 'source-offer-name'; name.textContent = o.offer_id ? (o.offer_id + '. ' + o.offer_name) : o.offer_name; item.appendChild(name);
     const meta = document.createElement('div'); meta.className = 'source-offer-meta';
     if (o.offer_id) { const idSpan=document.createElement('span'); idSpan.textContent='#'+o.offer_id; idSpan.style.color='var(--dim)'; meta.appendChild(idSpan); }
     const srcSpan = document.createElement('span'); srcSpan.textContent = o.source_count + ' sources'; meta.appendChild(srcSpan);
@@ -2524,7 +2523,7 @@ function renderSrcRight(offerKey) {
   const hasSales = sources.some(s => s.sales > 0);
   panel.innerHTML = '';
   const hdrArea = document.createElement('div'); hdrArea.className = 'source-hdr-area';
-  const title = document.createElement('div'); title.className = 'source-hdr-title'; title.textContent = offerData.offer_name; hdrArea.appendChild(title);
+  const title = document.createElement('div'); title.className = 'source-hdr-title'; title.textContent = offerData.offer_id ? (offerData.offer_id + '. ' + offerData.offer_name) : offerData.offer_name; hdrArea.appendChild(title);
   const subParts = []; if (offerData.offer_id) subParts.push('#' + offerData.offer_id); subParts.push(sources.filter(s=>!s.is_no_source).length + ' sources');
   const noSrcEntry = sources.find(s=>s.is_no_source); if (noSrcEntry) subParts.push('+ no-source traffic');
   const sub = document.createElement('div'); sub.className = 'source-hdr-sub'; sub.textContent = subParts.join(' · '); hdrArea.appendChild(sub);
@@ -2749,7 +2748,7 @@ function getDimList_offerForFlow(affId, flowId) {
     if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0,sales:0};
     offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:buildSubLabel(d) }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:offerDisplayName(k,d.name), sub:buildSubLabel(d) }));
 }
 
 
@@ -2781,7 +2780,7 @@ function getDimList_offer(affId) {
     if (!offerMap[k]) offerMap[k] = {name:o.offer_name,clicks:0,revenue:0,sales:0};
     offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:d.name, sub:buildSubLabel(d) }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:offerDisplayName(k,d.name), sub:buildSubLabel(d) }));
 }
 
 // Children of a geo in flat mode: offers aggregated across flows for that geo
@@ -2802,7 +2801,7 @@ function getOffersForGeo(affId, country) {
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
+    .map(([k,d]) => ({ key: k, name: offerDisplayName(k,d.name), sub: buildSubLabel(d) }));
 }
 
 // Children of an offer in flat mode: geos aggregated across flows for that offer
@@ -2843,7 +2842,7 @@ function getOffersForFlowGeoFull(affId, flowId, country) {
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
+    .map(([k,d]) => ({ key: k, name: offerDisplayName(k,d.name), sub: buildSubLabel(d) }));
 }
 
 // Children of an offer scoped to a specific flow: geos in that flow that carry this offer
@@ -3002,6 +3001,17 @@ function toggleGroupByFlow() {
   renderDimList();
   const chartsRight = document.getElementById('chartsRight');
   chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select an item from the left</div></div>';
+}
+
+// ── Offer display name helper ──
+function offerDisplayName(key, name) {
+  // key is "offerId::offerName" or just "offerName"
+  const sep = key.indexOf('::');
+  if (sep > 0) {
+    const id = key.slice(0, sep);
+    return id + '. ' + name;
+  }
+  return name;
 }
 
 // ── Copy helper + flow copy button factory ──
@@ -3602,7 +3612,7 @@ function getOfferListForFlowGeo(affId, flowId, country) {
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: d.name, sub: buildSubLabel(d) }));
+    .map(([k,d]) => ({ key: k, name: offerDisplayName(k,d.name), sub: buildSubLabel(d) }));
 }
 
 function selectDimItem(item, flowId) {
@@ -3685,7 +3695,42 @@ function renderChart(scope, title) {
   const peakClicks = Math.max(...clicksData);
 
   // Title
-  const titleEl = document.createElement('div'); titleEl.className='chart-section-title'; titleEl.textContent=title;
+  const titleEl = document.createElement('div'); titleEl.className='chart-section-title';
+
+  // Determine if this is an offer-related scope so we can make just the offer name copiable
+  const isOfferScope = scope && (scope.type==='offer' || scope.type==='offer_flow' || scope.type==='offer_flow_geo' || scope.type==='offer_geo');
+  if (isOfferScope) {
+    // Split title into offer name (copiable) and context suffix
+    const sepIdx = title.indexOf(' · ');
+    const offerPart = sepIdx > 0 ? title.slice(0, sepIdx) : title;
+    const contextPart = sepIdx > 0 ? title.slice(sepIdx) : '';
+
+    const offerSpan = document.createElement('span');
+    offerSpan.textContent = offerPart;
+    offerSpan.style.cursor = 'pointer';
+    offerSpan.title = 'Click to copy offer name';
+    offerSpan.addEventListener('click', e => {
+      e.stopPropagation();
+      const done = () => { offerSpan.style.opacity = '0.5'; const orig = offerSpan.textContent; offerSpan.textContent = '✓ Copied!'; setTimeout(() => { offerSpan.textContent = orig; offerSpan.style.opacity = '1'; }, 1200); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(offerPart).then(done).catch(() => { const ta = document.createElement('textarea'); ta.value = offerPart; ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta); done(); });
+      } else {
+        const ta = document.createElement('textarea'); ta.value = offerPart; ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta); done();
+      }
+    });
+    titleEl.appendChild(offerSpan);
+
+    if (contextPart) {
+      const ctxSpan = document.createElement('span');
+      ctxSpan.textContent = contextPart;
+      ctxSpan.style.color = 'var(--muted)';
+      ctxSpan.style.fontSize = '16px';
+      ctxSpan.style.fontWeight = '500';
+      titleEl.appendChild(ctxSpan);
+    }
+  } else {
+    titleEl.textContent = title;
+  }
   // Add copy button for any scope involving a specific flow
   const flowIdForCopy = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
   if (flowIdForCopy && flowIdForCopy !== '__no_flow__') {
@@ -4184,7 +4229,7 @@ function renderRight(code) {
     const head=document.createElement('div'); head.className='offer-head'; head.addEventListener('click',()=>togglePages(idx));
     const headLeft=document.createElement('div');
     const titleRow=document.createElement('div'); titleRow.className='offer-title';
-    const titleText=document.createElement('span'); titleText.textContent=o.offer_name.trim(); titleRow.appendChild(titleText);
+    const titleText=document.createElement('span'); titleText.textContent=o.offer_id ? (o.offer_id + '. ' + o.offer_name.trim()) : o.offer_name.trim(); titleRow.appendChild(titleText);
     if (o.offer_id) { const idTag=document.createElement('span'); idTag.className='offer-id-tag'; idTag.textContent='#'+o.offer_id; idTag.title='Offer ID'; titleRow.appendChild(idTag); }
     const badge=document.createElement('span'); badge.className='badge '+(isPPS?'badge-pps':'badge-soi'); badge.textContent=isPPS?'PPS':'SOI'; titleRow.appendChild(badge);
     headLeft.appendChild(titleRow);
