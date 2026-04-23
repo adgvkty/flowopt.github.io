@@ -291,7 +291,154 @@ body {
 }
 .top-logo .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
 
-.top-meta { font-size: 11px; color: var(--muted); flex: 1; }
+.top-meta { font-size: 11px; color: var(--muted); flex: 1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.top-meta-text { white-space: nowrap; }
+
+/* ─── DATE FILTER ─── */
+.date-filter { display: none; align-items: center; gap: 6px; position: relative; }
+.date-filter.active-feature { display: flex; }
+.df-presets { display: flex; gap: 3px; padding: 2px; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; }
+.df-preset {
+  padding: 4px 9px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.df-preset:hover { color: var(--text); background: var(--surface3); }
+.df-preset.active { background: var(--accent); color: #fff; box-shadow: 0 0 8px rgba(61,139,255,0.35); }
+[data-theme="light"] .df-preset.active { box-shadow: 0 0 6px rgba(38,120,240,0.25); }
+
+.df-custom-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.df-custom-btn:hover { border-color: var(--accent); color: var(--accent); }
+.df-custom-btn.active { border-color: var(--accent); color: var(--accent); background: var(--glow); }
+.df-custom-btn .df-cal-icon { font-size: 12px; line-height: 1; opacity: 0.85; }
+.df-custom-btn .df-range-text { color: var(--muted); font-weight: 500; font-size: 9.5px; }
+.df-custom-btn.active .df-range-text { color: var(--accent); opacity: 0.85; }
+
+.df-clear-btn {
+  display: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.df-clear-btn:hover { border-color: var(--red); color: var(--red); }
+.df-clear-btn.visible { display: flex; align-items: center; justify-content: center; }
+
+/* Calendar popover */
+.df-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--glow);
+  display: none;
+  min-width: 280px;
+}
+[data-theme="light"] .df-popover { box-shadow: 0 12px 28px rgba(20,30,55,0.12); }
+.df-popover.open { display: block; }
+.df-popover-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.df-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.df-row label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+.df-row input[type="date"] {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.12s;
+  color-scheme: dark;
+}
+[data-theme="light"] .df-row input[type="date"] { color-scheme: light; }
+.df-row input[type="date"]:focus { border-color: var(--accent); }
+.df-row input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+[data-theme="light"] .df-row input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.3); }
+
+.df-popover-hint {
+  font-size: 9.5px;
+  color: var(--dim);
+  margin-top: -4px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.df-popover-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.df-pop-btn {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.12s;
+  letter-spacing: 0.03em;
+}
+.df-pop-btn:hover { color: var(--text); border-color: var(--border2); }
+.df-pop-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.df-pop-btn.primary:hover { background: #5a9fff; border-color: #5a9fff; }
+[data-theme="light"] .df-pop-btn.primary:hover { background: #1a68d8; border-color: #1a68d8; }
+.df-pop-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.df-error {
+  display: none;
+  font-size: 10px;
+  color: var(--red);
+  margin: 6px 0 8px 0;
+  padding: 6px 8px;
+  background: rgba(255,85,102,0.08);
+  border: 1px solid rgba(255,85,102,0.25);
+  border-radius: 4px;
+}
+.df-error.visible { display: block; }
+
 .top-stats { display: flex; gap: 20px; }
 .ts { display: flex; flex-direction: column; align-items: flex-end; }
 .ts .v { font-size: 13px; font-weight: 600; color: var(--logo-color); }
@@ -1569,7 +1716,42 @@ body {
 <div id="appScreen">
   <div class="top-bar">
     <div class="top-logo"><div class="dot"></div>Affiliate Analytics</div>
-    <div class="top-meta" id="topMeta"></div>
+    <div class="top-meta" id="topMeta">
+      <span class="top-meta-text" id="topMetaText"></span>
+      <div class="date-filter" id="dateFilter">
+        <div class="df-presets" id="dfPresets">
+          <button class="df-preset" data-days="1">1d</button>
+          <button class="df-preset" data-days="3">3d</button>
+          <button class="df-preset" data-days="7">7d</button>
+          <button class="df-preset" data-days="14">14d</button>
+          <button class="df-preset" data-days="30">30d</button>
+          <button class="df-preset active" data-days="all">All</button>
+        </div>
+        <button class="df-custom-btn" id="dfCustomBtn" title="Pick custom date range">
+          <span class="df-cal-icon">▦</span>
+          <span>Custom</span>
+          <span class="df-range-text" id="dfRangeText"></span>
+        </button>
+        <button class="df-clear-btn" id="dfClearBtn" title="Clear date filter">×</button>
+        <div class="df-popover" id="dfPopover">
+          <div class="df-popover-title">Custom date range</div>
+          <div class="df-row">
+            <label for="dfFromInput">From</label>
+            <input type="date" id="dfFromInput">
+          </div>
+          <div class="df-row">
+            <label for="dfToInput">To</label>
+            <input type="date" id="dfToInput">
+          </div>
+          <div class="df-popover-hint" id="dfBoundsHint"></div>
+          <div class="df-error" id="dfError"></div>
+          <div class="df-popover-actions">
+            <button class="df-pop-btn" id="dfPopCancel">Cancel</button>
+            <button class="df-pop-btn primary" id="dfPopApply">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="top-stats" id="topStats"></div>
     <button class="reload-btn" id="reloadBtn">↺ Load New File</button>
     <button class="theme-toggle" id="appThemeBtn" title="Toggle theme">☀</button>
@@ -1718,6 +1900,18 @@ let activeDeviceType = null;
 let activeDeviceOS = null;
 let currentViewMode = 'analytics';
 
+// ── Date filter state ──
+// Holds the mapping + ppsKw used at the last build, so we can re-aggregate
+// the original parsedRows whenever the user changes the date filter.
+let _activeMapping = null;
+let _activePpsKw = 'pps';
+// All distinct YYYY-MM-DD dates present in the dataset (sorted, ascending).
+let ALL_DATES = [];
+let MIN_DATE = null;
+let MAX_DATE = null;
+// Currently applied filter: { mode: 'all' | 'preset' | 'custom', days?: number, from?: 'YYYY-MM-DD', to?: 'YYYY-MM-DD' }
+let dateFilter = { mode: 'all' };
+
 let srcSelectedOfferKey = null;
 let srcOfferSearchQuery = '';
 
@@ -1804,6 +1998,9 @@ function resetUpload() {
   selectedAffiliate = null; selectedFlow = null; selectedCountry = null;
   searchQuery = ''; HAS_DATES = false; HAS_SOURCES = false;
   srcSelectedOfferKey = null; srcOfferSearchQuery = '';
+  _activeMapping = null; _activePpsKw = 'pps';
+  ALL_DATES = []; MIN_DATE = null; MAX_DATE = null;
+  dateFilter = { mode: 'all' };
   chartGroupWeeks = false; chartMA7 = false; chartMA14 = false;
   chartGroupByFlow = false; collapsedFlows = new Set(); chartSelectedFlowId = null;
   dimExpandedGeos = new Set(); dimExpandedOffers = new Set();
@@ -1869,7 +2066,11 @@ function tryAutoLaunch(filename, rowCount) {
     // All required columns auto-matched — go straight to the dashboard
     const ppsKw = 'pps'; // default keyword, same as the input's default value
     try {
-      buildData(parsedRows, autoMapping, ppsKw);
+      _activeMapping = autoMapping;
+      _activePpsKw = ppsKw;
+      computeDatasetDateBounds();
+      dateFilter = { mode: 'all' };
+      buildData(filterRowsByDate(parsedRows), autoMapping, ppsKw);
       launchApp();
     } catch(err) {
       const safeMsg = (err && err.message && err.message.length < 160) ? err.message.replace(/[<>"'`]/g,'') : 'Unexpected error while processing data';
@@ -1922,6 +2123,10 @@ function buildAndLaunch() {
   const ppsKw = rawPpsKw.trim().slice(0,64).replace(/[<>"'`]/g,'').toLowerCase();
   if (!ppsKw) { showError('PPS keyword cannot be empty.'); return; }
   buildData(parsedRows, mapping, ppsKw);
+  _activeMapping = mapping;
+  _activePpsKw = ppsKw;
+  computeDatasetDateBounds();
+  dateFilter = { mode: 'all' };
   launchApp();
 }
 
@@ -2248,6 +2453,314 @@ function computeSalesCPSForScope(affId, scope) {
   return { sales, revenueForCPS, cps };
 }
 
+// ── Date filter helpers ──
+// Scan the original parsedRows once (per build) to determine the absolute
+// min/max date and the sorted list of distinct dates present in the data.
+function computeDatasetDateBounds() {
+  ALL_DATES = []; MIN_DATE = null; MAX_DATE = null;
+  if (!_activeMapping || !_activeMapping.date) return;
+  const dateCol = _activeMapping.date;
+  const set = new Set();
+  for (const row of parsedRows) {
+    const d = normalizeDate(row[dateCol]);
+    if (d) set.add(d);
+  }
+  ALL_DATES = Array.from(set).sort();
+  if (ALL_DATES.length) {
+    MIN_DATE = ALL_DATES[0];
+    MAX_DATE = ALL_DATES[ALL_DATES.length - 1];
+  }
+}
+
+// Resolve the active dateFilter to a concrete [from, to] inclusive YYYY-MM-DD pair,
+// or null when no filtering should be applied (mode 'all' or no dates present).
+function resolveActiveRange() {
+  if (!_activeMapping || !_activeMapping.date || !MAX_DATE) return null;
+  if (dateFilter.mode === 'all') return null;
+  if (dateFilter.mode === 'preset') {
+    const days = dateFilter.days;
+    if (!days || days < 1) return null;
+    // "Last N days" anchored to the most recent date present in the dataset.
+    // Inclusive: last 1 day = the most recent day only; last 7 days = the most
+    // recent day plus the 6 preceding calendar days.
+    const end = MAX_DATE;
+    const endDate = new Date(end + 'T00:00:00Z');
+    const startDate = new Date(endDate.getTime() - (days - 1) * 86400000);
+    const from = startDate.toISOString().slice(0, 10);
+    return { from, to: end };
+  }
+  if (dateFilter.mode === 'custom') {
+    if (!dateFilter.from || !dateFilter.to) return null;
+    return { from: dateFilter.from, to: dateFilter.to };
+  }
+  return null;
+}
+
+// Return rows filtered by the active date range. Rows without a parseable date
+// are kept ONLY when no filter is active; once a date filter is on, they're
+// excluded (we can't know which period they belong to).
+function filterRowsByDate(rows) {
+  const range = resolveActiveRange();
+  if (!range) return rows;
+  const dateCol = _activeMapping.date;
+  const { from, to } = range;
+  return rows.filter(row => {
+    const d = normalizeDate(row[dateCol]);
+    return d && d >= from && d <= to;
+  });
+}
+
+// Re-aggregate FULL_DATA / DAILY_DATA / SOURCE_DATA from the original parsedRows
+// using the current date filter, then refresh every visible part of the UI.
+// Tries to preserve the user's selections (affiliate / flow / country / view).
+function rebuildAndRefresh() {
+  if (!_activeMapping) return;
+  const prevAffiliate = selectedAffiliate;
+  const prevFlow = selectedFlow;
+  const prevCountry = selectedCountry;
+  const prevView = currentViewMode;
+  const prevSrcOfferKey = srcSelectedOfferKey;
+
+  const filtered = filterRowsByDate(parsedRows);
+  buildData(filtered, _activeMapping, _activePpsKw);
+
+  // Refresh top stats + meta (mirrors launchApp's stat block).
+  updateTopStatsAndMeta();
+
+  // Restore the previously-selected affiliate, falling back to the highest-revenue
+  // one if the previous affiliate has no rows in the filtered window.
+  const affiliates = Object.keys(FULL_DATA);
+  let nextAff = (prevAffiliate && FULL_DATA[prevAffiliate]) ? prevAffiliate : null;
+  if (!nextAff && affiliates.length) {
+    nextAff = affiliates.sort((a, b) => getAffiliateStats(b).revenue - getAffiliateStats(a).revenue)[0];
+  }
+
+  if (!nextAff) {
+    // Filter window has no data at all — show an empty state but keep the UI usable.
+    selectedAffiliate = null; selectedFlow = null; selectedCountry = null;
+    renderAffiliateTabs();
+    document.getElementById('flowTabs').innerHTML = '';
+    const rp = document.getElementById('rightPanel');
+    rp.innerHTML = '<div class="empty-state"><div class="empty-icon">⊘</div><div class="empty-text">No data in selected date range</div><div style="color:var(--muted);font-size:11px">Try a wider window or clear the filter</div></div>';
+    document.getElementById('countryList').innerHTML = '';
+    document.getElementById('countBadge').textContent = '—';
+    return;
+  }
+
+  selectedAffiliate = nextAff;
+  selectedFlow = null; selectedCountry = null;
+  activeDeviceType = null; activeDeviceOS = null;
+  renderAffiliateTabs();
+  renderFlowTabs();
+
+  const flows = Object.keys(FULL_DATA[nextAff]).sort((a, b) => getFlowStats(nextAff, b).revenue - getFlowStats(nextAff, a).revenue);
+  const nextFlow = (prevFlow && FULL_DATA[nextAff][prevFlow]) ? prevFlow : (flows[0] || null);
+  if (nextFlow) {
+    selectFlow(nextFlow);
+    if (prevCountry && FULL_DATA[nextAff][nextFlow][prevCountry]) {
+      selectCountry(prevCountry);
+    }
+  }
+
+  // Re-enter the previously active view mode if its data is still available.
+  if (prevView === 'charts' && HAS_DATES) {
+    switchViewMode('charts');
+  } else if (prevView === 'source' && HAS_SOURCES) {
+    switchViewMode('source');
+    if (prevSrcOfferKey && SOURCE_DATA[nextAff] && SOURCE_DATA[nextAff][prevSrcOfferKey]) {
+      srcSelectedOfferKey = prevSrcOfferKey;
+      if (typeof renderSrcOfferList === 'function') renderSrcOfferList();
+    }
+  }
+}
+
+// Recompute the top-bar stat chips + meta line. Extracted so the date filter
+// can refresh them without re-binding listeners.
+function updateTopStatsAndMeta() {
+  let totalClicks = 0, totalRevenue = 0, totalConversions = 0;
+  for (const affId of Object.keys(FULL_DATA)) {
+    const s = getAffiliateStats(affId);
+    totalClicks += s.clicks; totalRevenue += s.revenue; totalConversions += s.conversions;
+  }
+  const totalAffiliates = Object.keys(FULL_DATA).length;
+  const metaParts = [`${totalAffiliates} affiliate${totalAffiliates !== 1 ? 's' : ''}`];
+  if (HAS_DATES) metaParts.push('daily charts available');
+  if (HAS_SOURCES) metaParts.push('source analytics available');
+  document.getElementById('topMetaText').textContent = metaParts.join(' · ');
+
+  const topStats = document.getElementById('topStats');
+  topStats.innerHTML = '';
+  function makeStat(value, label, color) {
+    const ts = document.createElement('div'); ts.className = 'ts';
+    const v = document.createElement('div'); v.className = 'v'; v.textContent = value;
+    if (color) v.style.color = color;
+    const l = document.createElement('div'); l.className = 'l'; l.textContent = label;
+    ts.appendChild(v); ts.appendChild(l);
+    return ts;
+  }
+  topStats.appendChild(makeStat(fmtNum(totalClicks), 'Clicks', null));
+  topStats.appendChild(makeStat(totalConversions.toLocaleString(), 'Convs', null));
+  topStats.appendChild(makeStat(totalRevenue > 0 ? '$' + totalRevenue.toFixed(2) : '—', 'Revenue', 'var(--green)'));
+}
+
+// ── Date filter UI wiring ──
+function initDateFilterUI() {
+  const wrap = document.getElementById('dateFilter');
+  const presetsBox = document.getElementById('dfPresets');
+  const customBtn = document.getElementById('dfCustomBtn');
+  const popover = document.getElementById('dfPopover');
+  const fromInput = document.getElementById('dfFromInput');
+  const toInput = document.getElementById('dfToInput');
+  const boundsHint = document.getElementById('dfBoundsHint');
+  const errEl = document.getElementById('dfError');
+  const popApply = document.getElementById('dfPopApply');
+  const popCancel = document.getElementById('dfPopCancel');
+  const clearBtn = document.getElementById('dfClearBtn');
+  const rangeText = document.getElementById('dfRangeText');
+
+  // Hide entirely when the dataset has no date column.
+  if (!HAS_DATES || !MIN_DATE) {
+    wrap.classList.remove('active-feature');
+    return;
+  }
+  wrap.classList.add('active-feature');
+
+  // Configure the date inputs to the dataset's actual bounds.
+  fromInput.min = MIN_DATE; fromInput.max = MAX_DATE;
+  toInput.min = MIN_DATE; toInput.max = MAX_DATE;
+  boundsHint.textContent = `Available range: ${MIN_DATE} → ${MAX_DATE}`;
+
+  // Disable any preset whose window would be larger than the available data
+  // (e.g. "Last 30d" on a 7-day dataset would be misleading).
+  const totalDays = Math.round((new Date(MAX_DATE) - new Date(MIN_DATE)) / 86400000) + 1;
+  presetsBox.querySelectorAll('.df-preset').forEach(btn => {
+    const v = btn.getAttribute('data-days');
+    if (v === 'all') return;
+    const days = parseInt(v, 10);
+    if (days > totalDays) {
+      btn.disabled = true;
+      btn.style.opacity = '0.35';
+      btn.style.cursor = 'not-allowed';
+      btn.title = `Dataset only covers ${totalDays} day${totalDays !== 1 ? 's' : ''}`;
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+      btn.title = `Last ${days} day${days !== 1 ? 's' : ''} ending ${MAX_DATE}`;
+    }
+  });
+
+  // Preset click handlers
+  presetsBox.querySelectorAll('.df-preset').forEach(btn => {
+    btn.onclick = () => {
+      if (btn.disabled) return;
+      const v = btn.getAttribute('data-days');
+      if (v === 'all') {
+        dateFilter = { mode: 'all' };
+      } else {
+        dateFilter = { mode: 'preset', days: parseInt(v, 10) };
+      }
+      popover.classList.remove('open');
+      customBtn.classList.remove('active');
+      syncDateFilterUI();
+      rebuildAndRefresh();
+    };
+  });
+
+  // Custom button toggles the popover; pre-fill inputs with the current range.
+  customBtn.onclick = (e) => {
+    e.stopPropagation();
+    const willOpen = !popover.classList.contains('open');
+    popover.classList.toggle('open', willOpen);
+    if (willOpen) {
+      const range = resolveActiveRange();
+      fromInput.value = (range && range.from) || dateFilter.from || MIN_DATE;
+      toInput.value = (range && range.to) || dateFilter.to || MAX_DATE;
+      errEl.classList.remove('visible');
+      setTimeout(() => fromInput.focus(), 50);
+    }
+  };
+
+  popCancel.onclick = () => { popover.classList.remove('open'); errEl.classList.remove('visible'); };
+
+  popApply.onclick = () => {
+    const from = fromInput.value;
+    const to = toInput.value;
+    errEl.classList.remove('visible');
+    if (!from || !to) {
+      errEl.textContent = 'Please pick both a start and end date.';
+      errEl.classList.add('visible');
+      return;
+    }
+    if (from > to) {
+      errEl.textContent = 'Start date must be on or before end date.';
+      errEl.classList.add('visible');
+      return;
+    }
+    if (from < MIN_DATE || to > MAX_DATE) {
+      errEl.textContent = `Pick dates within ${MIN_DATE} → ${MAX_DATE}.`;
+      errEl.classList.add('visible');
+      return;
+    }
+    dateFilter = { mode: 'custom', from, to };
+    popover.classList.remove('open');
+    syncDateFilterUI();
+    rebuildAndRefresh();
+  };
+
+  clearBtn.onclick = () => {
+    dateFilter = { mode: 'all' };
+    popover.classList.remove('open');
+    syncDateFilterUI();
+    rebuildAndRefresh();
+  };
+
+  // Click-outside closes the popover.
+  document.addEventListener('click', (e) => {
+    if (!popover.classList.contains('open')) return;
+    if (popover.contains(e.target) || customBtn.contains(e.target)) return;
+    popover.classList.remove('open');
+  });
+
+  // Esc closes the popover.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popover.classList.contains('open')) {
+      popover.classList.remove('open');
+    }
+  });
+
+  syncDateFilterUI();
+}
+
+// Reflect the current dateFilter in the toolbar (active preset, custom label, clear button).
+function syncDateFilterUI() {
+  const presetsBox = document.getElementById('dfPresets');
+  const customBtn = document.getElementById('dfCustomBtn');
+  const clearBtn = document.getElementById('dfClearBtn');
+  const rangeText = document.getElementById('dfRangeText');
+  if (!presetsBox) return;
+
+  presetsBox.querySelectorAll('.df-preset').forEach(b => b.classList.remove('active'));
+
+  if (dateFilter.mode === 'all') {
+    const allBtn = presetsBox.querySelector('.df-preset[data-days="all"]');
+    if (allBtn) allBtn.classList.add('active');
+    customBtn.classList.remove('active');
+    rangeText.textContent = '';
+    clearBtn.classList.remove('visible');
+  } else if (dateFilter.mode === 'preset') {
+    const btn = presetsBox.querySelector(`.df-preset[data-days="${dateFilter.days}"]`);
+    if (btn) btn.classList.add('active');
+    customBtn.classList.remove('active');
+    rangeText.textContent = '';
+    clearBtn.classList.add('visible');
+  } else if (dateFilter.mode === 'custom') {
+    customBtn.classList.add('active');
+    rangeText.textContent = `${dateFilter.from} → ${dateFilter.to}`;
+    clearBtn.classList.add('visible');
+  }
+}
+
 function launchApp() {
   document.getElementById('uploadScreen').style.display = 'none';
   const app = document.getElementById('appScreen');
@@ -2259,7 +2772,7 @@ function launchApp() {
   const metaParts = [`${totalAffiliates} affiliate${totalAffiliates!==1?'s':''}`];
   if (HAS_DATES) metaParts.push('daily charts available');
   if (HAS_SOURCES) metaParts.push('source analytics available');
-  document.getElementById('topMeta').textContent = metaParts.join(' · ');
+  document.getElementById('topMetaText').textContent = metaParts.join(' · ');
 
   const topStats = document.getElementById('topStats');
   topStats.innerHTML = '';
@@ -2292,6 +2805,7 @@ function launchApp() {
   renderAffiliateTabs();
   const topAff = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue)[0];
   if (topAff) selectAffiliate(topAff);
+  initDateFilterUI();
 }
 
 // ── View mode ──
