@@ -608,6 +608,155 @@ body {
 }
 .flow-tab.active .flow-geo-badge { background: rgba(34,217,138,0.12); border-color: rgba(34,217,138,0.3); color: var(--green); }
 
+/* Headlining-offer prefix shown before the GEO badge in flow tabs / flow headers.
+   Subtle, smaller weight than the flow id itself so the flow name stays the
+   primary anchor; "—" suffix separates it from the GEO badge that follows. */
+.flow-offer-prefix {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 1px 6px 1px 5px;
+  border-radius: 3px;
+  background: rgba(108,99,255,0.08);
+  border: 1px solid rgba(108,99,255,0.22);
+  color: var(--accent2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  vertical-align: middle;
+  flex-shrink: 0;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flow-offer-prefix .fop-id { color: var(--accent); font-weight: 700; }
+.flow-offer-prefix .fop-dash { color: var(--muted); margin-left: 2px; }
+.flow-tab.active .flow-offer-prefix { background: rgba(34,217,138,0.08); border-color: rgba(34,217,138,0.25); color: var(--green); }
+.flow-tab.active .flow-offer-prefix .fop-id { color: var(--green); }
+.flow-tab.active .flow-offer-prefix .fop-dash { color: rgba(34,217,138,0.5); }
+
+/* Smaller variant for dim-list / tree flow headers where vertical space is tighter. */
+.flow-offer-prefix.compact {
+  font-size: 8px;
+  padding: 0 5px;
+  margin-left: 4px;
+  max-width: 220px;
+}
+
+/* Tree view: source/landing toggle filter */
+.tree-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.tree-filter-bar .tfb-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 700;
+}
+.tree-filter-btn {
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: all .12s;
+}
+.tree-filter-btn:hover { color: var(--text); border-color: var(--accent); }
+.tree-filter-btn.active {
+  background: rgba(61,139,255,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tree-filter-btn.active.lnd { background: rgba(108,99,255,0.1); border-color: var(--accent2); color: var(--accent2); }
+
+/* Improved tree visuals — vertical guide lines, sharper hover */
+.dim-tree-flow-hdr {
+  position: relative;
+}
+.dim-tree-flow-hdr.flow-selected::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--green);
+}
+.dim-tree-child {
+  position: relative;
+}
+.dim-tree-child::before {
+  content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 1px;
+  background: var(--border); opacity: 0.6;
+}
+.dim-tree-grandchild::before { left: 30px; }
+.dim-tree-child:hover { background: rgba(61,139,255,0.04); }
+
+/* Landing tree leaf — purple accent to distinguish from sources */
+.dim-tree-child.landing-leaf {
+  border-left: 2px solid transparent;
+}
+.dim-tree-child.landing-leaf.selected {
+  background: rgba(108,99,255,0.07);
+  border-left-color: var(--accent2);
+}
+.dim-tree-child.landing-leaf.selected .main .n { color: var(--accent2); }
+.tree-leaf-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+.tree-leaf-tag.src { background: rgba(61,139,255,0.1); border: 1px solid rgba(61,139,255,0.22); color: var(--accent); }
+.tree-leaf-tag.lnd { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.22); color: var(--accent2); }
+
+/* "View chart" button on country header (analytics view) */
+.view-chart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  margin-left: 8px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: rgba(61,139,255,0.08);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: all .14s;
+  user-select: none;
+  flex-shrink: 0;
+}
+.view-chart-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(61,139,255,0.25);
+}
+.view-chart-btn .vcb-icon { font-size: 11px; line-height: 1; }
+
 .dim-geo-badge {
   display: inline-block;
   margin-left: 5px;
@@ -682,12 +831,84 @@ body {
   overflow: hidden;
 }
 
+/* Analytics view layout: flows panel | countries panel | right panel
+   Countries panel width matches the Daily Charts dimension panel (280px)
+   so the two views feel like the same control at the same scale. */
+.main-layout-with-flows {
+  grid-template-columns: 280px 280px 1fr;
+}
+
+.flows-panel { border-right: 1px solid var(--border); }
+.flow-list {
+  overflow-y: auto;
+  flex: 1;
+}
+.flow-list-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  user-select: none;
+  position: relative;
+}
+.flow-list-item:hover { background: var(--surface2); }
+.flow-list-item.active {
+  background: rgba(34,217,138,0.08);
+  border-left: 2px solid var(--green);
+  padding-left: 10px;
+}
+.flow-list-item.no-flow-item {
+  opacity: 0.7;
+  border-left-style: dashed;
+}
+.flow-list-item.no-flow-item.active {
+  background: rgba(255,140,68,0.08);
+  border-left: 2px solid var(--orange);
+  opacity: 1;
+}
+.flow-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.flow-list-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+.flow-list-item.active .flow-list-id { color: var(--green); }
+.flow-list-item.no-flow-item .flow-list-id { color: var(--muted); }
+.flow-list-item.no-flow-item.active .flow-list-id { color: var(--orange); }
+.flow-list-stats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+}
+.flow-list-stats .fl-clicks { color: var(--dim); }
+.flow-list-stats .fl-rev { color: var(--green); font-weight: 500; }
+.flow-list-item.active .flow-list-stats .fl-clicks { color: rgba(34,217,138,0.5); }
+.flow-list-item .flow-tab-copy-btn { margin-left: auto; }
+
 /* ─── LEFT PANEL ─── */
 .left-panel {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--surface);
 }
 
 .panel-hdr {
@@ -759,6 +980,11 @@ body {
 .cbar { height: 2px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
 .cclicks { font-size: 10px; color: var(--muted); }
 .crev { font-size: 10px; color: var(--green); text-align: right; white-space: nowrap; }
+/* Stack revenue (top) and EPC (bottom) on the right of each country row.
+   `align-self:center` keeps the stack vertically centered against the
+   left column when EPC is present. */
+.crev-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; align-self: center; }
+.cepc { font-size: 9px; color: var(--yellow); text-align: right; white-space: nowrap; opacity: 0.85; }
 
 /* ─── RIGHT PANEL ─── */
 .right-panel { overflow-y: auto; padding: 20px 22px; }
@@ -866,6 +1092,19 @@ body {
   letter-spacing: .03em;
   flex-shrink: 0;
   white-space: nowrap;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.offer-id-tag:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(61,139,255,0.08);
+}
+.offer-id-tag.copied {
+  color: var(--green);
+  border-color: var(--green);
+  background: rgba(34,217,138,0.1);
 }
 
 .badge {
@@ -1049,10 +1288,30 @@ body {
 
 .charts-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 280px 280px 1fr;
   flex: 1;
   overflow: hidden;
 }
+
+/* Flows panel inside Daily Charts view (mirrors the analytics flows panel) */
+.charts-flows-panel {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+/* Pseudo "All Flows" entry in the charts flow list */
+.flow-list-item.all-flows-item {
+  border-left-style: dashed;
+  border-bottom: 1px solid var(--border2);
+}
+.flow-list-item.all-flows-item.active {
+  background: rgba(61,139,255,0.08);
+  border-left: 2px solid var(--accent);
+}
+.flow-list-item.all-flows-item.active .flow-list-id { color: var(--accent); }
+.flow-list-item.all-flows-item.active .flow-list-stats .fl-clicks { color: rgba(61,139,255,0.5); }
 
 .charts-left {
   border-right: 1px solid var(--border);
@@ -1158,9 +1417,15 @@ body {
 .dim-item-sub {
   font-size: 9px;
   color: var(--muted);
+  /* Allow the metrics sub-line to wrap to a second row so EPC/CPS remain
+     visible on narrow panels. Two lines is plenty for the longest case
+     (rev · clicks · EPC · sales · CPS); anything beyond that is clipped. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 /* Expandable dim items (geo/offer with children) */
@@ -1176,6 +1441,105 @@ body {
   transition: color .1s;
 }
 .dim-item:hover .dim-item-twisty { color: var(--text); }
+
+/* ─── Daily Charts: GEO row (analytics-style) ───
+   Mirrors .country-item from the analytics view so the GEO list in Daily
+   Charts and Analytics feel like the same control. The row is a 3-column
+   grid: [twisty] [code + bar/clicks] [revenue/EPC stack]. Hover/selected
+   states match .country-item. */
+.dim-geo-item {
+  padding: 7px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  transition: background 0.1s;
+}
+.dim-geo-item:hover { background: var(--surface2); }
+.dim-geo-item.selected { background: rgba(61,139,255,0.07); border-left: 2px solid var(--accent); padding-left: 12px; }
+.dim-geo-item.selected .country-code { color: var(--accent); }
+
+/* Nested child rows under an expanded GEO/Offer parent.
+   Reuse the same .dim-geo-item layout (same bar / clicks / revenue / EPC
+   colours) so children visually match parents. The only difference is a
+   small left indent so the hierarchy reads at a glance — no background
+   tint, so nested rows blend with the rest of the dimension list. */
+.dim-geo-item.nested-child {
+  padding-left: 30px;
+}
+.dim-geo-item.nested-child:hover { background: var(--surface2); }
+.dim-geo-item.nested-child.selected {
+  background: rgba(61,139,255,0.07);
+  border-left: 2px solid var(--accent);
+  padding-left: 28px;
+}
+/* Extra indent step when the nested child sits under a flow-scoped header */
+.dim-geo-item.nested-child.nested-grouped { padding-left: 42px; }
+.dim-geo-item.nested-child.nested-grouped.selected { padding-left: 40px; }
+
+/* When the analytics-style row is used for an Offer, the "name" is much
+   longer than a 2-letter country code, so we override .country-code's
+   inline display with ellipsis-clipped block text. */
+.dim-geo-item .country-code.is-offer-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 100%;
+}
+.dim-geo-item.selected .country-code.is-offer-name { color: var(--accent); }
+
+/* ─── Hide-zero-revenue toggle (Daily Charts dimension panel) ───
+   A small inline checkbox row that filters out items with revenue ≤ 0
+   from the dimension list. Defaults to ON. */
+.dim-zero-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  transition: color .12s;
+}
+.dim-zero-toggle:hover { color: var(--text); }
+.dim-zero-toggle input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.dim-zero-toggle.active { color: var(--text); }
+
+.dim-geo-twisty {
+  display: inline-block;
+  width: 14px;
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1;
+  user-select: none;
+  transition: color .1s;
+  flex-shrink: 0;
+}
+.dim-geo-item:hover .dim-geo-twisty { color: var(--text); }
+
+.dim-geo-left {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .dim-child {
   padding: 5px 14px 5px 30px;
@@ -1204,9 +1568,12 @@ body {
 .dim-child-sub {
   font-size: 9px;
   color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 /* In grouped-by-flow mode, children are already indented under the flow header */
@@ -1319,9 +1686,12 @@ body {
 .dim-tree-child .main .s {
   font-size: 9px;
   color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  word-break: break-word;
 }
 .dim-tree-grandchild {
   padding-left: 46px;
@@ -1415,6 +1785,44 @@ body {
 .cc-btn.active-ma7 { border-color: var(--yellow); color: var(--yellow); background: rgba(240,192,64,0.10); }
 .cc-btn.active-ma14 { border-color: var(--orange); color: var(--orange); background: rgba(255,140,68,0.10); }
 
+/* ─── Offer Comparison toggle ─── */
+/* The host chart-card holds just the title + toggle button when collapsed,
+   and the inner chart card when expanded. We strip the inner card's border
+   and padding via .cmp-inner so it doesn't double up against the host. */
+.cmp-toggle-hdr { margin-bottom: 0; gap: 12px; }
+.cmp-toggle-hdr .chart-card-title { flex: 1; }
+.cmp-toggle-btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: rgba(61,139,255,0.08);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.cmp-toggle-btn:hover { background: rgba(61,139,255,0.16); border-color: var(--accent); }
+.cmp-slot { margin-top: 14px; }
+.cmp-inner {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  padding: 14px 0 0 0 !important;
+  margin-bottom: 0 !important;
+}
+.cmp-legend-hint {
+  width: 100%;
+  font-size: 9px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 4px;
+  letter-spacing: .02em;
+}
+
 .chart-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1472,6 +1880,11 @@ body {
   color: var(--muted);
 }
 .chart-legend-item { display: flex; align-items: center; gap: 5px; }
+.chart-legend-item.clickable { cursor: pointer; user-select: none; transition: opacity .15s; }
+.chart-legend-item.clickable:hover { opacity: .75; }
+.chart-legend-item.disabled { opacity: .45; }
+.chart-legend-item.disabled .chart-legend-dot { background: transparent !important; border: 1px dashed currentColor; }
+.chart-legend-item.disabled span { text-decoration: line-through; text-decoration-thickness: 1px; }
 .chart-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
 .chart-data-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
@@ -1807,8 +2220,14 @@ body {
 
   <!-- ANALYTICS VIEW -->
   <div id="analyticsView" style="display:flex;flex:1;overflow:hidden;flex-direction:column;">
-    <div class="flow-tabs-bar" id="flowTabs"></div>
-    <div class="main-layout">
+    <div class="main-layout main-layout-with-flows">
+      <div class="left-panel flows-panel">
+        <div class="panel-hdr">
+          <h2>Flows</h2>
+          <span class="count-badge" id="flowCountBadge">—</span>
+        </div>
+        <div class="flow-list" id="flowTabs"></div>
+      </div>
       <div class="left-panel">
         <div class="panel-hdr">
           <h2>Countries</h2>
@@ -1855,24 +2274,29 @@ body {
   <!-- CHARTS VIEW -->
   <div id="chartsView">
     <div class="charts-layout">
+      <div class="charts-flows-panel">
+        <div class="panel-hdr">
+          <h2>Flows</h2>
+          <span class="count-badge" id="chartFlowCountBadge">—</span>
+        </div>
+        <div class="flow-list" id="chartFlowList"></div>
+      </div>
       <div class="charts-left">
         <div class="charts-left-hdr">
           <h2>Dimension</h2>
           <div class="dim-tabs">
-            <button class="dim-tab active" id="dimTabOverall">All</button>
-            <button class="dim-tab" id="dimTabTree">Tree</button>
-            <button class="dim-tab" id="dimTabFlow">Flow</button>
-            <button class="dim-tab" id="dimTabGeo">GEO</button>
+            <button class="dim-tab active" id="dimTabGeo">GEO</button>
             <button class="dim-tab" id="dimTabOffer">Offer</button>
             <button class="dim-tab" id="dimTabSource">Source</button>
           </div>
-          <div id="groupByFlowRow" style="display:none;margin-top:8px;">
-            <button id="groupByFlowBtn" style="width:100%;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:all .12s;text-align:left;">◦ Group by Flow</button>
-          </div>
         </div>
-        <div class="dim-search-bar" id="dimSearchBar" style="display:none;">
-          <input type="text" id="dimSearchInput" placeholder="Search flow / geo / offer / source…" maxlength="100" autocomplete="off">
+        <div class="dim-search-bar" id="dimSearchBar">
+          <input type="text" id="dimSearchInput" placeholder="Search geo / offer / source…" maxlength="100" autocomplete="off">
         </div>
+        <label class="dim-zero-toggle active" id="dimZeroToggle" title="Hide rows with zero revenue">
+          <input type="checkbox" id="dimZeroToggleCheckbox" checked>
+          <span>Hide zero-revenue entries</span>
+        </label>
         <div class="dim-list" id="dimList"></div>
       </div>
       <div class="charts-right" id="chartsRight"></div>
@@ -1896,13 +2320,9 @@ document.addEventListener('DOMContentLoaded', function() {
   bind('vmTabAnalytics',   function(){ switchViewMode('analytics'); });
   bind('vmTabSource',      function(){ switchViewMode('source'); });
   bind('vmTabCharts',      function(){ switchViewMode('charts'); });
-  bind('dimTabOverall',    function(){ selectDimension('overall'); });
-  bind('dimTabTree',       function(){ selectDimension('tree'); });
-  bind('dimTabFlow',       function(){ selectDimension('flow'); });
   bind('dimTabGeo',        function(){ selectDimension('geo'); });
   bind('dimTabOffer',      function(){ selectDimension('offer'); });
   bind('dimTabSource',     function(){ selectDimension('source'); });
-  bind('groupByFlowBtn',   function(){ toggleGroupByFlow(); });
 });
 
 // ── Security helpers ──
@@ -1949,16 +2369,29 @@ let dateFilter = { mode: 'all' };
 let srcSelectedOfferKey = null;
 let srcOfferSearchQuery = '';
 
-let chartDimension = 'overall';
+// chartFlowScope is the flow context for the Daily Charts view, set via the
+// new Flows panel. '__ALL__' = aggregate across all flows. Otherwise it is a
+// flow id (or '__no_flow__'). Independent from the analytics view's
+// `selectedFlow` so the two tabs don't fight over selection state.
+let chartFlowScope = '__ALL__';
+let chartDimension = 'geo';
 let chartSelectedKey = null;
 let chartSelectedFlowId = null;
-let chartGroupByFlow = false;
 let collapsedFlows = new Set();
 let chartInstances = {};
 let dimSearchQuery = '';
+// When true, the dimension list (Daily Charts) hides any item whose
+// total revenue is zero. Toggled via #dimZeroToggleCheckbox in the
+// dimension panel header. Defaults to ON per UX request — most useful
+// rows are revenue-bearing, and zero-revenue rows are noise by default.
+let dimHideZeroRevenue = true;
 let treeExpandedFlows = new Set();
 let treeExpandedGeos = new Set();  // keys: `${flowId}::${country}`
 let treeExpandedOffers = new Set(); // keys: `${flowId}::${country}::${offerKey}`
+// Controls what the 4th level of the daily-charts tree shows.
+// 'sources'  → drill into traffic sources (default)
+// 'landings' → drill into landing pages
+let treeLeafMode = 'sources';
 // Expansion in non-tree GEO and Offer dimensions.
 // Flat-mode keys: `${country}` (geo dim) or `${offerKey}` (offer dim)
 // Grouped-by-flow mode keys: `${flowId}::${country}` (geo dim) or `${flowId}::${offerKey}` (offer dim)
@@ -1969,6 +2402,15 @@ let dimExpandedOffers = new Set();
 let chartGroupWeeks = false;
 let chartMA7 = false;
 let chartMA14 = false;
+// Sales bars in the daily chart are off by default; users opt in by
+// clicking the "Sales (bars)" legend item.
+let chartShowSales = false;
+// Offer Comparison chart in the GEO scope is hidden by default; users opt in
+// via the "View Offer Comparison Chart" button. When enabled, only the top 5
+// offers (by revenue) are visible by default — additional offers can be
+// toggled on via the chart legend.
+let chartShowOfferCmp = false;
+const CMP_DEFAULT_TOP_N = 5;
 let _lastChartScope = null;
 let _lastChartTitle = null;
 
@@ -2036,9 +2478,13 @@ function resetUpload() {
   ALL_DATES = []; MIN_DATE = null; MAX_DATE = null;
   dateFilter = { mode: 'all' };
   chartGroupWeeks = false; chartMA7 = false; chartMA14 = false;
-  chartGroupByFlow = false; collapsedFlows = new Set(); chartSelectedFlowId = null;
+  chartShowSales = false;
+  chartFlowScope = '__ALL__'; chartDimension = 'geo';
+  chartSelectedKey = null; chartSelectedFlowId = null;
+  collapsedFlows = new Set();
   dimExpandedGeos = new Set(); dimExpandedOffers = new Set();
   treeExpandedFlows = new Set(); treeExpandedGeos = new Set(); treeExpandedOffers = new Set();
+  treeLeafMode = 'sources';
   _lastChartScope = null; _lastChartTitle = null;
   destroyAllCharts();
 }
@@ -2261,23 +2707,36 @@ function buildData(rows, m, ppsKw) {
       if (!dailyAgg[affiliateId]) dailyAgg[affiliateId] = {};
       if (!dailyAgg[affiliateId][flowId]) dailyAgg[affiliateId][flowId] = {};
       if (!dailyAgg[affiliateId][flowId][country]) dailyAgg[affiliateId][flowId][country] = {};
-      if (!dailyAgg[affiliateId][flowId][country][offerKey]) dailyAgg[affiliateId][flowId][country][offerKey] = {__sources:{}};
+      if (!dailyAgg[affiliateId][flowId][country][offerKey]) dailyAgg[affiliateId][flowId][country][offerKey] = {__sources:{}, __landings:{}};
       const offerNode = dailyAgg[affiliateId][flowId][country][offerKey];
+      if (!offerNode.__landings) offerNode.__landings = {};
       if (!offerNode.__sources[srcKeyDaily]) {
         offerNode.__sources[srcKeyDaily] = { replaced_source: replSrcRaw || null, dates: {} };
       } else if (replSrcRaw && !offerNode.__sources[srcKeyDaily].replaced_source) {
         offerNode.__sources[srcKeyDaily].replaced_source = replSrcRaw;
       }
       const srcNode = offerNode.__sources[srcKeyDaily];
-      if (!srcNode.dates[dateRaw]) srcNode.dates[dateRaw] = {clicks:0,conversions:0,revenue:0};
+      if (!srcNode.dates[dateRaw]) srcNode.dates[dateRaw] = {clicks:0,conversions:0,revenue:0,sales:0};
       const DD2 = srcNode.dates[dateRaw];
       DD2.clicks += clicks; DD2.conversions += conversions; DD2.revenue += revenue;
+      if (isSale) DD2.sales = (DD2.sales || 0) + conversions;
+      // Per-landing (page) daily bucket — mirrors __sources to allow a "Landings"
+      // view in the daily-charts tree alongside sources.
+      if (!offerNode.__landings[page]) {
+        offerNode.__landings[page] = { dates: {} };
+      }
+      const lndNode = offerNode.__landings[page];
+      if (!lndNode.dates[dateRaw]) lndNode.dates[dateRaw] = {clicks:0,conversions:0,revenue:0,sales:0};
+      const LD = lndNode.dates[dateRaw];
+      LD.clicks += clicks; LD.conversions += conversions; LD.revenue += revenue;
+      if (isSale) LD.sales = (LD.sales || 0) + conversions;
       // Also maintain flat date aggregate on offer node for back-compat / fast path
       if (!offerNode[dateRaw] || typeof offerNode[dateRaw] !== 'object' || offerNode[dateRaw].clicks === undefined) {
-        offerNode[dateRaw] = {clicks:0,conversions:0,revenue:0};
+        offerNode[dateRaw] = {clicks:0,conversions:0,revenue:0,sales:0};
       }
       const FLAT = offerNode[dateRaw];
       FLAT.clicks += clicks; FLAT.conversions += conversions; FLAT.revenue += revenue;
+      if (isSale) FLAT.sales = (FLAT.sales || 0) + conversions;
     }
 
     if (hasSrc) {
@@ -2385,6 +2844,104 @@ function getFlowStats(affId, flowId) {
 // When multiple GEOs meaningfully contribute (each holds >=15% share of the dominant
 // metric), returns 'MULTI' to indicate a multi-GEO flow instead of a single top GEO.
 // still reported as the dominant single GEO.
+// Pick the headlining offer for a flow — the offer that contributes the most
+// revenue (or clicks if no revenue). Returns { id, name } or null.
+function getMainOfferForFlow(affId, flowId) {
+  const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
+  if (!flowData) return null;
+  const offerMap = {};
+  for (const cdata of Object.values(flowData)) {
+    for (const o of cdata.offers) {
+      const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+      if (!offerMap[k]) offerMap[k] = { id: o.offer_id || 0, name: o.offer_name, clicks: 0, revenue: 0 };
+      offerMap[k].clicks += o.clicks || 0;
+      offerMap[k].revenue += o.revenue || 0;
+    }
+  }
+  const offers = Object.values(offerMap);
+  if (!offers.length) return null;
+  let totalRev = 0;
+  for (const o of offers) totalRev += o.revenue;
+  const useRevenue = totalRev > 0;
+  let best = null;
+  for (const o of offers) {
+    if (!best) { best = o; continue; }
+    const v = useRevenue ? o.revenue : o.clicks;
+    const bv = useRevenue ? best.revenue : best.clicks;
+    if (v > bv || (v === bv && o.clicks > best.clicks)) best = o;
+  }
+  if (!best) return null;
+  return { id: best.id, name: best.name };
+}
+
+// Strip a leading "<id>. " / "<id> - " / "<id>: " prefix from an offer name
+// so we can re-prepend a clean "<id>. " ourselves without duplicating it.
+function stripOfferIdPrefix(id, name) {
+  let s = (name || '').trim();
+  if (id) {
+    const re = new RegExp('^\\s*' + String(id).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[\\.\\-:]\\s*');
+    s = s.replace(re, '');
+  }
+  return s;
+}
+
+// Build a short offer label of the form "ID. Name" — where Name is the offer
+// name truncated at the first " - " (everything after the first dash separator
+// is dropped). Falls back gracefully when ID or Name is missing.
+//   "1231" + "1231. Something - something [FR] SOI"  ->  "1231. Something"
+//   "1231" + "Something - something [FR] SOI"        ->  "1231. Something"
+//   ""     + "Something - something [FR] SOI"        ->  "Something"
+function buildShortOfferLabel(id, name) {
+  let s = stripOfferIdPrefix(id, name);
+  // Cut at first " - " (ASCII dash with surrounding spaces) or em-dash variant.
+  const cutAt = (str) => {
+    const candidates = [' - ', ' — ', ' – '];
+    let idx = -1;
+    for (const c of candidates) {
+      const i = str.indexOf(c);
+      if (i !== -1 && (idx === -1 || i < idx)) idx = i;
+    }
+    return idx;
+  };
+  const ci = cutAt(s);
+  if (ci !== -1) s = s.slice(0, ci).trim();
+  s = s.trim();
+  if (id && s) return id + '. ' + s;
+  if (id) return String(id);
+  return s;
+}
+
+// Build the prefix shown before the GEO badge on a flow tab / flow header.
+// Format: "ID. Name" (everything after the first " - " in Name is stripped).
+// Returns null when there's no offer data to display.
+function buildFlowOfferPrefix(affId, flowId) {
+  if (flowId === '__no_flow__') return null;
+  const mo = getMainOfferForFlow(affId, flowId);
+  if (!mo || (!mo.id && !mo.name)) return null;
+  const label = buildShortOfferLabel(mo.id, mo.name);
+  if (!label) return null;
+  // Trim very long labels so chips don't blow up; full name still in title.
+  return label.length > 48 ? label.slice(0, 46) + '…' : label;
+}
+
+// Build the offer-prefix chip element shown next to a flow id/name.
+// Returns null if there's no offer data for this flow.
+//   `compact` — applies the smaller variant used in dim-list / tree headers.
+function makeFlowOfferPrefixChip(affId, flowId, compact) {
+  if (flowId === '__no_flow__') return null;
+  const mo = getMainOfferForFlow(affId, flowId);
+  if (!mo || (!mo.id && !mo.name)) return null;
+  const label = buildShortOfferLabel(mo.id, mo.name);
+  if (!label) return null;
+  const display = label.length > 48 ? label.slice(0, 46) + '…' : label;
+
+  const ofp = document.createElement('span');
+  ofp.className = 'flow-offer-prefix' + (compact ? ' compact' : '');
+  ofp.textContent = display;
+  ofp.title = 'Headlining offer: ' + (mo.id ? (mo.id + '. ') : '') + ((mo.name || '').trim());
+  return ofp;
+}
+
 function getMainGeoForFlow(affId, flowId) {
   const flowData = FULL_DATA[affId] && FULL_DATA[affId][flowId];
   if (!flowData) return null;
@@ -2434,42 +2991,46 @@ function makeMainGeoBadge(mg, baseClass) {
 }
 
 // Compute total sales and weighted CPS (revenue/sales) for an arbitrary chart scope,
-// using FULL_DATA (which carries sales). Returns { sales, revenueForCPS, cps }.
+// using FULL_DATA (which carries sales). Returns { sales, cpl_convs, reg2sale, revenueForCPS, cps }.
 // Source-scoped queries go through SOURCE_DATA since FULL_DATA isn't source-split.
 function computeSalesCPSForScope(affId, scope) {
-  let sales = 0, revenueForCPS = 0;
+  let sales = 0, revenueForCPS = 0, cpl_convs = 0;
 
   const addFromGeoData = (gd) => {
     sales += gd.sales || 0;
     revenueForCPS += gd.revenue || 0;
+    cpl_convs += gd.cpl_convs || 0;
   };
   const addFromOffer = (o) => {
     sales += o.sales || 0;
     revenueForCPS += o.revenue || 0;
+    cpl_convs += o.cpl_convs || 0;
   };
 
-  if (scope.type === 'source' || scope.type === 'source_tree') {
+  if (scope.type === 'source' || scope.type === 'source_tree' || scope.type === 'source_flow') {
     const srcMap = SOURCE_DATA[affId];
-    if (!srcMap) return { sales:0, revenueForCPS:0, cps:0 };
+    if (!srcMap) return { sales:0, cpl_convs:0, reg2sale:0, revenueForCPS:0, cps:0 };
     for (const [offerKey, offerData] of Object.entries(srcMap)) {
       if (scope.type === 'source_tree' && offerKey !== scope.offerKey) continue;
       for (const s of offerData.sources) {
         if (s.source !== scope.source) continue;
         sales += s.sales || 0;
         revenueForCPS += s.revenue || 0;
+        cpl_convs += s.cpl_convs || 0;
       }
     }
     const cps = sales > 0 ? revenueForCPS / sales : 0;
-    return { sales, revenueForCPS, cps };
+    const reg2sale = (cpl_convs > 0 && sales > 0) ? (sales / cpl_convs * 100) : 0;
+    return { sales, cpl_convs, reg2sale, revenueForCPS, cps };
   }
 
   const affData = FULL_DATA[affId];
-  if (!affData) return { sales:0, revenueForCPS:0, cps:0 };
+  if (!affData) return { sales:0, cpl_convs:0, reg2sale:0, revenueForCPS:0, cps:0 };
 
   for (const [flowId, flowData] of Object.entries(affData)) {
-    if ((scope.type === 'flow' || scope.type === 'geo_flow' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo') && flowId !== scope.flowId) continue;
+    if ((scope.type === 'flow' || scope.type === 'geo_flow' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'landing_tree') && flowId !== scope.flowId) continue;
     for (const [country, gd] of Object.entries(flowData)) {
-      if ((scope.type === 'geo' || scope.type === 'geo_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo') && country !== scope.country) continue;
+      if ((scope.type === 'geo' || scope.type === 'geo_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree') && country !== scope.country) continue;
 
       if (scope.type === 'overall' || scope.type === 'flow' || scope.type === 'geo' || scope.type === 'geo_flow') {
         addFromGeoData(gd);
@@ -2478,13 +3039,24 @@ function computeSalesCPSForScope(affId, scope) {
       // Offer-scoped: iterate offers
       for (const o of gd.offers) {
         const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        if ((scope.type === 'offer' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo') && k !== scope.offerKey) continue;
+        if ((scope.type === 'offer' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree') && k !== scope.offerKey) continue;
+        // For landing_tree, narrow further to that page within the offer
+        if (scope.type === 'landing_tree') {
+          const p = (o.pages || []).find(pg => pg.page === scope.landing);
+          if (p) {
+            sales += p.sales || 0;
+            revenueForCPS += p.revenue || 0;
+            cpl_convs += p.cpl_convs || 0;
+          }
+          continue;
+        }
         addFromOffer(o);
       }
     }
   }
   const cps = sales > 0 ? revenueForCPS / sales : 0;
-  return { sales, revenueForCPS, cps };
+  const reg2sale = (cpl_convs > 0 && sales > 0) ? (sales / cpl_convs * 100) : 0;
+  return { sales, cpl_convs, reg2sale, revenueForCPS, cps };
 }
 
 // ── Date filter helpers ──
@@ -2835,6 +3407,19 @@ function launchApp() {
   if (dimSearchInputEl) {
     dimSearchInputEl.oninput = e => { dimSearchQuery = e.target.value.slice(0,100); renderDimList(); };
   }
+  // Hide-zero-revenue toggle in the dim panel header. Default-on; clicking
+  // re-renders the list with the new filter applied.
+  const dimZeroCb = document.getElementById('dimZeroToggleCheckbox');
+  const dimZeroLbl = document.getElementById('dimZeroToggle');
+  if (dimZeroCb) {
+    dimZeroCb.checked = dimHideZeroRevenue;
+    if (dimZeroLbl) dimZeroLbl.classList.toggle('active', dimHideZeroRevenue);
+    dimZeroCb.addEventListener('change', e => {
+      dimHideZeroRevenue = !!e.target.checked;
+      if (dimZeroLbl) dimZeroLbl.classList.toggle('active', dimHideZeroRevenue);
+      renderDimList();
+    });
+  }
 
   renderAffiliateTabs();
   const topAff = Object.keys(FULL_DATA).sort((a,b)=>getAffiliateStats(b).revenue-getAffiliateStats(a).revenue)[0];
@@ -2877,6 +3462,13 @@ function selectAffiliate(affId) {
   selectedAffiliate = affId;
   selectedFlow = null; selectedCountry = null; activeDeviceType = null; activeDeviceOS = null;
   srcSelectedOfferKey = null;
+  // Reset Daily Charts scope state so we don't carry a flow id across affiliates.
+  chartFlowScope = '__ALL__';
+  chartSelectedKey = null;
+  chartSelectedFlowId = null;
+  collapsedFlows = new Set();
+  dimExpandedGeos = new Set();
+  dimExpandedOffers = new Set();
   renderAffiliateTabs();
   renderFlowTabs();
   const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
@@ -2885,31 +3477,105 @@ function selectAffiliate(affId) {
   if (currentViewMode==='source') renderSourceView();
 }
 
-// ── Flow Tabs ──
+// ── Flow List (vertical) ──
 function renderFlowTabs() {
   const container = document.getElementById('flowTabs');
   container.innerHTML = '';
   if (!selectedAffiliate) return;
+  // Sort flows by revenue desc, then pin "__no_flow__" to the very top so
+  // unattributed traffic is always immediately visible.
   const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a,b)=>getFlowStats(selectedAffiliate,b).revenue-getFlowStats(selectedAffiliate,a).revenue);
+  const noFlowIdx = flows.indexOf('__no_flow__');
+  if (noFlowIdx > 0) { flows.splice(noFlowIdx, 1); flows.unshift('__no_flow__'); }
+  const badge = document.getElementById('flowCountBadge');
+  if (badge) badge.textContent = flows.length + (flows.length === 1 ? ' flow' : ' flows');
   flows.forEach(flowId => {
-    const s=getFlowStats(selectedAffiliate,flowId);
-    const isNoFlow=flowId==='__no_flow__';
-    const div=document.createElement('div');
-    div.className='flow-tab'+(flowId===selectedFlow?' active':'')+(isNoFlow?' no-flow-tab':'');
-    div.addEventListener('click',()=>selectFlow(flowId));
-    div.appendChild(document.createTextNode(isNoFlow?'⊘ No Flow':flowId));
+    const s = getFlowStats(selectedAffiliate, flowId);
+    const isNoFlow = flowId === '__no_flow__';
+    const item = document.createElement('div');
+    item.className = 'flow-list-item' + (flowId===selectedFlow?' active':'') + (isNoFlow?' no-flow-item':'');
+    item.addEventListener('click', () => selectFlow(flowId));
+
+    // Top row: flow ID + (geo badge) + (copy button)
+    const row = document.createElement('div');
+    row.className = 'flow-list-row';
+    const idEl = document.createElement('span');
+    idEl.className = 'flow-list-id';
+    idEl.textContent = isNoFlow ? '⊘ No Flow' : flowId;
+    idEl.title = isNoFlow ? 'Rows without a flow id' : ('Flow ID: ' + flowId);
+    row.appendChild(idEl);
+
     if (!isNoFlow) {
       const mainGeo = getMainGeoForFlow(selectedAffiliate, flowId);
       const geoBadge = makeMainGeoBadge(mainGeo, 'flow-geo-badge');
-      if (geoBadge) div.appendChild(geoBadge);
-      const copyBtn=document.createElement('button'); copyBtn.className='flow-tab-copy-btn'; copyBtn.title='Copy Flow ID'; copyBtn.textContent='⎘';
-      copyBtn.addEventListener('click',e=>{ e.stopPropagation(); navigator.clipboard.writeText(flowId).then(()=>{ copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=flowId; ta.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); copyBtn.textContent='✓'; copyBtn.classList.add('copied'); setTimeout(()=>{ copyBtn.textContent='⎘'; copyBtn.classList.remove('copied'); },1200); }); });
-      div.appendChild(copyBtn);
+      if (geoBadge) row.appendChild(geoBadge);
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'flow-tab-copy-btn';
+      copyBtn.title = 'Copy Flow ID';
+      copyBtn.textContent = '⎘';
+      copyBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        copyToClipboard(flowId, copyBtn);
+      });
+      row.appendChild(copyBtn);
     }
-    const clk=document.createElement('span'); clk.className='flow-clicks'; clk.textContent=fmtNum(s.clicks); div.appendChild(clk);
-    if (s.revenue>0) { const rev=document.createElement('span'); rev.className='flow-rev'; rev.textContent=fmtMoney(s.revenue); div.appendChild(rev); }
-    container.appendChild(div);
+    item.appendChild(row);
+
+    // Second row: offer prefix chip ("ID. Name") on its own line
+    if (!isNoFlow) {
+      const ofp = makeFlowOfferPrefixChip(selectedAffiliate, flowId, true);
+      if (ofp) {
+        const ofpRow = document.createElement('div');
+        ofpRow.className = 'flow-list-row';
+        ofpRow.style.marginLeft = '0';
+        ofp.style.marginLeft = '0';
+        ofp.style.maxWidth = 'none';
+        ofpRow.appendChild(ofp);
+        item.appendChild(ofpRow);
+      }
+    }
+
+    // Stats row
+    const stats = document.createElement('div');
+    stats.className = 'flow-list-stats';
+    const clk = document.createElement('span'); clk.className = 'fl-clicks'; clk.textContent = fmtNum(s.clicks) + ' clicks';
+    stats.appendChild(clk);
+    if (s.revenue > 0) {
+      const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
+      stats.appendChild(rev);
+    }
+    item.appendChild(stats);
+
+    container.appendChild(item);
   });
+}
+
+// Small clipboard helper used by the flow list copy button (and others).
+function copyToClipboard(text, btn) {
+  const flash = () => {
+    if (!btn) return;
+    const original = btn.textContent;
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original === '✓' ? '⎘' : original; btn.classList.remove('copied'); }, 1200);
+  };
+  try {
+    navigator.clipboard.writeText(text).then(flash).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+      flash();
+    });
+  } catch (_) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+    flash();
+  }
 }
 
 function selectFlow(flowId) {
@@ -2991,8 +3657,17 @@ function renderCountryList() {
     const bar=document.createElement('div'); bar.className='cbar'; bar.style.width=bw+'px'; barRow.appendChild(bar);
     const clicks=document.createElement('span'); clicks.className='cclicks'; clicks.textContent=fmtNum(data.clicks); barRow.appendChild(clicks);
     left.appendChild(barRow);
+    // Right column: revenue stacked above EPC. EPC is shown only when there's
+    // click activity — otherwise it'd just read "$0.0000" and add visual noise.
+    const right=document.createElement('div'); right.className='crev-stack';
     const revEl=document.createElement('div'); revEl.className='crev'; revEl.textContent=data.revenue>0?fmtMoney(data.revenue):'';
-    item.appendChild(left); item.appendChild(revEl); list.appendChild(item);
+    right.appendChild(revEl);
+    if (data.clicks > 0) {
+      const epc = data.revenue / data.clicks;
+      const epcEl=document.createElement('div'); epcEl.className='cepc'; epcEl.textContent='$'+epc.toFixed(4)+' EPC';
+      right.appendChild(epcEl);
+    }
+    item.appendChild(left); item.appendChild(right); list.appendChild(item);
   });
 }
 
@@ -3017,7 +3692,9 @@ function getSrcOffers() {
     const totClicks = o.sources.reduce((s,x)=>s+x.clicks,0);
     const totRev = o.sources.reduce((s,x)=>s+x.revenue,0);
     const totSales = o.sources.reduce((s,x)=>s+x.sales,0);
-    return { key, offer_name: o.offer_name, offer_id: o.offer_id, is_pps: o.is_pps, clicks: totClicks, revenue: totRev, sales: totSales, source_count: o.sources.length };
+    const totCplConvs = o.sources.reduce((s,x)=>s+(x.cpl_convs||0),0);
+    const reg2sale = (totCplConvs > 0 && totSales > 0) ? (totSales / totCplConvs * 100) : 0;
+    return { key, offer_name: o.offer_name, offer_id: o.offer_id, is_pps: o.is_pps, clicks: totClicks, revenue: totRev, sales: totSales, cpl_convs: totCplConvs, reg2sale, source_count: o.sources.length };
   }).sort((a,b) => b.revenue - a.revenue || b.clicks - a.clicks);
 }
 
@@ -3036,11 +3713,29 @@ function renderSrcOfferList() {
     const item = document.createElement('div');
     item.className = 'source-offer-item' + (o.key === srcSelectedOfferKey ? ' selected' : '');
     item.addEventListener('click', () => { srcSelectedOfferKey = o.key; renderSrcOfferList(); renderSrcRight(o.key); });
-    const name = document.createElement('div'); name.className = 'source-offer-name'; name.textContent = o.offer_id ? (o.offer_id + '. ' + o.offer_name) : o.offer_name; item.appendChild(name);
+    const name = document.createElement('div'); name.className = 'source-offer-name';
+    name.textContent = o.offer_id ? (o.offer_id + '. ' + o.offer_name) : o.offer_name;
+    // Inline PPS/SOI marker so PPS offers are identifiable in the offer list
+    const typeMark = document.createElement('span');
+    typeMark.textContent = o.is_pps ? 'PPS' : 'SOI';
+    typeMark.style.cssText = 'display:inline-block;margin-left:6px;padding:0 4px;border-radius:2px;font-size:8px;font-weight:700;letter-spacing:.04em;line-height:1.4;vertical-align:middle;'
+      + (o.is_pps
+        ? 'background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.3);color:var(--accent2);'
+        : 'background:rgba(61,139,255,0.1);border:1px solid rgba(61,139,255,0.22);color:var(--accent);');
+    name.appendChild(typeMark);
+    item.appendChild(name);
     const meta = document.createElement('div'); meta.className = 'source-offer-meta';
     if (o.offer_id) { const idSpan=document.createElement('span'); idSpan.textContent='#'+o.offer_id; idSpan.style.color='var(--dim)'; meta.appendChild(idSpan); }
     const srcSpan = document.createElement('span'); srcSpan.textContent = o.source_count + ' sources'; meta.appendChild(srcSpan);
     const revSpan = document.createElement('span'); revSpan.textContent = fmtMoney(o.revenue); revSpan.style.color='var(--green)'; meta.appendChild(revSpan);
+    // Reg→Sale shown alongside revenue when applicable (PPS funnels with sales)
+    if (o.reg2sale > 0) {
+      const r2sSpan = document.createElement('span');
+      r2sSpan.textContent = fmt(o.reg2sale,2)+'% R→S';
+      r2sSpan.style.color = 'var(--orange)';
+      r2sSpan.title = 'Reg→Sale: ' + o.sales + ' sales / ' + o.cpl_convs + ' registrations';
+      meta.appendChild(r2sSpan);
+    }
     item.appendChild(meta);
     list.appendChild(item);
   });
@@ -3149,6 +3844,7 @@ function getChartColors() {
     revenue: isDark ? '#22d98a' : '#16a865',
     clicks:  isDark ? '#3d8bff' : '#2678f0',
     epc:     isDark ? '#f0c040' : '#c89010',
+    sales:   isDark ? '#ff6ec7' : '#c63e8a',
     ma7:     isDark ? '#f0c040' : '#c89010',
     ma14:    isDark ? '#ff8c44' : '#d06020',
     grid:    isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
@@ -3161,7 +3857,7 @@ function getAllDates(affId) {
   const da = DAILY_DATA[affId];
   if (!da) return [];
   for (const flows of Object.values(da)) for (const countries of Object.values(flows)) for (const offers of Object.values(countries)) for (const date of Object.keys(offers)) {
-    if (date === '__sources') continue;
+    if (date === '__sources' || date === '__landings') continue;
     dates.add(date);
   }
   return [...dates].sort();
@@ -3172,62 +3868,82 @@ function computeDailyTimeseries(affId, scope) {
   if (!da) return [];
   const dates = getAllDates(affId);
   const byDate = {};
-  for (const d of dates) byDate[d] = {clicks:0,conversions:0,revenue:0};
+  for (const d of dates) byDate[d] = {clicks:0,conversions:0,revenue:0,sales:0};
   for (const [flowId, countries] of Object.entries(da)) {
     if (scope.type==='flow' && flowId!==scope.flowId) continue;
     if (scope.type==='geo_flow' && flowId!==scope.flowId) continue;
     if (scope.type==='offer_flow' && flowId!==scope.flowId) continue;
     if (scope.type==='offer_flow_geo' && flowId!==scope.flowId) continue;
     if (scope.type==='source_tree' && flowId!==scope.flowId) continue;
+    if (scope.type==='source_flow' && flowId!==scope.flowId) continue;
+    if (scope.type==='landing_tree' && flowId!==scope.flowId) continue;
     for (const [country, offers] of Object.entries(countries)) {
       if (scope.type==='geo' && country!==scope.country) continue;
       if (scope.type==='geo_flow' && country!==scope.country) continue;
       if (scope.type==='offer_flow_geo' && country!==scope.country) continue;
       if (scope.type==='offer_geo' && country!==scope.country) continue;
       if (scope.type==='source_tree' && country!==scope.country) continue;
+      if (scope.type==='landing_tree' && country!==scope.country) continue;
       for (const [offerKey, offerNode] of Object.entries(offers)) {
         if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow_geo' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_geo' && offerKey!==scope.offerKey) continue;
         if (scope.type==='source_tree' && offerKey!==scope.offerKey) continue;
+        if (scope.type==='landing_tree' && offerKey!==scope.offerKey) continue;
 
         // For source-scoped queries, pull from __sources subtree
         if (scope.type==='source_tree') {
           const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
           if (!srcBucket) continue;
           for (const [date, d] of Object.entries(srcBucket.dates)) {
-            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0,sales:0};
             byDate[date].clicks += d.clicks;
             byDate[date].conversions += d.conversions;
             byDate[date].revenue += d.revenue;
+            byDate[date].sales += d.sales || 0;
           }
           continue;
         }
-        if (scope.type==='source') {
-          const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
-          if (!srcBucket) continue;
-          for (const [date, d] of Object.entries(srcBucket.dates)) {
-            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+        // Landing-scoped: pull from __landings subtree
+        if (scope.type==='landing_tree') {
+          const lndBucket = offerNode.__landings && offerNode.__landings[scope.landing];
+          if (!lndBucket) continue;
+          for (const [date, d] of Object.entries(lndBucket.dates)) {
+            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0,sales:0};
             byDate[date].clicks += d.clicks;
             byDate[date].conversions += d.conversions;
             byDate[date].revenue += d.revenue;
+            byDate[date].sales += d.sales || 0;
+          }
+          continue;
+        }
+        if (scope.type==='source' || scope.type==='source_flow') {
+          const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
+          if (!srcBucket) continue;
+          for (const [date, d] of Object.entries(srcBucket.dates)) {
+            if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0,sales:0};
+            byDate[date].clicks += d.clicks;
+            byDate[date].conversions += d.conversions;
+            byDate[date].revenue += d.revenue;
+            byDate[date].sales += d.sales || 0;
           }
           continue;
         }
 
         for (const [date, d] of Object.entries(offerNode)) {
-          if (date === '__sources') continue;
-          if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0};
+          if (date === '__sources' || date === '__landings') continue;
+          if (!byDate[date]) byDate[date]={clicks:0,conversions:0,revenue:0,sales:0};
           byDate[date].clicks += d.clicks;
           byDate[date].conversions += d.conversions;
           byDate[date].revenue += d.revenue;
+          byDate[date].sales += d.sales || 0;
         }
       }
     }
   }
   return dates.map(date => {
-    const d = byDate[date]||{clicks:0,conversions:0,revenue:0};
+    const d = byDate[date]||{clicks:0,conversions:0,revenue:0,sales:0};
     return { date, ...d, epc: d.clicks>0 ? d.revenue/d.clicks : 0 };
   });
 }
@@ -3248,15 +3964,16 @@ function groupByWeeks(series) {
   const weekOrder = [];
   for (const row of series) {
     const wk = getWeekKey(row.date);
-    if (!weekMap[wk]) { weekMap[wk] = {label: wk, clicks:0, conversions:0, revenue:0, days:0}; weekOrder.push(wk); }
+    if (!weekMap[wk]) { weekMap[wk] = {label: wk, clicks:0, conversions:0, revenue:0, sales:0, days:0}; weekOrder.push(wk); }
     weekMap[wk].clicks += row.clicks;
     weekMap[wk].conversions += row.conversions;
     weekMap[wk].revenue += row.revenue;
+    weekMap[wk].sales += row.sales || 0;
     weekMap[wk].days++;
   }
   return weekOrder.map(wk => {
     const w = weekMap[wk];
-    return { date: w.label, clicks: w.clicks, conversions: w.conversions, revenue: parseFloat(w.revenue.toFixed(2)), epc: w.clicks > 0 ? w.revenue / w.clicks : 0 };
+    return { date: w.label, clicks: w.clicks, conversions: w.conversions, revenue: parseFloat(w.revenue.toFixed(2)), sales: w.sales, epc: w.clicks > 0 ? w.revenue / w.clicks : 0 };
   });
 }
 
@@ -3273,6 +3990,13 @@ function computeMA(data, window) {
 // Build a compact sub-label with revenue, clicks, and (if sales > 0) sales count + CPS.
 function buildSubLabel(d) {
   let out = fmtMoney(d.revenue) + ' · ' + fmtNum(d.clicks) + ' clicks';
+  // EPC sits next to clicks since it's derived from them — useful at-a-glance
+  // metric for ranking offers/geos/sources by per-click value, not just gross
+  // revenue. Skipped when there are no clicks to avoid showing "$0.0000".
+  if (d.clicks > 0) {
+    const epc = d.revenue / d.clicks;
+    out += ' · $' + epc.toFixed(4) + ' EPC';
+  }
   const sales = d.sales || 0;
   if (sales > 0) {
     const cps = sales > 0 ? d.revenue / sales : 0;
@@ -3284,7 +4008,16 @@ function buildSubLabel(d) {
 function getDimList_geoForFlow(affId, flowId) {
   const flowData = FULL_DATA[affId][flowId];
   if (!flowData) return [];
-  return Object.entries(flowData).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:buildSubLabel(d) }));
+  return Object.entries(flowData).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({
+    key: c,
+    name: c,
+    sub: buildSubLabel(d),
+    // Raw stats so the GEO list can render the analytics-style bar/EPC layout
+    // (renderDimList uses these when chartDimension==='geo').
+    clicks: d.clicks,
+    revenue: d.revenue,
+    sales: d.sales || 0,
+  }));
 }
 
 function getDimList_offerForFlow(affId, flowId) {
@@ -3296,7 +4029,16 @@ function getDimList_offerForFlow(affId, flowId) {
     if (!offerMap[k]) offerMap[k]={name:o.offer_name,clicks:0,revenue:0,sales:0};
     offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:offerDisplayName(k,d.name), sub:buildSubLabel(d) }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({
+    key:k,
+    name:offerDisplayName(k,d.name),
+    sub:buildSubLabel(d),
+    // Raw stats so the offer list can render the analytics-style bar/EPC
+    // layout (renderDimList uses these when chartDimension==='offer').
+    clicks: d.clicks,
+    revenue: d.revenue,
+    sales: d.sales || 0,
+  }));
 }
 
 
@@ -3318,7 +4060,14 @@ function getDimList_geo(affId) {
     if (!geoMap[c]) geoMap[c]={clicks:0,revenue:0,sales:0};
     geoMap[c].clicks+=d.clicks; geoMap[c].revenue+=d.revenue; geoMap[c].sales+=(d.sales||0);
   }
-  return Object.entries(geoMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({ key:c, name:c, sub:buildSubLabel(d) }));
+  return Object.entries(geoMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([c,d])=>({
+    key: c,
+    name: c,
+    sub: buildSubLabel(d),
+    clicks: d.clicks,
+    revenue: d.revenue,
+    sales: d.sales || 0,
+  }));
 }
 
 function getDimList_offer(affId) {
@@ -3328,7 +4077,14 @@ function getDimList_offer(affId) {
     if (!offerMap[k]) offerMap[k] = {name:o.offer_name,clicks:0,revenue:0,sales:0};
     offerMap[k].clicks+=o.clicks; offerMap[k].revenue+=o.revenue; offerMap[k].sales+=(o.sales||0);
   }
-  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({ key:k, name:offerDisplayName(k,d.name), sub:buildSubLabel(d) }));
+  return Object.entries(offerMap).sort((a,b)=>b[1].revenue-a[1].revenue).map(([k,d])=>({
+    key:k,
+    name:offerDisplayName(k,d.name),
+    sub:buildSubLabel(d),
+    clicks: d.clicks,
+    revenue: d.revenue,
+    sales: d.sales || 0,
+  }));
 }
 
 // Children of a geo in flat mode: offers aggregated across flows for that geo
@@ -3349,7 +4105,14 @@ function getOffersForGeo(affId, country) {
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: offerDisplayName(k,d.name), sub: buildSubLabel(d) }));
+    .map(([k,d]) => ({
+      key: k,
+      name: offerDisplayName(k,d.name),
+      sub: buildSubLabel(d),
+      clicks: d.clicks,
+      revenue: d.revenue,
+      sales: d.sales || 0,
+    }));
 }
 
 // Children of an offer in flat mode: geos aggregated across flows for that offer
@@ -3371,7 +4134,14 @@ function getGeosForOffer(affId, offerKey) {
   }
   return Object.entries(geoMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([c,d]) => ({ key: c, name: c, sub: buildSubLabel(d) }));
+    .map(([c,d]) => ({
+      key: c,
+      name: c,
+      sub: buildSubLabel(d),
+      clicks: d.clicks,
+      revenue: d.revenue,
+      sales: d.sales || 0,
+    }));
 }
 
 // Children of a geo scoped to a specific flow: offers in that flow+geo
@@ -3390,7 +4160,14 @@ function getOffersForFlowGeoFull(affId, flowId, country) {
   }
   return Object.entries(offerMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([k,d]) => ({ key: k, name: offerDisplayName(k,d.name), sub: buildSubLabel(d) }));
+    .map(([k,d]) => ({
+      key: k,
+      name: offerDisplayName(k,d.name),
+      sub: buildSubLabel(d),
+      clicks: d.clicks,
+      revenue: d.revenue,
+      sales: d.sales || 0,
+    }));
 }
 
 // Children of an offer scoped to a specific flow: geos in that flow that carry this offer
@@ -3410,7 +4187,14 @@ function getGeosForFlowOffer(affId, flowId, offerKey) {
   }
   return Object.entries(geoMap)
     .sort((a,b) => b[1].revenue - a[1].revenue)
-    .map(([c,d]) => ({ key: c, name: c, sub: buildSubLabel(d) }));
+    .map(([c,d]) => ({
+      key: c,
+      name: c,
+      sub: buildSubLabel(d),
+      clicks: d.clicks,
+      revenue: d.revenue,
+      sales: d.sales || 0,
+    }));
 }
 
 // Aggregate all sources across all offers for this affiliate (from DAILY_DATA)
@@ -3459,7 +4243,53 @@ function getDimList_source(affId) {
       name: s.is_no_source ? '(no source)' : s.key,
       replaced_source: s.replaced_source,
       is_no_source: s.is_no_source,
+      // Expose raw stats so the hide-zero-revenue filter in renderDimList
+      // can drop revenue-less sources (matches geo/offer behaviour).
+      revenue: s.revenue,
+      clicks: s.clicks,
+      sales: s.sales || 0,
       sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks, sales: s.sales || 0 })
+    }));
+}
+
+// Sources for a single flow (aggregated across that flow's countries + offers).
+// Mirrors getDimList_source but limited to one flow id. Used when the Daily
+// Charts view has a flow scope set in the new flows panel.
+function getDimList_sourceForFlow(affId, flowId) {
+  const da = DAILY_DATA[affId];
+  if (!da || !da[flowId]) return [];
+  const srcMap = {};
+  for (const offers of Object.values(da[flowId])) {
+    for (const offerNode of Object.values(offers)) {
+      const sources = offerNode.__sources || {};
+      for (const [srcKey, bucket] of Object.entries(sources)) {
+        if (!srcMap[srcKey]) srcMap[srcKey] = {
+          key: srcKey,
+          replaced_source: bucket.replaced_source || null,
+          clicks: 0, conversions: 0, revenue: 0,
+          is_no_source: srcKey === '__no_source__'
+        };
+        if (bucket.replaced_source && !srcMap[srcKey].replaced_source) {
+          srcMap[srcKey].replaced_source = bucket.replaced_source;
+        }
+        for (const d of Object.values(bucket.dates)) {
+          srcMap[srcKey].clicks += d.clicks;
+          srcMap[srcKey].conversions += d.conversions;
+          srcMap[srcKey].revenue += d.revenue;
+        }
+      }
+    }
+  }
+  return Object.values(srcMap)
+    .sort((a,b) => b.revenue - a.revenue)
+    .map(s => ({
+      key: s.key,
+      name: s.is_no_source ? '(no source)' : s.key,
+      replaced_source: s.replaced_source,
+      is_no_source: s.is_no_source,
+      revenue: s.revenue,
+      clicks: s.clicks,
+      sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks })
     }));
 }
 
@@ -3495,6 +4325,42 @@ function getSourcesForFlowGeoOffer(affId, flowId, country, offerKey) {
   return out.sort((a,b) => b.revenue - a.revenue);
 }
 
+// Landings (pages) scoped to a single flow+country+offer from DAILY_DATA. Mirrors
+// getSourcesForFlowGeoOffer so the tree can switch its 4th level between
+// "sources" and "landings" without separate code paths.
+function getLandingsForFlowGeoOffer(affId, flowId, country, offerKey) {
+  const da = DAILY_DATA[affId];
+  if (!da || !da[flowId] || !da[flowId][country] || !da[flowId][country][offerKey]) return [];
+  const offerNode = da[flowId][country][offerKey];
+  const landings = offerNode.__landings || {};
+  // Pull per-page sales from FULL_DATA so the row sub-label reflects funnel data
+  const fd = FULL_DATA[affId] && FULL_DATA[affId][flowId] && FULL_DATA[affId][flowId][country];
+  const salesByPage = {};
+  if (fd) {
+    for (const o of fd.offers) {
+      const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
+      if (k !== offerKey) continue;
+      for (const p of (o.pages || [])) {
+        salesByPage[p.page] = p.sales || 0;
+      }
+    }
+  }
+  const out = [];
+  for (const [page, bucket] of Object.entries(landings)) {
+    let clicks=0, revenue=0, conversions=0;
+    for (const d of Object.values(bucket.dates)) {
+      clicks += d.clicks; conversions += d.conversions; revenue += d.revenue;
+    }
+    out.push({
+      key: page,
+      name: page,
+      clicks, revenue, conversions,
+      sub: buildSubLabel({ revenue, clicks, sales: salesByPage[page] || 0 })
+    });
+  }
+  return out.sort((a,b) => b.revenue - a.revenue);
+}
+
 function selectDimension(dim) {
   chartDimension = dim;
   chartSelectedKey = null;
@@ -3502,53 +4368,19 @@ function selectDimension(dim) {
   collapsedFlows = new Set();
   dimExpandedGeos = new Set();
   dimExpandedOffers = new Set();
-  ['overall','tree','flow','geo','offer','source'].forEach(d => {
+  ['geo','offer','source'].forEach(d => {
     const el = document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1));
     if (el) el.classList.toggle('active', d===dim);
   });
-  // Show "Group by Flow" toggle only for GEO and Offer dims
-  const gbfRow = document.getElementById('groupByFlowRow');
-  if (gbfRow) gbfRow.style.display = (dim==='geo'||dim==='offer') ? 'block' : 'none';
-  // Show search bar for any non-overall dim
-  const searchBar = document.getElementById('dimSearchBar');
-  if (searchBar) searchBar.style.display = (dim==='overall') ? 'none' : 'block';
   // Reset search when switching dimensions
   dimSearchQuery = '';
   const searchInput = document.getElementById('dimSearchInput');
   if (searchInput) searchInput.value = '';
   renderDimList();
-  if (dim==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
-  else {
-    const chartsRight = document.getElementById('chartsRight');
-    const label = dim==='tree' ? 'item' : dim;
-    chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+label+' from the left</div></div>';
-  }
-}
-
-function toggleGroupByFlow() {
-  chartGroupByFlow = !chartGroupByFlow;
-  chartSelectedKey = null;
-  chartSelectedFlowId = null;
-  collapsedFlows = new Set();
-  dimExpandedGeos = new Set();
-  dimExpandedOffers = new Set();
-  const btn = document.getElementById('groupByFlowBtn');
-  if (btn) {
-    if (chartGroupByFlow) {
-      btn.textContent = '▪ Group by Flow';
-      btn.style.color = 'var(--green)';
-      btn.style.borderColor = 'var(--green)';
-      btn.style.background = 'rgba(34,217,138,0.08)';
-    } else {
-      btn.textContent = '◦ Group by Flow';
-      btn.style.color = 'var(--muted)';
-      btn.style.borderColor = 'var(--border2)';
-      btn.style.background = 'transparent';
-    }
-  }
-  renderDimList();
+  // After switching dims, show a hint in the chart panel — the chart only
+  // updates when the user picks a specific item from the sub-list.
   const chartsRight = document.getElementById('chartsRight');
-  chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select an item from the left</div></div>';
+  chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+dim+' from the list</div></div>';
 }
 
 // ── Offer display name helper ──
@@ -3609,58 +4441,96 @@ function renderDimList() {
   const list = document.getElementById('dimList');
   list.innerHTML = '';
   if (!selectedAffiliate) return;
-  if (chartDimension==='overall') return;
+
+  // Defensive: 'tree' dim has been removed; fall back to 'geo' if encountered.
+  if (chartDimension === 'tree') chartDimension = 'geo';
 
   const q = (dimSearchQuery || '').toLowerCase().trim();
-
-  if (chartDimension === 'tree') {
-    renderDimTree(list, q);
-    return;
-  }
+  const flowScope = chartFlowScope === '__ALL__' ? null : chartFlowScope;
 
   // Helper: render a child row (offer under a geo, or geo under an offer).
-  // Styled to match the Tree dimension's grandchild rows so expansion feels
-  // consistent across dimensions. `grouped` adds an extra indent step to
-  // account for the flow sub-header above in grouped-by-flow mode.
-  function appendChildRow(child, selKey, onSelect, grouped) {
+  // Uses the same analytics-style layout as the parent rows (.dim-geo-item)
+  // — name + bar + clicks + revenue/EPC stack — so the nested list visually
+  // matches the main list (same colouring of EPC, revenue, etc.). The
+  // .nested modifier adds indentation in place of the parent's twisty so
+  // hierarchy still reads at a glance. `grouped` adds an extra step when
+  // we're flow-scoped (under a flow header).
+  function appendChildRow(child, selKey, onSelect, grouped, parentKind) {
+    // Child of a geo is an offer (longer name); child of an offer is a geo
+    // (short country code). parentKind tells us which renderer to use.
+    const childIsOffer = (parentKind === 'geo');
+
     const cdiv = document.createElement('div');
-    cdiv.className = 'dim-tree-child dim-tree-grandchild'
-      + (grouped ? ' in-grouped' : '')
+    cdiv.className = 'dim-geo-item nested-child'
+      + (grouped ? ' nested-grouped' : '')
       + (selKey===chartSelectedKey ? ' selected' : '');
     cdiv.addEventListener('click', (e) => {
       e.stopPropagation();
       onSelect();
     });
-    // Leaf twisty placeholder, matches tree leaf rows
-    const tw = document.createElement('span');
-    tw.className = 'twisty';
-    tw.textContent = '·';
-    cdiv.appendChild(tw);
 
-    const main = document.createElement('div');
-    main.className = 'main';
-    const n = document.createElement('div'); n.className = 'n'; n.textContent = child.name; main.appendChild(n);
-    const s = document.createElement('div'); s.className = 's'; s.textContent = child.sub; main.appendChild(s);
-    cdiv.appendChild(main);
+    // Empty twisty slot — keeps the 3-column grid alignment with parent rows.
+    const sp = document.createElement('span');
+    sp.className = 'dim-item-twisty dim-geo-twisty';
+    sp.textContent = '';
+    cdiv.appendChild(sp);
+
+    // Same scaling baseline as parent rows (set on list._geoMaxRev/Clk).
+    const maxRev = list._geoMaxRev || 1;
+    const maxClk = list._geoMaxClk || 1;
+    const sortVal = (child.revenue && child.revenue > 0) ? child.revenue : (child.clicks || 0);
+    const maxVal  = (child.revenue && child.revenue > 0) ? maxRev : maxClk;
+    const bw = Math.max(2, Math.round((sortVal / (maxVal || 1)) * 72));
+
+    const left = document.createElement('div');
+    left.className = 'dim-geo-left';
+
+    const codeEl = document.createElement('div');
+    codeEl.className = 'country-code' + (childIsOffer ? ' is-offer-name' : '');
+    codeEl.textContent = child.name;
+    if (childIsOffer) codeEl.title = child.name;
+    left.appendChild(codeEl);
+
+    const barRow = document.createElement('div'); barRow.className = 'bar-row';
+    const bar = document.createElement('div'); bar.className = 'cbar'; bar.style.width = bw + 'px';
+    barRow.appendChild(bar);
+    const clicksEl = document.createElement('span'); clicksEl.className = 'cclicks';
+    clicksEl.textContent = fmtNum(child.clicks || 0);
+    barRow.appendChild(clicksEl);
+    left.appendChild(barRow);
+
+    const right = document.createElement('div'); right.className = 'crev-stack';
+    const revEl = document.createElement('div'); revEl.className = 'crev';
+    revEl.textContent = (child.revenue && child.revenue > 0) ? fmtMoney(child.revenue) : '';
+    right.appendChild(revEl);
+    if ((child.clicks || 0) > 0) {
+      const epc = (child.revenue || 0) / child.clicks;
+      const epcEl = document.createElement('div'); epcEl.className = 'cepc';
+      epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
+      right.appendChild(epcEl);
+    }
+
+    cdiv.appendChild(left);
+    cdiv.appendChild(right);
 
     list.appendChild(cdiv);
   }
 
   // Helper: render an expandable parent row for geo/offer dims.
   // parentKind: 'geo' | 'offer'
-  // flowId: the flow scope, or null in flat mode
+  // flowId: the flow scope (or null for "All Flows")
   function appendExpandableDimItem(item, parentKind, flowId) {
-    const isGrouped = !!flowId;
-    const expandKey = isGrouped ? (flowId + '::' + item.key) : item.key;
+    const isFlowScoped = !!flowId;
+    const expandKey = isFlowScoped ? (flowId + '::' + item.key) : item.key;
     const expandedSet = parentKind === 'geo' ? dimExpandedGeos : dimExpandedOffers;
     // Compute children early (cheap) so we can decide whether to show twisty
     let children;
     if (parentKind === 'geo') {
-      children = isGrouped
+      children = isFlowScoped
         ? getOffersForFlowGeoFull(selectedAffiliate, flowId, item.key)
         : getOffersForGeo(selectedAffiliate, item.key);
     } else {
-      children = isGrouped
+      children = isFlowScoped
         ? getGeosForFlowOffer(selectedAffiliate, flowId, item.key)
         : getGeosForOffer(selectedAffiliate, item.key);
     }
@@ -3674,36 +4544,81 @@ function renderDimList() {
 
     const div = document.createElement('div');
     const isSelected = item.key===chartSelectedKey && (flowId||null)===chartSelectedFlowId;
-    div.className = 'dim-item' + (isSelected ? ' selected' : '');
-    const row = document.createElement('div'); row.className = 'dim-item-row';
+    // Both GEO and Offer rows now use the dedicated analytics-style class so
+    // the two lists feel like the same control: country/offer name + bar +
+    // clicks + revenue/EPC stack. The .is-offer class is added when this is
+    // an offer row so CSS can override .country-code styling (longer text,
+    // ellipsis-clipped) without affecting GEO rows.
+    const isGeo = parentKind === 'geo';
+    div.className = 'dim-geo-item' + (isSelected ? ' selected' : '');
 
-    // Twisty (only if there are children)
-    if (children.length) {
-      const tw = document.createElement('span');
-      tw.className = 'dim-item-twisty';
-      tw.textContent = isExpanded ? '▼' : '▶';
-      tw.title = isExpanded ? 'Collapse' : 'Expand';
-      tw.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (expandedSet.has(expandKey)) expandedSet.delete(expandKey);
-        else expandedSet.add(expandKey);
-        renderDimList();
-      });
-      row.appendChild(tw);
-    } else {
-      // Spacer to keep names aligned with twisty rows
-      const sp = document.createElement('span'); sp.className='dim-item-twisty'; sp.textContent=''; row.appendChild(sp);
+    {
+      // ── Analytics-style row (GEO or Offer) ──────────────────────────────
+      // Layout: [twisty] [name + bar/clicks (left col)] [revenue/EPC stack (right col)]
+      if (children.length) {
+        const tw = document.createElement('span');
+        tw.className = 'dim-item-twisty dim-geo-twisty';
+        tw.textContent = isExpanded ? '▼' : '▶';
+        tw.title = isExpanded ? 'Collapse' : 'Expand';
+        tw.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (expandedSet.has(expandKey)) expandedSet.delete(expandKey);
+          else expandedSet.add(expandKey);
+          renderDimList();
+        });
+        div.appendChild(tw);
+      } else {
+        const sp = document.createElement('span');
+        sp.className = 'dim-item-twisty dim-geo-twisty';
+        sp.textContent = '';
+        div.appendChild(sp);
+      }
+
+      // Use the max revenue/clicks precomputed once at the top of the render
+      // pass (see chartDimension==='geo'/'offer' branch in renderDimList) so
+      // all bars in the list scale against the same baseline.
+      const maxRev = list._geoMaxRev || 1;
+      const maxClk = list._geoMaxClk || 1;
+      const sortVal = (item.revenue && item.revenue > 0) ? item.revenue : (item.clicks || 0);
+      const maxVal  = (item.revenue && item.revenue > 0) ? maxRev : maxClk;
+      const bw = Math.max(2, Math.round((sortVal / (maxVal || 1)) * 72));
+
+      const left = document.createElement('div');
+      left.className = 'dim-geo-left';
+
+      const codeEl = document.createElement('div');
+      // For offers we add the .is-offer-name class so the long name uses
+      // ellipsis instead of GEO's bold country-code styling.
+      codeEl.className = 'country-code' + (isGeo ? '' : ' is-offer-name');
+      codeEl.textContent = item.name;
+      if (!isGeo) codeEl.title = item.name; // tooltip for clipped offer names
+      left.appendChild(codeEl);
+
+      const barRow = document.createElement('div'); barRow.className = 'bar-row';
+      const bar = document.createElement('div'); bar.className = 'cbar'; bar.style.width = bw + 'px';
+      barRow.appendChild(bar);
+      const clicksEl = document.createElement('span'); clicksEl.className = 'cclicks';
+      clicksEl.textContent = fmtNum(item.clicks || 0);
+      barRow.appendChild(clicksEl);
+      left.appendChild(barRow);
+
+      const right = document.createElement('div'); right.className = 'crev-stack';
+      const revEl = document.createElement('div'); revEl.className = 'crev';
+      revEl.textContent = (item.revenue && item.revenue > 0) ? fmtMoney(item.revenue) : '';
+      right.appendChild(revEl);
+      if ((item.clicks || 0) > 0) {
+        const epc = (item.revenue || 0) / item.clicks;
+        const epcEl = document.createElement('div'); epcEl.className = 'cepc';
+        epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
+        right.appendChild(epcEl);
+      }
+
+      div.appendChild(left);
+      div.appendChild(right);
+
+      div.addEventListener('click', () => selectDimItem(item, flowId));
+      list.appendChild(div);
     }
-
-    const name = document.createElement('div'); name.className='dim-item-name'; name.textContent=item.name;
-    row.appendChild(name);
-    div.appendChild(row);
-    const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
-
-    // Clicking anywhere else on the row selects the chart scope
-    div.addEventListener('click', () => selectDimItem(item, flowId));
-
-    list.appendChild(div);
 
     // Render children rows if expanded
     if (isExpanded && filteredChildren.length) {
@@ -3711,22 +4626,18 @@ function renderDimList() {
         let childScope, childTitle, childSelKey;
         if (parentKind === 'geo') {
           // Child is an offer; scope depends on whether we're flow-scoped
-          if (isGrouped) {
+          if (isFlowScoped) {
             childScope = { type: 'offer_flow_geo', offerKey: c.key, flowId, country: item.key };
             childTitle = c.name + ' · GEO: ' + item.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId);
             childSelKey = 'offer_flow_geo::' + flowId + '::' + item.key + '::' + c.key;
           } else {
-            // Flat geo → flat offer-in-geo. We don't have a separate type for that, so
-            // render a chart that aggregates across all flows for this offer+country.
-            childScope = { type: 'offer_flow_geo', offerKey: c.key, flowId: '__ALL__', country: item.key };
-            // Override: use a pseudo type that filters by country + offer across all flows
             childScope = { type: 'offer_geo', offerKey: c.key, country: item.key };
             childTitle = c.name + ' · GEO: ' + item.key;
             childSelKey = 'offer_geo::' + item.key + '::' + c.key;
           }
         } else {
           // Parent is offer, child is geo
-          if (isGrouped) {
+          if (isFlowScoped) {
             childScope = { type: 'offer_flow_geo', offerKey: item.key, flowId, country: c.key };
             childTitle = item.name + ' · GEO: ' + c.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId);
             childSelKey = 'offer_flow_geo::' + flowId + '::' + c.key + '::' + item.key;
@@ -3741,158 +4652,108 @@ function renderDimList() {
           chartSelectedFlowId = flowId || null;
           renderDimList();
           renderChart(childScope, childTitle);
-        }, isGrouped);
+        }, isFlowScoped, parentKind);
       });
     }
   }
 
-  if (chartGroupByFlow && (chartDimension==='geo' || chartDimension==='offer')) {
-    // Grouped mode: show items under each flow as sub-headers
-    const flows = Object.keys(FULL_DATA[selectedAffiliate]).sort((a,b)=>getFlowStats(selectedAffiliate,b).revenue-getFlowStats(selectedAffiliate,a).revenue);
-    let anyRendered = false;
-    flows.forEach(flowId => {
-      let items = [];
-      if (chartDimension==='geo') items = getDimList_geoForFlow(selectedAffiliate, flowId);
-      else items = getDimList_offerForFlow(selectedAffiliate, flowId);
-      if (!items.length) return;
-
-      const flowLabel = flowId === '__no_flow__' ? '⊘ No Flow' : flowId;
-      // When searching: if flow name matches, show all items under it; otherwise filter items
-      const flowMatches = q && flowLabel.toLowerCase().includes(q);
-      const filteredItems = q && !flowMatches ? items.filter(it => dimMatchesSearch(it, q)) : items;
-      if (!filteredItems.length) return;
-
-      const isCollapsed = collapsedFlows.has(flowId);
-      // Auto-expand when searching
-      const effectiveCollapsed = q ? false : isCollapsed;
-
-      // Flow sub-header (clickable to collapse/expand)
-      const hdr = document.createElement('div');
-      hdr.style.cssText = 'padding:5px 10px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);background:var(--bg);border-bottom:1px solid var(--border);border-top:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:background .1s;gap:6px;';
-      hdr.title = effectiveCollapsed ? 'Click to expand' : 'Click to collapse';
-
-      const hdrLeft = document.createElement('span');
-      hdrLeft.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;display:flex;align-items:center;gap:4px;';
-      const flowLbl = document.createElement('span');
-      flowLbl.textContent = flowLabel;
-      flowLbl.style.cssText = 'overflow:hidden;text-overflow:ellipsis;';
-      hdrLeft.appendChild(flowLbl);
-      // Main GEO badge
-      if (flowId !== '__no_flow__') {
-        const mg = getMainGeoForFlow(selectedAffiliate, flowId);
-        const badge = makeMainGeoBadge(mg, 'dim-geo-badge');
-        if (badge) hdrLeft.appendChild(badge);
-      }
-
-      hdr.appendChild(hdrLeft);
-      // Copy button for flow (only if it's a real flow, not __no_flow__)
-      if (flowId !== '__no_flow__') {
-        const copyBtn = makeFlowCopyBtn(flowId);
-        copyBtn.style.opacity = '1';
-        hdr.appendChild(copyBtn);
-      }
-
-      const hdrRight = document.createElement('span');
-      hdrRight.style.cssText = 'flex-shrink:0;margin-left:2px;font-size:10px;opacity:0.7;display:inline-block;';
-      hdrRight.textContent = effectiveCollapsed ? '▶' : '▼';
-      hdr.appendChild(hdrRight);
-
-      hdr.addEventListener('mouseenter', () => { hdr.style.background = 'rgba(34,217,138,0.06)'; });
-      hdr.addEventListener('mouseleave', () => { hdr.style.background = 'var(--bg)'; });
-      hdr.addEventListener('click', () => {
-        if (collapsedFlows.has(flowId)) collapsedFlows.delete(flowId);
-        else collapsedFlows.add(flowId);
-        renderDimList();
-      });
-
-      list.appendChild(hdr);
-      anyRendered = true;
-
-      if (!effectiveCollapsed) {
-        filteredItems.forEach(item => {
-          appendExpandableDimItem(item, chartDimension, flowId);
-        });
-      }
-    });
-    if (!anyRendered && q) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
-      empty.textContent = 'No matches for "' + dimSearchQuery + '"';
-      list.appendChild(empty);
-    }
-  } else {
-    // Flat mode
-    let items = [];
-    if (chartDimension==='flow') items = getDimList_flow(selectedAffiliate);
-    else if (chartDimension==='geo') items = getDimList_geo(selectedAffiliate);
-    else if (chartDimension==='offer') items = getDimList_offer(selectedAffiliate);
-    else if (chartDimension==='source') items = getDimList_source(selectedAffiliate);
-
-    // For geo/offer we also accept items that don't match directly but whose children would match
-    const useChildMatching = (chartDimension==='geo' || chartDimension==='offer');
-    if (q) items = items.filter(it => {
-      if (dimMatchesSearch(it, q)) return true;
-      if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
-      if (useChildMatching) {
-        const children = chartDimension==='geo'
-          ? getOffersForGeo(selectedAffiliate, it.key)
-          : getGeosForOffer(selectedAffiliate, it.key);
-        if (children.some(c => dimMatchesSearch(c, q))) return true;
-      }
-      return false;
-    });
-    if (!items.length) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
-      empty.textContent = q ? ('No matches for "' + dimSearchQuery + '"') : 'No items';
-      list.appendChild(empty);
-      return;
-    }
-
-    // Geo and Offer dimensions get expandable rows
-    if (chartDimension === 'geo' || chartDimension === 'offer') {
-      items.forEach(item => appendExpandableDimItem(item, chartDimension, null));
-      return;
-    }
-
-    // Flow and Source dimensions: original flat render
-    items.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'dim-item' + (item.key===chartSelectedKey?' selected':'');
-      div.addEventListener('click', () => selectDimItem(item, null));
-      const row = document.createElement('div'); row.className = 'dim-item-row';
-      const name = document.createElement('div'); name.className='dim-item-name';
-      if (chartDimension==='source' && item.is_no_source) {
-        name.textContent = '(no source)';
-        name.style.fontStyle = 'italic';
-        name.style.color = 'var(--dim)';
-      } else {
-        name.textContent = item.name;
-      }
-      row.appendChild(name);
-      // Main GEO badge for the Flow dimension (flat)
-      if (chartDimension === 'flow' && item.key !== '__no_flow__') {
-        const mg = getMainGeoForFlow(selectedAffiliate, item.key);
-        const badge = makeMainGeoBadge(mg, 'dim-geo-badge');
-        if (badge) row.appendChild(badge);
-      }
-      // Copy button for Flow dimension
-      if (chartDimension === 'flow' && item.key !== '__no_flow__') {
-        row.appendChild(makeFlowCopyBtn(item.key));
-      }
-      div.appendChild(row);
-      // For source dim: if replaced source, show it as a secondary line above stats
-      if (chartDimension==='source' && item.replaced_source) {
-        const alt = document.createElement('div');
-        alt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-        alt.textContent = '↳ ' + item.replaced_source;
-        alt.title = 'Replaced source: ' + item.replaced_source;
-        div.appendChild(alt);
-      }
-      const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
-      list.appendChild(div);
-    });
+  // Build the dimension list scoped to chartFlowScope (one flow or all flows).
+  let items = [];
+  if (chartDimension === 'geo') {
+    items = flowScope
+      ? getDimList_geoForFlow(selectedAffiliate, flowScope)
+      : getDimList_geo(selectedAffiliate);
+  } else if (chartDimension === 'offer') {
+    items = flowScope
+      ? getDimList_offerForFlow(selectedAffiliate, flowScope)
+      : getDimList_offer(selectedAffiliate);
+  } else if (chartDimension === 'source') {
+    items = flowScope
+      ? getDimList_sourceForFlow(selectedAffiliate, flowScope)
+      : getDimList_source(selectedAffiliate);
   }
+
+  // For geo/offer we also accept items that don't match directly but whose children would match
+  const useChildMatching = (chartDimension==='geo' || chartDimension==='offer');
+  if (q) items = items.filter(it => {
+    if (dimMatchesSearch(it, q)) return true;
+    if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
+    if (useChildMatching) {
+      const children = chartDimension==='geo'
+        ? (flowScope ? getOffersForFlowGeoFull(selectedAffiliate, flowScope, it.key) : getOffersForGeo(selectedAffiliate, it.key))
+        : (flowScope ? getGeosForFlowOffer(selectedAffiliate, flowScope, it.key) : getGeosForOffer(selectedAffiliate, it.key));
+      if (children.some(c => dimMatchesSearch(c, q))) return true;
+    }
+    return false;
+  });
+
+  // Hide-zero-revenue toggle: drop any row whose total revenue is ≤ 0.
+  // Applies after the search filter so a search match that happens to have
+  // zero revenue is still hidden when the toggle is on. Source rows expose
+  // revenue too, so the same filter works across all three dimensions.
+  if (dimHideZeroRevenue) {
+    items = items.filter(it => (it.revenue || 0) > 0);
+  }
+
+  if (!items.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:10px;';
+    let msg;
+    if (q) msg = 'No matches for "' + dimSearchQuery + '"';
+    else if (dimHideZeroRevenue) msg = 'No revenue-bearing items in this scope';
+    else msg = 'No items in this scope';
+    empty.textContent = msg;
+    list.appendChild(empty);
+    return;
+  }
+
+  // Geo and Offer dimensions get expandable rows
+  if (chartDimension === 'geo' || chartDimension === 'offer') {
+    // Precompute max revenue/clicks across the visible list so each row's
+    // bar width is sized relative to the same baseline (mirrors how the
+    // analytics country-list scales bars). Same scheme is used for both
+    // GEO and Offer rows since they now share the analytics-style layout.
+    let maxRev = 1, maxClk = 1;
+    for (const it of items) {
+      if ((it.revenue || 0) > maxRev) maxRev = it.revenue;
+      if ((it.clicks  || 0) > maxClk) maxClk = it.clicks;
+    }
+    list._geoMaxRevPrecomputed = maxRev;
+    list._geoMaxClkPrecomputed = maxClk;
+    list._geoMaxRev = maxRev;
+    list._geoMaxClk = maxClk;
+    items.forEach(item => appendExpandableDimItem(item, chartDimension, flowScope));
+    return;
+  }
+
+  // Source dimension: flat render
+  items.forEach(item => {
+    const isSelected = item.key===chartSelectedKey && (flowScope||null)===chartSelectedFlowId;
+    const div = document.createElement('div');
+    div.className = 'dim-item' + (isSelected ? ' selected' : '');
+    div.addEventListener('click', () => selectDimItem(item, flowScope));
+    const row = document.createElement('div'); row.className = 'dim-item-row';
+    const name = document.createElement('div'); name.className='dim-item-name';
+    if (item.is_no_source) {
+      name.textContent = '(no source)';
+      name.style.fontStyle = 'italic';
+      name.style.color = 'var(--dim)';
+    } else {
+      name.textContent = item.name;
+    }
+    row.appendChild(name);
+    div.appendChild(row);
+    // For source dim: if replaced source, show it as a secondary line above stats
+    if (item.replaced_source) {
+      const alt = document.createElement('div');
+      alt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      alt.textContent = '↳ ' + item.replaced_source;
+      alt.title = 'Replaced source: ' + item.replaced_source;
+      div.appendChild(alt);
+    }
+    const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
+    list.appendChild(div);
+  });
 }
 
 // ── Tree view renderer ──
@@ -3902,7 +4763,54 @@ function renderDimTree(list, q) {
   const affData = FULL_DATA[aff];
   if (!affData) return;
 
-  const flows = Object.keys(affData).sort((a,b)=>getFlowStats(aff,b).revenue-getFlowStats(aff,a).revenue);
+  // Filter bar — switches the 4th level between Sources and Landings.
+  // Sources is hidden as an option when the dataset has no source column.
+  const filterBar = document.createElement('div');
+  filterBar.className = 'tree-filter-bar';
+  const fbLbl = document.createElement('span');
+  fbLbl.className = 'tfb-label';
+  fbLbl.textContent = 'Drill into:';
+  filterBar.appendChild(fbLbl);
+
+  function makeFilterBtn(mode, label, modClass) {
+    const btn = document.createElement('button');
+    btn.className = 'tree-filter-btn' + (treeLeafMode === mode ? ' active' : '') + (modClass ? ' ' + modClass : '');
+    btn.textContent = (treeLeafMode === mode ? '▪ ' : '◦ ') + label;
+    btn.addEventListener('click', () => {
+      if (treeLeafMode === mode) return;
+      treeLeafMode = mode;
+      // Collapse offer-level expansions so the tree is consistent on switch
+      treeExpandedOffers = new Set();
+      // Clear any leaf selection that no longer matches the new mode
+      if (chartSelectedKey && (
+        (mode === 'sources' && chartSelectedKey.startsWith('landing_tree::')) ||
+        (mode === 'landings' && chartSelectedKey.startsWith('source_tree::'))
+      )) {
+        chartSelectedKey = null;
+      }
+      renderDimList();
+    });
+    return btn;
+  }
+  if (HAS_SOURCES) filterBar.appendChild(makeFilterBtn('sources', 'Sources'));
+  filterBar.appendChild(makeFilterBtn('landings', 'Landings', 'lnd'));
+  // Hint text
+  const hint = document.createElement('span');
+  hint.style.cssText = 'font-size:9px;color:var(--muted);margin-left:auto;font-family:"JetBrains Mono",monospace;';
+  hint.textContent = treeLeafMode === 'landings' ? 'showing landing pages' : 'showing traffic sources';
+  filterBar.appendChild(hint);
+  // If sources are unavailable, force-switch to landings silently
+  if (!HAS_SOURCES && treeLeafMode === 'sources') treeLeafMode = 'landings';
+  list.appendChild(filterBar);
+
+  // When the user picks a specific flow in the new flows panel, scope the
+  // tree to just that flow and auto-expand it so the user lands inside the
+  // tree without an extra click.
+  let flows = Object.keys(affData).sort((a,b)=>getFlowStats(aff,b).revenue-getFlowStats(aff,a).revenue);
+  if (chartFlowScope !== '__ALL__') {
+    flows = flows.filter(f => f === chartFlowScope);
+    if (flows.length) treeExpandedFlows.add(chartFlowScope);
+  }
   let anyRendered = false;
 
   flows.forEach(flowId => {
@@ -3950,9 +4858,20 @@ function renderDimTree(list, q) {
 
     const label = document.createElement('div');
     label.className = 'flow-label';
-    label.textContent = flowLabel;
-    label.title = 'Click to view this flow';
+    // In TREE, lead the label with the flow id, then append the short offer
+    // name ("Offer Name", with anything after the first " - " stripped).
+    // Result format: "<flowId>. <OfferName>".
+    if (flowId === '__no_flow__') {
+      label.textContent = flowLabel;
+    } else {
+      const mo = getMainOfferForFlow(aff, flowId);
+      const offerNameShort = mo ? buildShortOfferLabel(null, mo.name) : '';
+      label.textContent = offerNameShort ? (flowId + '. ' + offerNameShort) : flowId;
+      label.title = 'Flow: ' + flowId + (mo ? ' · Headlining offer: ' + (mo.id ? mo.id + '. ' : '') + ((mo.name || '').trim()) : '');
+    }
     flowHdr.appendChild(label);
+
+    // (Offer prefix chip intentionally omitted in TREE — flow id leads the label above.)
 
     // Main GEO badge (before stats)
     if (flowId !== '__no_flow__') {
@@ -4033,16 +4952,22 @@ function renderDimTree(list, q) {
           const offSelKey = 'offer_flow_geo::' + flowId + '::' + geo.key + '::' + off.key;
           if (chartSelectedKey === offSelKey) offRow.classList.add('selected');
 
-          // Sources under this flow+geo+offer (only when source data is available)
+          // Children of this offer — switches between sources and landings
+          // depending on the active tree leaf mode.
           const offerExpandKey = flowId + '::' + geo.key + '::' + off.key;
-          const srcList = HAS_SOURCES ? getSourcesForFlowGeoOffer(aff, flowId, geo.key, off.key) : [];
-          const hasSources = srcList.length > 0;
+          let leafList = [];
+          if (treeLeafMode === 'sources') {
+            leafList = HAS_SOURCES ? getSourcesForFlowGeoOffer(aff, flowId, geo.key, off.key) : [];
+          } else { // 'landings'
+            leafList = getLandingsForFlowGeoOffer(aff, flowId, geo.key, off.key);
+          }
+          const hasLeaves = leafList.length > 0;
           // When searching, auto-expand if matches somewhere; otherwise respect user state
           const offerExpanded = q ? true : treeExpandedOffers.has(offerExpandKey);
 
           const oTw = document.createElement('span');
           oTw.className = 'twisty';
-          oTw.textContent = hasSources ? (offerExpanded ? '▼' : '▶') : '·';
+          oTw.textContent = hasLeaves ? (offerExpanded ? '▼' : '▶') : '·';
           offRow.appendChild(oTw);
 
           const oMain = document.createElement('div');
@@ -4053,7 +4978,7 @@ function renderDimTree(list, q) {
 
           offRow.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (hasSources) {
+            if (hasLeaves) {
               if (treeExpandedOffers.has(offerExpandKey)) treeExpandedOffers.delete(offerExpandKey);
               else treeExpandedOffers.add(offerExpandKey);
             }
@@ -4067,68 +4992,82 @@ function renderDimTree(list, q) {
           });
           list.appendChild(offRow);
 
-          // Source children (4th level)
-          if (offerExpanded && hasSources) {
-            // Filter sources by search query if applicable
-            let visibleSrcs = srcList;
+          // Leaf children (4th level): sources or landings
+          if (offerExpanded && hasLeaves) {
+            // Filter leaves by search query if applicable
+            let visibleLeaves = leafList;
             if (q) {
               const flowMatches_ = flowLabel.toLowerCase().includes(q);
               const geoMatches_ = geo.name.toLowerCase().includes(q);
               const offerMatches_ = off.name.toLowerCase().includes(q);
               if (!flowMatches_ && !geoMatches_ && !offerMatches_) {
-                visibleSrcs = srcList.filter(s => {
+                visibleLeaves = leafList.filter(s => {
                   const n = (s.name || '').toLowerCase();
                   const r = (s.replaced_source || '').toLowerCase();
                   return n.includes(q) || r.includes(q);
                 });
               }
             }
-            visibleSrcs.forEach(src => {
-              const srcRow = document.createElement('div');
-              srcRow.className = 'dim-tree-child dim-tree-grandchild';
-              srcRow.style.paddingLeft = '42px';
-              const srcSelKey = 'source_tree::' + flowId + '::' + geo.key + '::' + off.key + '::' + src.key;
-              if (chartSelectedKey === srcSelKey) srcRow.classList.add('selected');
+            visibleLeaves.forEach(leaf => {
+              const leafRow = document.createElement('div');
+              const isLanding = treeLeafMode === 'landings';
+              leafRow.className = 'dim-tree-child dim-tree-grandchild' + (isLanding ? ' landing-leaf' : '');
+              leafRow.style.paddingLeft = '42px';
+              const selPrefix = isLanding ? 'landing_tree' : 'source_tree';
+              const leafSelKey = selPrefix + '::' + flowId + '::' + geo.key + '::' + off.key + '::' + leaf.key;
+              if (chartSelectedKey === leafSelKey) leafRow.classList.add('selected');
 
-              const sTw = document.createElement('span');
-              sTw.className = 'twisty';
-              sTw.textContent = '·';
-              srcRow.appendChild(sTw);
+              const lTw = document.createElement('span');
+              lTw.className = 'twisty';
+              lTw.textContent = '·';
+              leafRow.appendChild(lTw);
 
-              const sMain = document.createElement('div');
-              sMain.className = 'main';
-              const sn = document.createElement('div'); sn.className = 'n';
-              if (src.is_no_source) {
-                sn.textContent = '(no source)';
-                sn.style.fontStyle = 'italic';
-                sn.style.color = 'var(--dim)';
+              const lMain = document.createElement('div');
+              lMain.className = 'main';
+              const ln = document.createElement('div'); ln.className = 'n';
+              if (!isLanding && leaf.is_no_source) {
+                ln.textContent = '(no source)';
+                ln.style.fontStyle = 'italic';
+                ln.style.color = 'var(--dim)';
               } else {
-                sn.textContent = src.name;
-                sn.style.fontFamily = "'JetBrains Mono', monospace";
+                ln.textContent = leaf.name;
+                ln.style.fontFamily = "'JetBrains Mono', monospace";
               }
-              sMain.appendChild(sn);
-              if (src.replaced_source) {
+              // Tag (SRC / LND) — small marker so the leaf type is unambiguous
+              const tag = document.createElement('span');
+              tag.className = 'tree-leaf-tag ' + (isLanding ? 'lnd' : 'src');
+              tag.textContent = isLanding ? 'LND' : 'SRC';
+              ln.appendChild(tag);
+              lMain.appendChild(ln);
+              if (!isLanding && leaf.replaced_source) {
                 const sAlt = document.createElement('div');
                 sAlt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-                sAlt.textContent = '↳ ' + src.replaced_source;
-                sAlt.title = 'Replaced source: ' + src.replaced_source;
-                sMain.appendChild(sAlt);
+                sAlt.textContent = '↳ ' + leaf.replaced_source;
+                sAlt.title = 'Replaced source: ' + leaf.replaced_source;
+                lMain.appendChild(sAlt);
               }
-              const ss = document.createElement('div'); ss.className = 's'; ss.textContent = src.sub; sMain.appendChild(ss);
-              srcRow.appendChild(sMain);
+              const ls = document.createElement('div'); ls.className = 's'; ls.textContent = leaf.sub; lMain.appendChild(ls);
+              leafRow.appendChild(lMain);
 
-              srcRow.addEventListener('click', (e) => {
+              leafRow.addEventListener('click', (e) => {
                 e.stopPropagation();
-                chartSelectedKey = srcSelKey;
+                chartSelectedKey = leafSelKey;
                 chartSelectedFlowId = flowId;
                 renderDimList();
-                const srcLabel = src.is_no_source ? '(no source)' : src.name;
-                renderChart(
-                  { type: 'source_tree', flowId, country: geo.key, offerKey: off.key, source: src.key },
-                  'Source: ' + srcLabel + (src.replaced_source ? ' ↳ ' + src.replaced_source : '') + ' · ' + off.name + ' · GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
-                );
+                if (isLanding) {
+                  renderChart(
+                    { type: 'landing_tree', flowId, country: geo.key, offerKey: off.key, landing: leaf.key },
+                    'Landing: ' + leaf.name + ' · ' + off.name + ' · GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
+                  );
+                } else {
+                  const srcLabel = leaf.is_no_source ? '(no source)' : leaf.name;
+                  renderChart(
+                    { type: 'source_tree', flowId, country: geo.key, offerKey: off.key, source: leaf.key },
+                    'Source: ' + srcLabel + (leaf.replaced_source ? ' ↳ ' + leaf.replaced_source : '') + ' · ' + off.name + ' · GEO: ' + geo.key + ' · Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId)
+                  );
+                }
               });
-              list.appendChild(srcRow);
+              list.appendChild(leafRow);
             });
           }
         });
@@ -4168,10 +5107,7 @@ function selectDimItem(item, flowId) {
   chartSelectedFlowId = flowId || null;
   renderDimList();
   let scope, title;
-  if (chartDimension==='flow') {
-    scope={type:'flow', flowId:item.key};
-    title='Flow: '+(item.key==='__no_flow__'?'No Flow':item.key);
-  } else if (chartDimension==='geo') {
+  if (chartDimension==='geo') {
     if (flowId) {
       scope={type:'geo_flow', country:item.key, flowId};
       title='GEO: '+item.key+' · Flow: '+(flowId==='__no_flow__'?'No Flow':flowId);
@@ -4188,9 +5124,15 @@ function selectDimItem(item, flowId) {
       title=item.name;
     }
   } else if (chartDimension==='source') {
-    scope={type:'source', source:item.key};
     const label = item.is_no_source ? '(no source)' : item.key;
-    title = 'Source: ' + label + (item.replaced_source ? ' ↳ ' + item.replaced_source : '');
+    if (flowId) {
+      scope={type:'source_flow', source:item.key, flowId};
+      title='Source: ' + label + ' · Flow: '+(flowId==='__no_flow__'?'No Flow':flowId)
+        + (item.replaced_source ? ' ↳ ' + item.replaced_source : '');
+    } else {
+      scope={type:'source', source:item.key};
+      title='Source: ' + label + (item.replaced_source ? ' ↳ ' + item.replaced_source : '');
+    }
   }
   renderChart(scope, title);
 }
@@ -4198,8 +5140,154 @@ function selectDimItem(item, flowId) {
 function renderChartsView() {
   if (!selectedAffiliate || !HAS_DATES) return;
   destroyAllCharts();
+  // If chartFlowScope refers to a flow that no longer exists in the data,
+  // fall back to the all-flows aggregate.
+  if (chartFlowScope !== '__ALL__'
+      && !(FULL_DATA[selectedAffiliate] && FULL_DATA[selectedAffiliate][chartFlowScope])) {
+    chartFlowScope = '__ALL__';
+    chartSelectedKey = null;
+    chartSelectedFlowId = null;
+  }
+  renderChartFlowList();
   selectDimension(chartDimension);
-  if (chartDimension==='overall') renderChart({type:'overall'}, 'Overall — All Traffic');
+  // After re-rendering, decide what chart to show:
+  //   - "All Flows" + "Tree" dim → empty hint already shown by selectDimension
+  //   - "All Flows" + non-tree dim → empty hint shown by selectDimension
+  //   - Specific flow + any dim → if no item is selected, show that flow's overall chart
+  if (chartFlowScope !== '__ALL__' && !chartSelectedKey) {
+    const flowId = chartFlowScope;
+    const title = 'Flow: ' + (flowId === '__no_flow__' ? 'No Flow' : flowId) + ' · Overall';
+    renderChart({ type: 'flow', flowId }, title);
+  }
+}
+
+// ── Flow list inside the Daily Charts view ──
+// Mirrors the analytics view's flow list, but writes to #chartFlowList and
+// drives the new chartFlowScope state. Includes a synthetic "All Flows" row
+// at the top that maps to chartFlowScope='__ALL__'.
+function renderChartFlowList() {
+  const container = document.getElementById('chartFlowList');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!selectedAffiliate) return;
+
+  const flows = Object.keys(FULL_DATA[selectedAffiliate])
+    .sort((a,b) => getFlowStats(selectedAffiliate, b).revenue - getFlowStats(selectedAffiliate, a).revenue);
+  // Pin "__no_flow__" right after "All Flows" so unattributed traffic is
+  // always shown immediately under the synthetic All Flows row.
+  const noFlowIdx = flows.indexOf('__no_flow__');
+  if (noFlowIdx > 0) { flows.splice(noFlowIdx, 1); flows.unshift('__no_flow__'); }
+  const badge = document.getElementById('chartFlowCountBadge');
+  if (badge) badge.textContent = flows.length + (flows.length === 1 ? ' flow' : ' flows');
+
+  // Synthetic "All Flows" entry — selecting it scopes charts to the full
+  // affiliate aggregate. Total stats roll up across every flow.
+  const allClicks = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).clicks, 0);
+  const allRevenue = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).revenue, 0);
+  const allItem = document.createElement('div');
+  allItem.className = 'flow-list-item all-flows-item' + (chartFlowScope === '__ALL__' ? ' active' : '');
+  allItem.addEventListener('click', () => selectChartFlow('__ALL__'));
+  const allRow = document.createElement('div'); allRow.className = 'flow-list-row';
+  const allId = document.createElement('span');
+  allId.className = 'flow-list-id';
+  allId.textContent = '★ All Flows';
+  allId.title = 'Aggregate across every flow for this affiliate';
+  allRow.appendChild(allId);
+  allItem.appendChild(allRow);
+  const allStats = document.createElement('div'); allStats.className = 'flow-list-stats';
+  const allClk = document.createElement('span'); allClk.className = 'fl-clicks'; allClk.textContent = fmtNum(allClicks) + ' clicks'; allStats.appendChild(allClk);
+  if (allRevenue > 0) {
+    const allRev = document.createElement('span'); allRev.className = 'fl-rev'; allRev.textContent = fmtMoney(allRevenue);
+    allStats.appendChild(allRev);
+  }
+  allItem.appendChild(allStats);
+  container.appendChild(allItem);
+
+  // Real flows — same layout as the analytics view's flow list.
+  flows.forEach(flowId => {
+    const s = getFlowStats(selectedAffiliate, flowId);
+    const isNoFlow = flowId === '__no_flow__';
+    const item = document.createElement('div');
+    item.className = 'flow-list-item'
+      + (flowId === chartFlowScope ? ' active' : '')
+      + (isNoFlow ? ' no-flow-item' : '');
+    item.addEventListener('click', () => selectChartFlow(flowId));
+
+    const row = document.createElement('div');
+    row.className = 'flow-list-row';
+    const idEl = document.createElement('span');
+    idEl.className = 'flow-list-id';
+    idEl.textContent = isNoFlow ? '⊘ No Flow' : flowId;
+    idEl.title = isNoFlow ? 'Rows without a flow id' : ('Flow ID: ' + flowId);
+    row.appendChild(idEl);
+
+    if (!isNoFlow) {
+      const mainGeo = getMainGeoForFlow(selectedAffiliate, flowId);
+      const geoBadge = makeMainGeoBadge(mainGeo, 'flow-geo-badge');
+      if (geoBadge) row.appendChild(geoBadge);
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'flow-tab-copy-btn';
+      copyBtn.title = 'Copy Flow ID';
+      copyBtn.textContent = '⎘';
+      copyBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        copyToClipboard(flowId, copyBtn);
+      });
+      row.appendChild(copyBtn);
+    }
+    item.appendChild(row);
+
+    // Headlining-offer prefix on its own line (mirrors analytics flow list)
+    if (!isNoFlow) {
+      const ofp = makeFlowOfferPrefixChip(selectedAffiliate, flowId, true);
+      if (ofp) {
+        const ofpRow = document.createElement('div');
+        ofpRow.className = 'flow-list-row';
+        ofpRow.style.marginLeft = '0';
+        ofp.style.marginLeft = '0';
+        ofp.style.maxWidth = 'none';
+        ofpRow.appendChild(ofp);
+        item.appendChild(ofpRow);
+      }
+    }
+
+    const stats = document.createElement('div');
+    stats.className = 'flow-list-stats';
+    const clk = document.createElement('span'); clk.className = 'fl-clicks'; clk.textContent = fmtNum(s.clicks) + ' clicks';
+    stats.appendChild(clk);
+    if (s.revenue > 0) {
+      const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
+      stats.appendChild(rev);
+    }
+    item.appendChild(stats);
+
+    container.appendChild(item);
+  });
+}
+
+// Switch the Daily Charts flow scope. Clears any sub-list selection and
+// re-renders the dim list + chart panel.
+function selectChartFlow(flowId) {
+  chartFlowScope = flowId;
+  chartSelectedKey = null;
+  chartSelectedFlowId = null;
+  collapsedFlows = new Set();
+  dimExpandedGeos = new Set();
+  dimExpandedOffers = new Set();
+  // Reset search when switching flow scope
+  dimSearchQuery = '';
+  const searchInput = document.getElementById('dimSearchInput');
+  if (searchInput) searchInput.value = '';
+  renderChartFlowList();
+  renderDimList();
+  // Default chart: when "All Flows" is picked, show overall aggregate;
+  // otherwise show the selected flow's aggregate.
+  if (flowId === '__ALL__') {
+    renderChart({ type: 'overall' }, 'Overall — All Traffic');
+  } else {
+    const title = 'Flow: ' + (flowId === '__no_flow__' ? 'No Flow' : flowId) + ' · Overall';
+    renderChart({ type: 'flow', flowId }, title);
+  }
 }
 
 // ── Toggle chart controls ──
@@ -4234,6 +5322,7 @@ function renderChart(scope, title) {
   const revenueData = displaySeries.map(d => parseFloat(d.revenue.toFixed(2)));
   const clicksData = displaySeries.map(d => d.clicks);
   const epcData = displaySeries.map(d => parseFloat(d.epc.toFixed(4)));
+  const salesData = displaySeries.map(d => d.sales || 0);
 
   const totalRev = displaySeries.reduce((s,d)=>s+d.revenue,0);
   const totalClicks2 = displaySeries.reduce((s,d)=>s+d.clicks,0);
@@ -4322,8 +5411,68 @@ function renderChart(scope, title) {
 
   chartsRight.appendChild(ctrlBar);
 
+  // For GEO-dimension scopes (a single country, optionally within a flow),
+  // offer a per-offer EPC comparison chart above the main combined chart so
+  // the user can see which offers earn best per click in this GEO.
+  // Hidden by default behind a "View Offer Comparison Chart" button — comparing
+  // many offers at once can be visually busy and isn't always what the user
+  // wants when they click into a GEO. When enabled, only the top 5 offers
+  // (by revenue) are shown by default; the rest can be toggled in via legend.
+  if (scope && (scope.type === 'geo' || scope.type === 'geo_flow')) {
+    const cmpId = 'per-offer-epc-' + scope.country + (scope.type === 'geo_flow' ? '-' + scope.flowId : '');
+    const cmpHostCard = document.createElement('div');
+    cmpHostCard.className = 'chart-card chart-card-toggle-host';
+    cmpHostCard.id = 'cmpHost-' + cmpId;
+
+    const toggleBar = document.createElement('div');
+    toggleBar.className = 'chart-card-hdr cmp-toggle-hdr';
+    const toggleTitle = document.createElement('div');
+    toggleTitle.className = 'chart-card-title';
+    toggleTitle.textContent = 'Offer Comparison';
+    toggleBar.appendChild(toggleTitle);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'cmp-toggle-btn';
+    toggleBtn.textContent = chartShowOfferCmp ? '✕ Hide Offer Comparison Chart' : '⟋ View Offer Comparison Chart';
+    toggleBar.appendChild(toggleBtn);
+    cmpHostCard.appendChild(toggleBar);
+
+    const cmpSlot = document.createElement('div');
+    cmpSlot.className = 'cmp-slot';
+    cmpSlot.style.display = chartShowOfferCmp ? 'block' : 'none';
+    cmpHostCard.appendChild(cmpSlot);
+
+    const renderCmp = () => {
+      cmpSlot.innerHTML = '';
+      // destroy any prior chart instance for this id so we don't leak canvases
+      if (chartInstances[cmpId]) { chartInstances[cmpId].destroy(); delete chartInstances[cmpId]; }
+      if (!chartShowOfferCmp) return;
+      const perOfferCard = buildPerOfferEPCChart(cmpId, scope);
+      if (perOfferCard) {
+        // strip the inner card chrome since the host already provides it
+        perOfferCard.classList.add('cmp-inner');
+        cmpSlot.appendChild(perOfferCard);
+      } else {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'padding:14px;text-align:center;color:var(--muted);font-size:11px;';
+        empty.textContent = 'No offer-level data available for this GEO.';
+        cmpSlot.appendChild(empty);
+      }
+    };
+
+    toggleBtn.addEventListener('click', () => {
+      chartShowOfferCmp = !chartShowOfferCmp;
+      toggleBtn.textContent = chartShowOfferCmp ? '✕ Hide Offer Comparison Chart' : '⟋ View Offer Comparison Chart';
+      cmpSlot.style.display = chartShowOfferCmp ? 'block' : 'none';
+      renderCmp();
+    });
+
+    chartsRight.appendChild(cmpHostCard);
+    renderCmp();
+  }
+
   // Combined Revenue + Clicks + EPC chart
-  chartsRight.appendChild(buildCombinedChart('combined-rev-clk-epc', labels, revenueData, clicksData, epcData));
+  chartsRight.appendChild(buildCombinedChart('combined-rev-clk-epc', labels, revenueData, clicksData, epcData, salesData));
 
   // Summary chips
   const summaryCard = document.createElement('div'); summaryCard.className='chart-card';
@@ -4341,6 +5490,9 @@ function renderChart(scope, title) {
   if (scopeSales.sales > 0) {
     chipDefs.push({v:scopeSales.sales.toLocaleString(),l:'Total Sales',c:'var(--accent)'});
     chipDefs.push({v:'$'+scopeSales.cps.toFixed(2),l:'Avg CPS',c:'var(--accent2)'});
+    if (scopeSales.reg2sale > 0) {
+      chipDefs.push({v:scopeSales.reg2sale.toFixed(2)+'%',l:'Reg→Sale',c:'var(--orange)'});
+    }
   }
   chipDefs.push({v:fmtMoney(peakRev),l:'Peak Revenue',c:'var(--orange)'});
   chipDefs.push({v:fmtNum(peakClicks),l:'Peak Clicks',c:null});
@@ -4373,14 +5525,255 @@ function renderChart(scope, title) {
   chartsRight.appendChild(tableCard);
 }
 
+// ── Per-offer EPC comparison chart (shown above the main chart in geo dimension) ──
+//
+// Given a GEO scope (`geo` = country across all flows, or `geo_flow` = country
+// within a specific flow), build a chart that overlays EPC over time for every
+// offer that ran in that GEO. Lets the user spot which offers actually paid
+// well per click in a given country, side-by-side, without having to drill into
+// each offer separately.
+function computePerOfferEPCSeries(affId, scope) {
+  // Returns an array of { offerKey, offerName, byDate: {date: {clicks, revenue}} }
+  // for every offer that had any traffic in the geo (and flow, if applicable).
+  const da = DAILY_DATA[affId];
+  if (!da) return [];
+  // offerKey -> { offerName, byDate: {date: {clicks, revenue}} }
+  const perOffer = Object.create(null);
+  for (const [flowId, countries] of Object.entries(da)) {
+    if (scope.type === 'geo_flow' && flowId !== scope.flowId) continue;
+    for (const [country, offers] of Object.entries(countries)) {
+      if (country !== scope.country) continue;
+      for (const [offerKey, offerNode] of Object.entries(offers)) {
+        // offer key is typically `${offerId}::${offerName}`; fall back to whole key.
+        const sepIdx = offerKey.indexOf('::');
+        const offerName = sepIdx >= 0 ? offerKey.slice(sepIdx + 2) : offerKey;
+        if (!perOffer[offerKey]) perOffer[offerKey] = { offerKey, offerName, byDate: {}, totalClicks: 0, totalRevenue: 0 };
+        const bucket = perOffer[offerKey];
+        for (const [date, d] of Object.entries(offerNode)) {
+          if (date === '__sources' || date === '__landings') continue;
+          if (!bucket.byDate[date]) bucket.byDate[date] = { clicks: 0, revenue: 0 };
+          bucket.byDate[date].clicks += d.clicks;
+          bucket.byDate[date].revenue += d.revenue;
+          bucket.totalClicks += d.clicks;
+          bucket.totalRevenue += d.revenue;
+        }
+      }
+    }
+  }
+  // Sort by total revenue desc so the most relevant offers get the strongest colors.
+  return Object.values(perOffer).sort((a, b) => b.totalRevenue - a.totalRevenue);
+}
+
+// Distinct color palette for per-offer EPC lines. Picked for good separation
+// in dark mode; works in light mode too. Cycles if there are more offers than
+// colors (rare in practice for a single GEO).
+function getOfferEPCPalette() {
+  return [
+    '#22d98a', '#3d8bff', '#f0c040', '#ff6ec7', '#ff8c44',
+    '#a78bfa', '#34d3eb', '#f87171', '#84cc16', '#fb923c',
+    '#c084fc', '#2dd4bf', '#facc15', '#f472b6', '#60a5fa',
+  ];
+}
+
+function buildPerOfferEPCChart(id, scope) {
+  const affId = selectedAffiliate;
+  const offers = computePerOfferEPCSeries(affId, scope);
+  if (!offers.length) return null;
+
+  const colors = getChartColors();
+  const palette = getOfferEPCPalette();
+  const card = document.createElement('div'); card.className = 'chart-card';
+
+  const hdr = document.createElement('div'); hdr.className = 'chart-card-hdr';
+  const titleEl = document.createElement('div'); titleEl.className = 'chart-card-title';
+  titleEl.textContent = 'EPC by Offer · ' + scope.country + (scope.type === 'geo_flow' ? ' (this flow)' : ' (all flows)');
+  hdr.appendChild(titleEl);
+  const sub = document.createElement('div'); sub.style.cssText = 'color:var(--muted);font-size:10px;margin-left:auto;';
+  sub.textContent = offers.length + ' offer' + (offers.length === 1 ? '' : 's');
+  hdr.appendChild(sub);
+  card.appendChild(hdr);
+
+  // Build a unified, sorted list of dates that any offer has data for, so the
+  // x-axis matches the GEO's actual activity window (not the full affiliate
+  // history, which would leave most lines as flat zeros).
+  const dateSet = new Set();
+  for (const o of offers) for (const d of Object.keys(o.byDate)) dateSet.add(d);
+  const dates = [...dateSet].sort();
+  if (!dates.length) return null;
+
+  // Build per-offer daily EPC series. EPC for a day with 0 clicks is null
+  // (charted as a gap) rather than 0, so a zero-click day doesn't drag the
+  // line down to the floor and obscure non-zero days.
+  const baseSeries = offers.map((o) => {
+    const series = dates.map(d => {
+      const b = o.byDate[d];
+      if (!b || b.clicks === 0) return null;
+      return parseFloat((b.revenue / b.clicks).toFixed(4));
+    });
+    return { offerKey: o.offerKey, offerName: o.offerName, totalRevenue: o.totalRevenue, totalClicks: o.totalClicks, series };
+  });
+
+  // Apply week grouping to match the main chart's grouping toggle.
+  let labels, displaySeries;
+  if (chartGroupWeeks) {
+    // Group each offer's clicks/revenue by week, then derive weekly EPC.
+    const weekOrder = [];
+    const weekIdx = {};
+    for (const d of dates) {
+      const wk = getWeekKey(d);
+      if (!(wk in weekIdx)) { weekIdx[wk] = weekOrder.length; weekOrder.push(wk); }
+    }
+    labels = weekOrder;
+    displaySeries = offers.map((o) => {
+      const wkBuckets = weekOrder.map(() => ({ clicks: 0, revenue: 0 }));
+      for (const [d, v] of Object.entries(o.byDate)) {
+        const i = weekIdx[getWeekKey(d)];
+        wkBuckets[i].clicks += v.clicks;
+        wkBuckets[i].revenue += v.revenue;
+      }
+      const series = wkBuckets.map(b => b.clicks > 0 ? parseFloat((b.revenue / b.clicks).toFixed(4)) : null);
+      return { offerKey: o.offerKey, offerName: o.offerName, totalRevenue: o.totalRevenue, totalClicks: o.totalClicks, series };
+    });
+  } else {
+    labels = dates.map(d => d.slice(5));
+    displaySeries = baseSeries;
+  }
+
+  // Top N (by revenue) start visible; the rest start hidden behind disabled
+  // legend chips so the user can opt them in. displaySeries is already sorted
+  // by total revenue desc upstream.
+  const topN = Math.min(CMP_DEFAULT_TOP_N, displaySeries.length);
+  const initialVisible = displaySeries.map((_, i) => i < topN);
+
+  // Legend — one item per offer, click to toggle its line on/off.
+  // Hidden offers appear visually muted (struck-through) until clicked.
+  const legend = document.createElement('div'); legend.className = 'chart-legend';
+
+  if (displaySeries.length > topN) {
+    const hint = document.createElement('div');
+    hint.className = 'cmp-legend-hint';
+    hint.textContent = 'Top ' + topN + ' offers shown · click any greyed-out offer below to add its EPC line';
+    legend.appendChild(hint);
+  }
+
+  displaySeries.forEach((o, i) => {
+    const color = palette[i % palette.length];
+    const item = document.createElement('div');
+    item.className = 'chart-legend-item clickable' + (initialVisible[i] ? '' : ' disabled');
+    const dot = document.createElement('div'); dot.className = 'chart-legend-dot'; dot.style.background = color;
+    const lbl = document.createElement('span');
+    // Truncate very long offer names in the legend to keep the row readable;
+    // the tooltip on hover shows the full name.
+    const displayName = o.offerName.length > 36 ? o.offerName.slice(0, 34) + '…' : o.offerName;
+    lbl.textContent = displayName;
+    item.title = o.offerName + ' · click to toggle';
+    item.appendChild(dot); item.appendChild(lbl);
+    item.addEventListener('click', () => {
+      const chart = chartInstances[id]; if (!chart) return;
+      const visible = chart.isDatasetVisible(i);
+      chart.setDatasetVisibility(i, !visible);
+      item.classList.toggle('disabled', visible);
+      chart.update();
+    });
+    legend.appendChild(item);
+  });
+  card.appendChild(legend);
+
+  const wrap = document.createElement('div'); wrap.className = 'chart-canvas-wrap-tall';
+  const canvas = document.createElement('canvas'); canvas.id = id;
+  wrap.appendChild(canvas); card.appendChild(wrap);
+
+  requestAnimationFrame(() => {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+    const ctx = canvas.getContext('2d');
+    const datasets = displaySeries.map((o, i) => {
+      const color = palette[i % palette.length];
+      return {
+        type: 'line',
+        label: o.offerName,
+        data: o.series,
+        borderColor: color,
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: labels.length > 60 ? 0 : 2,
+        pointHoverRadius: 5,
+        pointBackgroundColor: color,
+        tension: 0.3,
+        fill: false,
+        // Don't draw across days where the offer had 0 clicks — show a real gap.
+        spanGaps: false,
+        // Top N visible by default; rest hidden until the user opts them in
+        // by clicking the corresponding (greyed-out) legend item.
+        hidden: !initialVisible[i],
+      };
+    });
+
+    chartInstances[id] = new Chart(ctx, {
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(13,16,24,0.95)',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            titleColor: '#c8d4e8',
+            bodyColor: '#c8d4e8',
+            titleFont: { family: "'JetBrains Mono', monospace", size: 10 },
+            bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+            padding: 10,
+            // Sort tooltip rows by EPC desc so the best offer for that day is
+            // on top — matches how the user reads the chart.
+            itemSort: (a, b) => (b.raw || 0) - (a.raw || 0),
+            callbacks: {
+              label: (item) => {
+                const v = item.raw;
+                if (v === null || v === undefined) return ' ' + item.dataset.label + ': —';
+                return ' ' + item.dataset.label + ': $' + v.toFixed(4);
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            offset: true,
+            grid: { color: colors.grid },
+            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
+            border: { color: colors.grid }
+          },
+          y: {
+            type: 'linear',
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: colors.grid },
+            ticks: {
+              color: colors.text,
+              font: { family: "'JetBrains Mono', monospace", size: 9 },
+              callback: (v) => '$' + v.toFixed(3)
+            },
+            border: { color: colors.grid }
+          }
+        }
+      }
+    });
+  });
+
+  return card;
+}
+
 // ── Combined Revenue + Clicks + EPC chart ──
-function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
+function buildCombinedChart(id, labels, revenueData, clicksData, epcData, salesData) {
   const colors = getChartColors();
   const card = document.createElement('div'); card.className='chart-card';
 
   const hdr = document.createElement('div'); hdr.className='chart-card-hdr';
   const titleEl = document.createElement('div'); titleEl.className='chart-card-title'; titleEl.textContent='Revenue, Clicks & EPC'; hdr.appendChild(titleEl);
   card.appendChild(hdr);
+
+  const hasSales = !!(salesData && salesData.some(v => v > 0));
 
   // Legend
   const legend = document.createElement('div'); legend.className = 'chart-legend';
@@ -4389,13 +5782,39 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
     { color: colors.clicks,  label: 'Clicks' },
     { color: colors.epc,     label: 'EPC' },
   ];
+  if (hasSales) legendItems.push({ color: colors.sales, label: 'Sales (bars)', toggle: 'sales' });
   if (chartMA7)  legendItems.push({ color: colors.ma7,  label: 'MA 7 (Rev)' });
   if (chartMA14) legendItems.push({ color: colors.ma14, label: 'MA 14 (Rev)' });
   legendItems.forEach(li => {
     const item = document.createElement('div'); item.className = 'chart-legend-item';
     const dot = document.createElement('div'); dot.className = 'chart-legend-dot'; dot.style.background = li.color;
     const lbl = document.createElement('span'); lbl.textContent = li.label;
-    item.appendChild(dot); item.appendChild(lbl); legend.appendChild(item);
+    item.appendChild(dot); item.appendChild(lbl);
+    if (li.toggle === 'sales') {
+      item.classList.add('clickable');
+      if (!chartShowSales) item.classList.add('disabled');
+      item.title = 'Click to ' + (chartShowSales ? 'hide' : 'show') + ' sales bars';
+      item.addEventListener('click', () => {
+        chartShowSales = !chartShowSales;
+        item.classList.toggle('disabled', !chartShowSales);
+        item.title = 'Click to ' + (chartShowSales ? 'hide' : 'show') + ' sales bars';
+        const chart = chartInstances[id];
+        if (chart) {
+          // Find the Sales dataset and flip its visibility on the chart.
+          const idx = chart.data.datasets.findIndex(d => d.label === 'Sales');
+          if (idx !== -1) {
+            chart.setDatasetVisibility(idx, chartShowSales);
+          }
+          // Also show/hide the ySales axis so we don't leave orphan tick
+          // labels on the left when the bars are off.
+          if (chart.options.scales.ySales) {
+            chart.options.scales.ySales.display = chartShowSales;
+          }
+          chart.update();
+        }
+      });
+    }
+    legend.appendChild(item);
   });
   card.appendChild(legend);
 
@@ -4407,8 +5826,31 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
     if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
     const ctx = canvas.getContext('2d');
 
-    const datasets = [
+    const datasets = [];
+
+    // Sales bars first so they render behind the lines
+    if (hasSales) {
+      datasets.push({
+        type: 'bar',
+        label: 'Sales',
+        data: salesData,
+        backgroundColor: colors.sales + '66',
+        borderColor: colors.sales,
+        borderWidth: 1,
+        yAxisID: 'ySales',
+        order: 5,
+        // Modest gap between bars; the x-axis `offset: true` handles the
+        // side-border padding so the first/last bars aren't clipped.
+        barPercentage: 0.7,
+        categoryPercentage: 0.9,
+        // Off by default — user opts in via the legend toggle.
+        hidden: !chartShowSales,
+      });
+    }
+
+    datasets.push(
       {
+        type: 'line',
         label: 'Revenue',
         data: revenueData,
         borderColor: colors.revenue,
@@ -4423,6 +5865,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
         order: 3,
       },
       {
+        type: 'line',
         label: 'Clicks',
         data: clicksData,
         borderColor: colors.clicks,
@@ -4438,6 +5881,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
         order: 2,
       },
       {
+        type: 'line',
         label: 'EPC',
         data: epcData,
         borderColor: colors.epc,
@@ -4451,12 +5895,13 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
         fill: false,
         yAxisID: 'yEPC',
         order: 1,
-      },
-    ];
+      }
+    );
 
     if (chartMA7) {
       const ma7Rev = computeMA(revenueData, 7);
       datasets.push({
+        type: 'line',
         label: 'MA 7',
         data: ma7Rev,
         borderColor: colors.ma7,
@@ -4474,6 +5919,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
     if (chartMA14) {
       const ma14Rev = computeMA(revenueData, 14);
       datasets.push({
+        type: 'line',
         label: 'MA 14',
         data: ma14Rev,
         borderColor: colors.ma14,
@@ -4488,8 +5934,84 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
       });
     }
 
+    const scales = {
+      x: {
+        // `offset: true` adds half-a-category of padding at the start and
+        // end of the x-axis, so the first/last sales bars are no longer
+        // flush against the chart's side borders.
+        offset: true,
+        grid: { color: colors.grid },
+        ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
+        border: { color: colors.grid }
+      },
+      yRev: {
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
+        grid: { color: colors.grid },
+        ticks: {
+          color: colors.revenue,
+          font: { family: "'JetBrains Mono', monospace", size: 9 },
+          callback: (v) => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0))
+        },
+        border: { color: colors.grid }
+      },
+      yClk: {
+        type: 'linear',
+        position: 'right',
+        beginAtZero: true,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          color: colors.clicks,
+          font: { family: "'JetBrains Mono', monospace", size: 9 },
+          callback: (v) => fmtNum(v)
+        },
+        border: { color: colors.grid }
+      },
+      yEPC: {
+        type: 'linear',
+        position: 'right',
+        beginAtZero: true,
+        offset: true,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          color: colors.epc,
+          font: { family: "'JetBrains Mono', monospace", size: 9 },
+          callback: (v) => '$' + v.toFixed(3)
+        },
+        border: { color: colors.grid }
+      }
+    };
+
+    if (hasSales) {
+      // Cap the tallest bar at 80% of the chart height. Chart.js scales the
+      // axis so its `max` maps to the top of the plot area, so setting
+      // max = peak / 0.8 means the peak bar reaches exactly 80% of full height.
+      const peakSales = salesData.reduce((m, v) => v > m ? v : m, 0);
+      const ySalesMax = peakSales > 0 ? peakSales / 0.8 : 1;
+      scales.ySales = {
+        type: 'linear',
+        position: 'left',
+        beginAtZero: true,
+        // No `offset` here — we want the sales axis to share the same
+        // baseline as the revenue axis so bars start at the very bottom
+        // of the chart area (just like the revenue line's zero line).
+        max: ySalesMax,
+        // Hide the axis when bars are off so we don't show ticks for an
+        // invisible series. Toggled in sync with the legend click below.
+        display: chartShowSales,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          color: colors.sales,
+          font: { family: "'JetBrains Mono', monospace", size: 9 },
+          callback: (v) => fmtNum(v),
+          precision: 0
+        },
+        border: { color: colors.grid }
+      };
+    }
+
     chartInstances[id] = new Chart(ctx, {
-      type: 'line',
       data: { labels, datasets },
       options: {
         responsive: true,
@@ -4512,6 +6034,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
                 if (item.dataset.label === 'Revenue') return ' Revenue: $' + v.toFixed(2);
                 if (item.dataset.label === 'Clicks') return ' Clicks: ' + fmtNum(v);
                 if (item.dataset.label === 'EPC') return ' EPC: $' + v.toFixed(4);
+                if (item.dataset.label === 'Sales') return ' Sales: ' + fmtNum(v);
                 if (item.dataset.label === 'MA 7') return ' MA 7: $' + v.toFixed(2);
                 if (item.dataset.label === 'MA 14') return ' MA 14: $' + v.toFixed(2);
                 return ' ' + v;
@@ -4519,50 +6042,7 @@ function buildCombinedChart(id, labels, revenueData, clicksData, epcData) {
             }
           }
         },
-        scales: {
-          x: {
-            grid: { color: colors.grid },
-            ticks: { color: colors.text, font: { family: "'JetBrains Mono', monospace", size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 },
-            border: { color: colors.grid }
-          },
-          yRev: {
-            type: 'linear',
-            position: 'left',
-            beginAtZero: true,
-            grid: { color: colors.grid },
-            ticks: {
-              color: colors.revenue,
-              font: { family: "'JetBrains Mono', monospace", size: 9 },
-              callback: (v) => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0))
-            },
-            border: { color: colors.grid }
-          },
-          yClk: {
-            type: 'linear',
-            position: 'right',
-            beginAtZero: true,
-            grid: { drawOnChartArea: false },
-            ticks: {
-              color: colors.clicks,
-              font: { family: "'JetBrains Mono', monospace", size: 9 },
-              callback: (v) => fmtNum(v)
-            },
-            border: { color: colors.grid }
-          },
-          yEPC: {
-            type: 'linear',
-            position: 'right',
-            beginAtZero: true,
-            offset: true,
-            grid: { drawOnChartArea: false },
-            ticks: {
-              color: colors.epc,
-              font: { family: "'JetBrains Mono', monospace", size: 9 },
-              callback: (v) => '$' + v.toFixed(3)
-            },
-            border: { color: colors.grid }
-          }
-        }
+        scales: scales
       }
     });
   });
@@ -4725,14 +6205,64 @@ function renderRight(code) {
   panel.innerHTML='';
 
   const hdr=document.createElement('div'); hdr.className='country-hdr';
-  const nameEl=document.createElement('div'); nameEl.className='country-name'; nameEl.textContent=code; hdr.appendChild(nameEl);
+  const nameRow=document.createElement('div'); nameRow.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  const nameEl=document.createElement('div'); nameEl.className='country-name'; nameEl.textContent=code; nameRow.appendChild(nameEl);
+  // "View chart" button — jumps to the daily-charts GEO view scoped to this flow+geo
+  if (HAS_DATES) {
+    const vcBtn = document.createElement('button');
+    vcBtn.className = 'view-chart-btn';
+    vcBtn.title = 'Open daily charts for this flow + GEO';
+    const ico = document.createElement('span'); ico.className = 'vcb-icon'; ico.textContent = '⟋';
+    vcBtn.appendChild(ico);
+    vcBtn.appendChild(document.createTextNode('View Chart'));
+    vcBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const flowId = selectedFlow;
+      const country = code;
+      // Switch to charts view + GEO dimension; pre-select the relevant flow
+      // in the new flows panel and pre-expand the geo to its offers.
+      switchViewMode('charts');
+      chartFlowScope = flowId;
+      chartDimension = 'geo';
+      ['geo','offer','source'].forEach(d => {
+        const el = document.getElementById('dimTab' + d.charAt(0).toUpperCase() + d.slice(1));
+        if (el) el.classList.toggle('active', d === 'geo');
+      });
+      dimSearchQuery = '';
+      const searchInput = document.getElementById('dimSearchInput'); if (searchInput) searchInput.value = '';
+      dimExpandedGeos.add(country);
+      const geoSelKey = 'geo_flow::' + flowId + '::' + country;
+      chartSelectedKey = geoSelKey;
+      chartSelectedFlowId = flowId;
+      renderChartFlowList();
+      renderDimList();
+      renderChart(
+        { type: 'geo_flow', country, flowId },
+        'GEO: ' + country + ' · Flow: ' + (flowId === '__no_flow__' ? 'No Flow' : flowId)
+      );
+    });
+    nameRow.appendChild(vcBtn);
+  }
+  hdr.appendChild(nameRow);
   const chips=document.createElement('div'); chips.className='stat-chips';
   function makeChip(value,label,color) { const chip=document.createElement('div'); chip.className='chip'; const cv=document.createElement('div'); cv.className='cv'; cv.textContent=value; if(color) cv.style.color=color; const cl=document.createElement('div'); cl.className='cl'; cl.textContent=label; chip.appendChild(cv); chip.appendChild(cl); return chip; }
   chips.appendChild(makeChip(fmtNum(data.clicks),'Clicks',null));
   chips.appendChild(makeChip(data.conversions.toLocaleString(),'Convs',null));
   chips.appendChild(makeChip(data.revenue>0?fmtMoney(data.revenue):'$0','Revenue','var(--green)'));
   chips.appendChild(makeChip(fmt(cr,2)+'%','CR','var(--yellow)'));
-  if (data.sales>0) chips.appendChild(makeChip(data.sales.toLocaleString(),'Sales','var(--orange)'));
+  if (data.sales>0) {
+    chips.appendChild(makeChip(data.sales.toLocaleString(),'Sales','var(--orange)'));
+    // Reg→Sale = sales / registrations (cpl_convs). Meaningful for PPS funnels
+    // where the same traffic produces both registrations and downstream sales.
+    const cplConvs = data.cpl_convs || 0;
+    if (cplConvs > 0) {
+      const r2s = (data.sales / cplConvs) * 100;
+      chips.appendChild(makeChip(fmt(r2s,2)+'%','Reg→Sale','var(--orange)'));
+    }
+    // Also surface CPS at the country header when sales are present
+    const cps = data.revenue / data.sales;
+    chips.appendChild(makeChip('$'+fmt(cps,2),'CPS','var(--orange)'));
+  }
   chips.appendChild(makeChip(offers.length,'Offers',null));
   hdr.appendChild(chips);
 
@@ -4778,7 +6308,43 @@ function renderRight(code) {
     const headLeft=document.createElement('div');
     const titleRow=document.createElement('div'); titleRow.className='offer-title';
     const titleText=document.createElement('span'); titleText.textContent=o.offer_id ? (o.offer_id + '. ' + o.offer_name.trim()) : o.offer_name.trim(); titleRow.appendChild(titleText);
-    if (o.offer_id) { const idTag=document.createElement('span'); idTag.className='offer-id-tag'; idTag.textContent='#'+o.offer_id; idTag.title='Offer ID'; titleRow.appendChild(idTag); }
+    if (o.offer_id) {
+      const idTag = document.createElement('span');
+      idTag.className = 'offer-id-tag';
+      idTag.textContent = '#' + o.offer_id;
+      const fullOfferName = o.offer_id + '. ' + (o.offer_name || '').trim();
+      idTag.title = 'Click to copy: ' + fullOfferName;
+      idTag.addEventListener('click', e => {
+        e.stopPropagation();
+        const original = idTag.textContent;
+        const finish = () => {
+          idTag.textContent = '✓ Copied';
+          idTag.classList.add('copied');
+          setTimeout(() => {
+            idTag.textContent = original;
+            idTag.classList.remove('copied');
+          }, 1200);
+        };
+        try {
+          navigator.clipboard.writeText(fullOfferName).then(finish).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = fullOfferName; ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); } catch (_) {}
+            document.body.removeChild(ta);
+            finish();
+          });
+        } catch (_) {
+          const ta = document.createElement('textarea');
+          ta.value = fullOfferName; ta.style.cssText = 'position:fixed;opacity:0;';
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (_) {}
+          document.body.removeChild(ta);
+          finish();
+        }
+      });
+      titleRow.appendChild(idTag);
+    }
     const badge=document.createElement('span'); badge.className='badge '+(isPPS?'badge-pps':'badge-soi'); badge.textContent=isPPS?'PPS':'SOI'; titleRow.appendChild(badge);
     headLeft.appendChild(titleRow);
     const kpisRow=document.createElement('div'); kpisRow.className='offer-kpis';
