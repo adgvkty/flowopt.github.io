@@ -899,6 +899,7 @@ body {
 }
 .flow-list-stats .fl-clicks { color: var(--dim); }
 .flow-list-stats .fl-rev { color: var(--green); font-weight: 500; }
+.flow-list-stats .fl-sales { color: var(--orange); font-weight: 500; }
 .flow-list-item.active .flow-list-stats .fl-clicks { color: rgba(34,217,138,0.5); }
 .flow-list-item .flow-tab-copy-btn { margin-left: auto; }
 
@@ -985,6 +986,11 @@ body {
    left column when EPC is present. */
 .crev-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; align-self: center; }
 .cepc { font-size: 9px; color: var(--yellow); text-align: right; white-space: nowrap; opacity: 0.85; }
+/* Sales volume + CPS line in country / dim list rows. Sales count uses the
+   same accent colour as analytics chips ("Sales", orange). CPS sits right
+   beside it with a subtle separator so it reads as a single metric line. */
+.csales { font-size: 9px; color: var(--orange); text-align: right; white-space: nowrap; opacity: 0.95; }
+.csales .csales-cps { color: var(--orange); opacity: 0.75; margin-left: 5px; }
 
 /* ─── RIGHT PANEL ─── */
 .right-panel { overflow-y: auto; padding: 20px 22px; }
@@ -2229,7 +2235,7 @@ body {
         <div class="flow-list" id="flowTabs"></div>
       </div>
       <div class="left-panel">
-        <div class="panel-hdr">
+        <div class="panel-hdr" id="countriesPanelHdr">
           <h2>Countries</h2>
           <span class="count-badge" id="countBadge">—</span>
         </div>
@@ -2835,9 +2841,9 @@ function getAffiliateStats(affId) {
 }
 
 function getFlowStats(affId, flowId) {
-  let clicks=0,conversions=0,revenue=0;
-  for (const cdata of Object.values(FULL_DATA[affId][flowId])) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; }
-  return {clicks,conversions,revenue};
+  let clicks=0,conversions=0,revenue=0,sales=0;
+  for (const cdata of Object.values(FULL_DATA[affId][flowId])) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; sales+=(cdata.sales||0); }
+  return {clicks,conversions,revenue,sales};
 }
 
 // Return the top GEO (by revenue, fallback to clicks) for a given flow, or null.
@@ -3544,6 +3550,13 @@ function renderFlowTabs() {
       const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
       stats.appendChild(rev);
     }
+    // Sales volume + CPS — only when this flow has at least one sale.
+    if ((s.sales || 0) > 0) {
+      const cps = s.revenue / s.sales;
+      const salesEl = document.createElement('span'); salesEl.className = 'fl-sales';
+      salesEl.textContent = s.sales.toLocaleString() + ' sales · $' + cps.toFixed(2) + ' CPS';
+      stats.appendChild(salesEl);
+    }
     item.appendChild(stats);
 
     container.appendChild(item);
@@ -3622,7 +3635,10 @@ function renderCountryList() {
 
   let sortToggle=document.getElementById('geoSortToggle');
   if (!sortToggle) {
-    const hdr=document.querySelector('.panel-hdr');
+    // Sort buttons live on the GEOs (Countries) list header — they sort
+    // countries by revenue or clicks, so they belong with the country list,
+    // not the flows list.
+    const hdr=document.getElementById('countriesPanelHdr');
     if (hdr) {
       sortToggle=document.createElement('div'); sortToggle.id='geoSortToggle'; sortToggle.style.cssText='display:flex;gap:3px;margin-left:auto;margin-right:6px;';
       const btnRev=document.createElement('button'); btnRev.id='geoSortRevBtn'; btnRev.title='Sort by Revenue'; btnRev.textContent='$';
@@ -3666,6 +3682,19 @@ function renderCountryList() {
       const epc = data.revenue / data.clicks;
       const epcEl=document.createElement('div'); epcEl.className='cepc'; epcEl.textContent='$'+epc.toFixed(4)+' EPC';
       right.appendChild(epcEl);
+    }
+    // Sales volume + CPS line — only meaningful when the row has at least
+    // one sale; CPS = revenue / sales (cost-per-sale from the affiliate's
+    // perspective, i.e. revenue earned per sale).
+    if ((data.sales || 0) > 0) {
+      const sales = data.sales;
+      const cps = data.revenue / sales;
+      const salesEl = document.createElement('div'); salesEl.className = 'csales';
+      salesEl.textContent = sales.toLocaleString() + ' sales';
+      const cpsSpan = document.createElement('span'); cpsSpan.className = 'csales-cps';
+      cpsSpan.textContent = '$' + cps.toFixed(2) + ' CPS';
+      salesEl.appendChild(cpsSpan);
+      right.appendChild(salesEl);
     }
     item.appendChild(left); item.appendChild(right); list.appendChild(item);
   });
@@ -4509,6 +4538,17 @@ function renderDimList() {
       epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
       right.appendChild(epcEl);
     }
+    // Sales volume + CPS — only when the child has sales.
+    if ((child.sales || 0) > 0) {
+      const cSales = child.sales;
+      const cCps = (child.revenue || 0) / cSales;
+      const sEl = document.createElement('div'); sEl.className = 'csales';
+      sEl.textContent = cSales.toLocaleString() + ' sales';
+      const cpsSp = document.createElement('span'); cpsSp.className = 'csales-cps';
+      cpsSp.textContent = '$' + cCps.toFixed(2) + ' CPS';
+      sEl.appendChild(cpsSp);
+      right.appendChild(sEl);
+    }
 
     cdiv.appendChild(left);
     cdiv.appendChild(right);
@@ -4611,6 +4651,17 @@ function renderDimList() {
         const epcEl = document.createElement('div'); epcEl.className = 'cepc';
         epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
         right.appendChild(epcEl);
+      }
+      // Sales volume + CPS — only when this row has at least one sale.
+      if ((item.sales || 0) > 0) {
+        const iSales = item.sales;
+        const iCps = (item.revenue || 0) / iSales;
+        const sEl = document.createElement('div'); sEl.className = 'csales';
+        sEl.textContent = iSales.toLocaleString() + ' sales';
+        const cpsSp = document.createElement('span'); cpsSp.className = 'csales-cps';
+        cpsSp.textContent = '$' + iCps.toFixed(2) + ' CPS';
+        sEl.appendChild(cpsSp);
+        right.appendChild(sEl);
       }
 
       div.appendChild(left);
@@ -5151,10 +5202,12 @@ function renderChartsView() {
   renderChartFlowList();
   selectDimension(chartDimension);
   // After re-rendering, decide what chart to show:
-  //   - "All Flows" + "Tree" dim → empty hint already shown by selectDimension
-  //   - "All Flows" + non-tree dim → empty hint shown by selectDimension
+  //   - "All Flows" → show the overall (cross-flow aggregate) chart by default
+  //     so the user lands on a real chart instead of an empty-state hint
   //   - Specific flow + any dim → if no item is selected, show that flow's overall chart
-  if (chartFlowScope !== '__ALL__' && !chartSelectedKey) {
+  if (chartFlowScope === '__ALL__' && !chartSelectedKey) {
+    renderChart({ type: 'overall' }, 'Overall — All Traffic');
+  } else if (chartFlowScope !== '__ALL__' && !chartSelectedKey) {
     const flowId = chartFlowScope;
     const title = 'Flow: ' + (flowId === '__no_flow__' ? 'No Flow' : flowId) + ' · Overall';
     renderChart({ type: 'flow', flowId }, title);
@@ -5184,13 +5237,14 @@ function renderChartFlowList() {
   // affiliate aggregate. Total stats roll up across every flow.
   const allClicks = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).clicks, 0);
   const allRevenue = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).revenue, 0);
+  const allSales = flows.reduce((s, f) => s + (getFlowStats(selectedAffiliate, f).sales || 0), 0);
   const allItem = document.createElement('div');
   allItem.className = 'flow-list-item all-flows-item' + (chartFlowScope === '__ALL__' ? ' active' : '');
   allItem.addEventListener('click', () => selectChartFlow('__ALL__'));
   const allRow = document.createElement('div'); allRow.className = 'flow-list-row';
   const allId = document.createElement('span');
   allId.className = 'flow-list-id';
-  allId.textContent = '★ All Flows';
+  allId.textContent = 'All Flows';
   allId.title = 'Aggregate across every flow for this affiliate';
   allRow.appendChild(allId);
   allItem.appendChild(allRow);
@@ -5199,6 +5253,12 @@ function renderChartFlowList() {
   if (allRevenue > 0) {
     const allRev = document.createElement('span'); allRev.className = 'fl-rev'; allRev.textContent = fmtMoney(allRevenue);
     allStats.appendChild(allRev);
+  }
+  if (allSales > 0) {
+    const allCps = allRevenue / allSales;
+    const allSalesEl = document.createElement('span'); allSalesEl.className = 'fl-sales';
+    allSalesEl.textContent = allSales.toLocaleString() + ' sales · $' + allCps.toFixed(2) + ' CPS';
+    allStats.appendChild(allSalesEl);
   }
   allItem.appendChild(allStats);
   container.appendChild(allItem);
@@ -5258,6 +5318,12 @@ function renderChartFlowList() {
     if (s.revenue > 0) {
       const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
       stats.appendChild(rev);
+    }
+    if ((s.sales || 0) > 0) {
+      const cps = s.revenue / s.sales;
+      const salesEl = document.createElement('span'); salesEl.className = 'fl-sales';
+      salesEl.textContent = s.sales.toLocaleString() + ' sales · $' + cps.toFixed(2) + ' CPS';
+      stats.appendChild(salesEl);
     }
     item.appendChild(stats);
 
@@ -5367,6 +5433,37 @@ function renderChart(scope, title) {
     }
   } else {
     titleEl.textContent = title;
+  }
+  // ── "View Analytics" button — mirror of the analytics view's "View Chart"
+  // button. Jumps from a daily-chart back to the analytics view, pre-selecting
+  // the matching flow (and country, when the chart is GEO-scoped) so the user
+  // can keep their context while switching panels.
+  // Only shown when the chart is scoped to a specific flow — without a flow,
+  // analytics has no obvious country list to land on.
+  const flowIdForAnalytics = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
+  const countryForAnalytics = (scope && (scope.type==='geo_flow' || scope.type==='offer_flow_geo')) ? scope.country : null;
+  if (flowIdForAnalytics && FULL_DATA[affId] && FULL_DATA[affId][flowIdForAnalytics]) {
+    const vaBtn = document.createElement('button');
+    vaBtn.className = 'view-chart-btn';
+    vaBtn.title = countryForAnalytics
+      ? 'Open analytics for this flow + GEO'
+      : 'Open analytics for this flow';
+    const vaIco = document.createElement('span'); vaIco.className = 'vcb-icon'; vaIco.textContent = '◎';
+    vaBtn.appendChild(vaIco);
+    vaBtn.appendChild(document.createTextNode('View Analytics'));
+    vaBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchViewMode('analytics');
+      // selectFlow auto-picks the top country; if we have a specific country
+      // from the chart scope, override the selection after.
+      selectFlow(flowIdForAnalytics);
+      if (countryForAnalytics
+          && FULL_DATA[affId][flowIdForAnalytics]
+          && FULL_DATA[affId][flowIdForAnalytics][countryForAnalytics]) {
+        selectCountry(countryForAnalytics);
+      }
+    });
+    titleEl.appendChild(vaBtn);
   }
   // Add copy button for any scope involving a specific flow
   const flowIdForCopy = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
