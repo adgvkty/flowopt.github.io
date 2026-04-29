@@ -4288,38 +4288,70 @@ function getDimList_sourceForFlow(affId, flowId) {
   const da = DAILY_DATA[affId];
   if (!da || !da[flowId]) return [];
   const srcMap = {};
+  // Track per-(offer, source) flow-scoped click totals so we can do proportional
+  // sales attribution against SOURCE_DATA below. SOURCE_DATA is offer-scoped
+  // (not flow-scoped), so naively summing source.sales for every offer
+  // visited would over-attribute when an offer appears in multiple flows.
+  // Scaling by clicks ratio (this-flow's offer-source clicks / offer-source's
+  // total clicks across all flows) yields a reasonable per-flow estimate.
+  const flowOfferSrcClicks = {}; // [offerKey][srcKey] -> clicks in this flow
   for (const offers of Object.values(da[flowId])) {
-    for (const offerNode of Object.values(offers)) {
+    for (const [offerKey, offerNode] of Object.entries(offers)) {
       const sources = offerNode.__sources || {};
       for (const [srcKey, bucket] of Object.entries(sources)) {
         if (!srcMap[srcKey]) srcMap[srcKey] = {
           key: srcKey,
           replaced_source: bucket.replaced_source || null,
-          clicks: 0, conversions: 0, revenue: 0,
+          clicks: 0, conversions: 0, revenue: 0, sales: 0,
           is_no_source: srcKey === '__no_source__'
         };
         if (bucket.replaced_source && !srcMap[srcKey].replaced_source) {
           srcMap[srcKey].replaced_source = bucket.replaced_source;
         }
+        let bucketClicks = 0;
         for (const d of Object.values(bucket.dates)) {
           srcMap[srcKey].clicks += d.clicks;
           srcMap[srcKey].conversions += d.conversions;
           srcMap[srcKey].revenue += d.revenue;
+          bucketClicks += d.clicks;
         }
+        if (!flowOfferSrcClicks[offerKey]) flowOfferSrcClicks[offerKey] = {};
+        flowOfferSrcClicks[offerKey][srcKey] = (flowOfferSrcClicks[offerKey][srcKey] || 0) + bucketClicks;
       }
+    }
+  }
+  // Proportional sales attribution: SOURCE_DATA gives offer-total clicks +
+  // sales for each (offer, src) pair across all flows. We scale that pair's
+  // sales by this flow's share of clicks for the same pair so a source that
+  // straddles flows isn't credited with the same sales twice.
+  const srcAgg = SOURCE_DATA[affId] || {};
+  for (const [offerKey, perSrc] of Object.entries(flowOfferSrcClicks)) {
+    const offerData = srcAgg[offerKey];
+    if (!offerData) continue;
+    for (const [srcKey, flowClicks] of Object.entries(perSrc)) {
+      const srcRow = offerData.sources.find(s => s.source === srcKey);
+      if (!srcRow || !srcRow.sales || !srcRow.clicks) continue;
+      const ratio = flowClicks / srcRow.clicks;
+      if (srcMap[srcKey]) srcMap[srcKey].sales += srcRow.sales * ratio;
     }
   }
   return Object.values(srcMap)
     .sort((a,b) => b.revenue - a.revenue)
-    .map(s => ({
-      key: s.key,
-      name: s.is_no_source ? '(no source)' : s.key,
-      replaced_source: s.replaced_source,
-      is_no_source: s.is_no_source,
-      revenue: s.revenue,
-      clicks: s.clicks,
-      sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks })
-    }));
+    .map(s => {
+      // Round attributed sales to a whole count — proportional scaling
+      // produces fractional values that read awkwardly as "12.7 sales".
+      const sales = Math.round(s.sales || 0);
+      return {
+        key: s.key,
+        name: s.is_no_source ? '(no source)' : s.key,
+        replaced_source: s.replaced_source,
+        is_no_source: s.is_no_source,
+        revenue: s.revenue,
+        clicks: s.clicks,
+        sales,
+        sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks, sales })
+      };
+    });
 }
 
 // Sources scoped to a single flow+country+offer from DAILY_DATA (for tree expansion)
@@ -4342,13 +4374,14 @@ function getSourcesForFlowGeoOffer(affId, flowId, country, offerKey) {
     for (const d of Object.values(bucket.dates)) {
       clicks += d.clicks; conversions += d.conversions; revenue += d.revenue;
     }
+    const sales = salesByKey[srcKey] || 0;
     out.push({
       key: srcKey,
       name: srcKey === '__no_source__' ? '(no source)' : srcKey,
       replaced_source: bucket.replaced_source || null,
       is_no_source: srcKey === '__no_source__',
-      clicks, revenue, conversions,
-      sub: buildSubLabel({ revenue, clicks, sales: 0 })  // tree-scoped sales not stored; keep sub simple
+      clicks, revenue, conversions, sales,
+      sub: buildSubLabel({ revenue, clicks, sales })
     });
   }
   return out.sort((a,b) => b.revenue - a.revenue);
