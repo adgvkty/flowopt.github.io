@@ -899,6 +899,7 @@ body {
 }
 .flow-list-stats .fl-clicks { color: var(--dim); }
 .flow-list-stats .fl-rev { color: var(--green); font-weight: 500; }
+.flow-list-stats .fl-sales { color: var(--orange); font-weight: 500; }
 .flow-list-item.active .flow-list-stats .fl-clicks { color: rgba(34,217,138,0.5); }
 .flow-list-item .flow-tab-copy-btn { margin-left: auto; }
 
@@ -985,6 +986,11 @@ body {
    left column when EPC is present. */
 .crev-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; align-self: center; }
 .cepc { font-size: 9px; color: var(--yellow); text-align: right; white-space: nowrap; opacity: 0.85; }
+/* Sales volume + CPS line in country / dim list rows. Sales count uses the
+   same accent colour as analytics chips ("Sales", orange). CPS sits right
+   beside it with a subtle separator so it reads as a single metric line. */
+.csales { font-size: 9px; color: var(--orange); text-align: right; white-space: nowrap; opacity: 0.95; }
+.csales .csales-cps { color: var(--orange); opacity: 0.75; margin-left: 5px; }
 
 /* ─── RIGHT PANEL ─── */
 .right-panel { overflow-y: auto; padding: 20px 22px; }
@@ -1340,49 +1346,6 @@ body {
 
 .dim-tabs { display: flex; gap: 2px; }
 
-/* ─── Daily Charts: per-dimension drill/expansion filter bar ───
-   Sits below the dimension tabs in the .charts-left-hdr block. Hosts
-   compact toggle buttons that control either:
-     • what the leaf level drills into (sources vs landings) for GEO/Offer dims, or
-     • what a Source row expands into (geos vs offers) for the Source dim.
-   The bar is hidden when the active dimension has no relevant filter. */
-.dim-filter-bar {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-.dim-filter-bar.active { display: flex; }
-.dim-filter-bar .dfb-label {
-  font-size: 9px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  font-weight: 700;
-}
-.dim-filter-btn {
-  padding: 3px 10px;
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  background: transparent;
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  cursor: pointer;
-  transition: all .12s;
-}
-.dim-filter-btn:hover { color: var(--text); border-color: var(--accent); }
-.dim-filter-btn.active {
-  background: rgba(61,139,255,0.1);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.dim-filter-btn.active.lnd { background: rgba(108,99,255,0.1); border-color: var(--accent2); color: var(--accent2); }
-
 .dim-tab {
   flex: 1;
   padding: 4px 0;
@@ -1521,71 +1484,6 @@ body {
 /* Extra indent step when the nested child sits under a flow-scoped header */
 .dim-geo-item.nested-child.nested-grouped { padding-left: 42px; }
 .dim-geo-item.nested-child.nested-grouped.selected { padding-left: 40px; }
-
-/* Deeper-nested rows: leaves shown beneath an expanded offer (in GEO and
-   Offer dims) — i.e. sources / landings that drill into the offer's
-   per-day data. Indented one further step than .nested-child so the
-   hierarchy reads as: parent → child → leaf. */
-.dim-geo-item.nested-leaf { padding-left: 46px; }
-.dim-geo-item.nested-leaf.selected { padding-left: 44px; }
-.dim-geo-item.nested-leaf.nested-grouped { padding-left: 58px; }
-.dim-geo-item.nested-leaf.nested-grouped.selected { padding-left: 56px; }
-
-/* Small SRC/LND tag on a deeper-nested leaf row, inline with the name —
-   keeps the leaf type (source vs landing) unambiguous. */
-.dim-geo-item.nested-leaf .leaf-type-tag {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  padding: 1px 4px;
-  border-radius: 2px;
-  margin-left: 6px;
-  vertical-align: middle;
-  text-transform: uppercase;
-}
-.dim-geo-item.nested-leaf .leaf-type-tag.src {
-  background: rgba(61,139,255,0.12);
-  border: 1px solid rgba(61,139,255,0.35);
-  color: var(--accent);
-}
-.dim-geo-item.nested-leaf .leaf-type-tag.lnd {
-  background: rgba(108,99,255,0.12);
-  border: 1px solid rgba(108,99,255,0.35);
-  color: var(--accent2);
-}
-/* Replaced-source caption shown under a source leaf row */
-.dim-geo-item.nested-leaf .leaf-replaced-src {
-  font-size: 9px;
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* Source name in a leaf row uses monospace so it visually reads as a
-   url-ish identifier, distinct from the geo / offer names above. */
-.dim-geo-item.nested-leaf .country-code.is-source-name,
-.dim-geo-item.nested-leaf .country-code.is-landing-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text);
-  letter-spacing: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: block;
-  max-width: 100%;
-}
-.dim-geo-item.nested-leaf.selected .country-code.is-source-name,
-.dim-geo-item.nested-leaf.selected .country-code.is-landing-name { color: var(--accent); }
-.dim-geo-item.nested-leaf .country-code.is-source-name.is-no-source {
-  font-style: italic;
-  color: var(--dim);
-}
 
 /* When the analytics-style row is used for an Offer, the "name" is much
    longer than a 2-letter country code, so we override .country-code's
@@ -2337,7 +2235,7 @@ body {
         <div class="flow-list" id="flowTabs"></div>
       </div>
       <div class="left-panel">
-        <div class="panel-hdr">
+        <div class="panel-hdr" id="countriesPanelHdr">
           <h2>Countries</h2>
           <span class="count-badge" id="countBadge">—</span>
         </div>
@@ -2397,7 +2295,6 @@ body {
             <button class="dim-tab" id="dimTabOffer">Offer</button>
             <button class="dim-tab" id="dimTabSource">Source</button>
           </div>
-          <div class="dim-filter-bar" id="dimFilterBar"></div>
         </div>
         <div class="dim-search-bar" id="dimSearchBar">
           <input type="text" id="dimSearchInput" placeholder="Search geo / offer / source…" maxlength="100" autocomplete="off">
@@ -2507,42 +2404,6 @@ let treeLeafMode = 'sources';
 let dimExpandedGeos = new Set();
 let dimExpandedOffers = new Set();
 
-// ── Deep expansion (3rd / 4th level) under GEO and Offer dimensions ──
-// In the GEO dim, expanding a geo gives offers, and now expanding an offer
-// gives a leaf list (sources or landings) drawn from DAILY_DATA. The keys
-// here mirror those of dimExpandedGeos, with the offer suffix added:
-//   Flat:           `${country}::${offerKey}`
-//   Flow-scoped:    `${flowId}::${country}::${offerKey}`
-let dimExpandedGeoOffers = new Set();
-// In the Offer dim, expanding an offer gives geos, and now expanding a
-// geo-under-offer gives sources (only sources here, per UX request).
-//   Flat:           `${offerKey}::${country}`
-//   Flow-scoped:    `${flowId}::${offerKey}::${country}`
-let dimExpandedOfferGeos = new Set();
-
-// ── Source dimension expansion ──
-// The source dim is now expandable: each source row can be opened to
-// reveal either its top GEOs or its top offers (controlled by
-// `sourceExpandMode`). Keys:
-//   Flat:           `${sourceKey}`
-//   Flow-scoped:    `${flowId}::${sourceKey}`
-let dimExpandedSources = new Set();
-
-// ── Per-dimension drill / expand mode (controls the filter button bar) ──
-// geoLeafMode:     'sources' | 'landings'  – what the GEO dim drills into
-//                  beneath an offer. Defaults to 'sources' when sources
-//                  are present in the dataset; falls back to 'landings'.
-// offerLeafMode:   fixed at 'sources' (per spec — Offer dim only drills
-//                  into sources). Kept as a constant for symmetry; not
-//                  exposed via a filter button.
-// sourceExpandMode:'geo' | 'offer'  – what the Source dim expands a row
-//                  into. Defaults to 'geo' (countries that ran the
-//                  source). User can switch to 'offer' from the filter
-//                  bar.
-let geoLeafMode = 'sources';
-const offerLeafMode = 'sources';
-let sourceExpandMode = 'geo';
-
 // ── Chart display state ──
 let chartGroupWeeks = false;
 let chartMA7 = false;
@@ -2628,9 +2489,6 @@ function resetUpload() {
   chartSelectedKey = null; chartSelectedFlowId = null;
   collapsedFlows = new Set();
   dimExpandedGeos = new Set(); dimExpandedOffers = new Set();
-  dimExpandedGeoOffers = new Set(); dimExpandedOfferGeos = new Set();
-  dimExpandedSources = new Set();
-  geoLeafMode = 'sources'; sourceExpandMode = 'geo';
   treeExpandedFlows = new Set(); treeExpandedGeos = new Set(); treeExpandedOffers = new Set();
   treeLeafMode = 'sources';
   _lastChartScope = null; _lastChartTitle = null;
@@ -2983,9 +2841,9 @@ function getAffiliateStats(affId) {
 }
 
 function getFlowStats(affId, flowId) {
-  let clicks=0,conversions=0,revenue=0;
-  for (const cdata of Object.values(FULL_DATA[affId][flowId])) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; }
-  return {clicks,conversions,revenue};
+  let clicks=0,conversions=0,revenue=0,sales=0;
+  for (const cdata of Object.values(FULL_DATA[affId][flowId])) { clicks+=cdata.clicks; conversions+=cdata.conversions; revenue+=cdata.revenue; sales+=(cdata.sales||0); }
+  return {clicks,conversions,revenue,sales};
 }
 
 // Return the top GEO (by revenue, fallback to clicks) for a given flow, or null.
@@ -3155,17 +3013,11 @@ function computeSalesCPSForScope(affId, scope) {
     cpl_convs += o.cpl_convs || 0;
   };
 
-  if (scope.type === 'source' || scope.type === 'source_tree' || scope.type === 'source_flow'
-      || scope.type === 'source_offer_geo' || scope.type === 'source_geo'
-      || scope.type === 'source_offer' || scope.type === 'source_flow_geo'
-      || scope.type === 'source_flow_offer') {
+  if (scope.type === 'source' || scope.type === 'source_tree' || scope.type === 'source_flow') {
     const srcMap = SOURCE_DATA[affId];
     if (!srcMap) return { sales:0, cpl_convs:0, reg2sale:0, revenueForCPS:0, cps:0 };
     for (const [offerKey, offerData] of Object.entries(srcMap)) {
-      // Narrow to a specific offer where the scope demands it
-      if ((scope.type === 'source_tree' || scope.type === 'source_offer_geo'
-           || scope.type === 'source_offer' || scope.type === 'source_flow_offer')
-          && offerKey !== scope.offerKey) continue;
+      if (scope.type === 'source_tree' && offerKey !== scope.offerKey) continue;
       for (const s of offerData.sources) {
         if (s.source !== scope.source) continue;
         sales += s.sales || 0;
@@ -3184,7 +3036,7 @@ function computeSalesCPSForScope(affId, scope) {
   for (const [flowId, flowData] of Object.entries(affData)) {
     if ((scope.type === 'flow' || scope.type === 'geo_flow' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'landing_tree') && flowId !== scope.flowId) continue;
     for (const [country, gd] of Object.entries(flowData)) {
-      if ((scope.type === 'geo' || scope.type === 'geo_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree' || scope.type === 'landing_offer_geo') && country !== scope.country) continue;
+      if ((scope.type === 'geo' || scope.type === 'geo_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree') && country !== scope.country) continue;
 
       if (scope.type === 'overall' || scope.type === 'flow' || scope.type === 'geo' || scope.type === 'geo_flow') {
         addFromGeoData(gd);
@@ -3193,9 +3045,9 @@ function computeSalesCPSForScope(affId, scope) {
       // Offer-scoped: iterate offers
       for (const o of gd.offers) {
         const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        if ((scope.type === 'offer' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree' || scope.type === 'landing_offer_geo') && k !== scope.offerKey) continue;
-        // For landing-narrowed scopes, find that page's funnel data within the offer
-        if (scope.type === 'landing_tree' || scope.type === 'landing_offer_geo') {
+        if ((scope.type === 'offer' || scope.type === 'offer_flow' || scope.type === 'offer_flow_geo' || scope.type === 'offer_geo' || scope.type === 'landing_tree') && k !== scope.offerKey) continue;
+        // For landing_tree, narrow further to that page within the offer
+        if (scope.type === 'landing_tree') {
           const p = (o.pages || []).find(pg => pg.page === scope.landing);
           if (p) {
             sales += p.sales || 0;
@@ -3623,9 +3475,6 @@ function selectAffiliate(affId) {
   collapsedFlows = new Set();
   dimExpandedGeos = new Set();
   dimExpandedOffers = new Set();
-  dimExpandedGeoOffers = new Set();
-  dimExpandedOfferGeos = new Set();
-  dimExpandedSources = new Set();
   renderAffiliateTabs();
   renderFlowTabs();
   const flows = Object.keys(FULL_DATA[affId]).sort((a,b)=>getFlowStats(affId,b).revenue-getFlowStats(affId,a).revenue);
@@ -3700,6 +3549,13 @@ function renderFlowTabs() {
     if (s.revenue > 0) {
       const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
       stats.appendChild(rev);
+    }
+    // Sales volume + CPS — only when this flow has at least one sale.
+    if ((s.sales || 0) > 0) {
+      const cps = s.revenue / s.sales;
+      const salesEl = document.createElement('span'); salesEl.className = 'fl-sales';
+      salesEl.textContent = s.sales.toLocaleString() + ' sales · $' + cps.toFixed(2) + ' CPS';
+      stats.appendChild(salesEl);
     }
     item.appendChild(stats);
 
@@ -3779,7 +3635,10 @@ function renderCountryList() {
 
   let sortToggle=document.getElementById('geoSortToggle');
   if (!sortToggle) {
-    const hdr=document.querySelector('.panel-hdr');
+    // Sort buttons live on the GEOs (Countries) list header — they sort
+    // countries by revenue or clicks, so they belong with the country list,
+    // not the flows list.
+    const hdr=document.getElementById('countriesPanelHdr');
     if (hdr) {
       sortToggle=document.createElement('div'); sortToggle.id='geoSortToggle'; sortToggle.style.cssText='display:flex;gap:3px;margin-left:auto;margin-right:6px;';
       const btnRev=document.createElement('button'); btnRev.id='geoSortRevBtn'; btnRev.title='Sort by Revenue'; btnRev.textContent='$';
@@ -3823,6 +3682,19 @@ function renderCountryList() {
       const epc = data.revenue / data.clicks;
       const epcEl=document.createElement('div'); epcEl.className='cepc'; epcEl.textContent='$'+epc.toFixed(4)+' EPC';
       right.appendChild(epcEl);
+    }
+    // Sales volume + CPS line — only meaningful when the row has at least
+    // one sale; CPS = revenue / sales (cost-per-sale from the affiliate's
+    // perspective, i.e. revenue earned per sale).
+    if ((data.sales || 0) > 0) {
+      const sales = data.sales;
+      const cps = data.revenue / sales;
+      const salesEl = document.createElement('div'); salesEl.className = 'csales';
+      salesEl.textContent = sales.toLocaleString() + ' sales';
+      const cpsSpan = document.createElement('span'); cpsSpan.className = 'csales-cps';
+      cpsSpan.textContent = '$' + cps.toFixed(2) + ' CPS';
+      salesEl.appendChild(cpsSpan);
+      right.appendChild(salesEl);
     }
     item.appendChild(left); item.appendChild(right); list.appendChild(item);
   });
@@ -4033,8 +3905,6 @@ function computeDailyTimeseries(affId, scope) {
     if (scope.type==='offer_flow_geo' && flowId!==scope.flowId) continue;
     if (scope.type==='source_tree' && flowId!==scope.flowId) continue;
     if (scope.type==='source_flow' && flowId!==scope.flowId) continue;
-    if (scope.type==='source_flow_geo' && flowId!==scope.flowId) continue;
-    if (scope.type==='source_flow_offer' && flowId!==scope.flowId) continue;
     if (scope.type==='landing_tree' && flowId!==scope.flowId) continue;
     for (const [country, offers] of Object.entries(countries)) {
       if (scope.type==='geo' && country!==scope.country) continue;
@@ -4043,10 +3913,6 @@ function computeDailyTimeseries(affId, scope) {
       if (scope.type==='offer_geo' && country!==scope.country) continue;
       if (scope.type==='source_tree' && country!==scope.country) continue;
       if (scope.type==='landing_tree' && country!==scope.country) continue;
-      if (scope.type==='source_offer_geo' && country!==scope.country) continue;
-      if (scope.type==='landing_offer_geo' && country!==scope.country) continue;
-      if (scope.type==='source_geo' && country!==scope.country) continue;
-      if (scope.type==='source_flow_geo' && country!==scope.country) continue;
       for (const [offerKey, offerNode] of Object.entries(offers)) {
         if (scope.type==='offer' && offerKey!==scope.offerKey) continue;
         if (scope.type==='offer_flow' && offerKey!==scope.offerKey) continue;
@@ -4054,15 +3920,9 @@ function computeDailyTimeseries(affId, scope) {
         if (scope.type==='offer_geo' && offerKey!==scope.offerKey) continue;
         if (scope.type==='source_tree' && offerKey!==scope.offerKey) continue;
         if (scope.type==='landing_tree' && offerKey!==scope.offerKey) continue;
-        if (scope.type==='source_offer_geo' && offerKey!==scope.offerKey) continue;
-        if (scope.type==='landing_offer_geo' && offerKey!==scope.offerKey) continue;
-        if (scope.type==='source_offer' && offerKey!==scope.offerKey) continue;
-        if (scope.type==='source_flow_offer' && offerKey!==scope.offerKey) continue;
 
         // For source-scoped queries, pull from __sources subtree
-        if (scope.type==='source_tree' || scope.type==='source_offer_geo'
-            || scope.type==='source_geo' || scope.type==='source_offer'
-            || scope.type==='source_flow_geo' || scope.type==='source_flow_offer') {
+        if (scope.type==='source_tree') {
           const srcBucket = offerNode.__sources && offerNode.__sources[scope.source];
           if (!srcBucket) continue;
           for (const [date, d] of Object.entries(srcBucket.dates)) {
@@ -4075,7 +3935,7 @@ function computeDailyTimeseries(affId, scope) {
           continue;
         }
         // Landing-scoped: pull from __landings subtree
-        if (scope.type==='landing_tree' || scope.type==='landing_offer_geo') {
+        if (scope.type==='landing_tree') {
           const lndBucket = offerNode.__landings && offerNode.__landings[scope.landing];
           if (!lndBucket) continue;
           for (const [date, d] of Object.entries(lndBucket.dates)) {
@@ -4530,224 +4390,6 @@ function getLandingsForFlowGeoOffer(affId, flowId, country, offerKey) {
   return out.sort((a,b) => b.revenue - a.revenue);
 }
 
-// ── Helpers for the new GEO/Offer/Source dim drill paths ──────────────
-// These mirror the existing getSourcesForFlowGeoOffer / getLandingsForFlowGeoOffer
-// helpers but operate at different scopes:
-//   • non-flow scope (aggregated across flows) — used when GEO/Offer dim is
-//     in "All Flows" mode and the user expands the leaf level.
-//   • Source dim → geo/offer expansion (with and without flow scope).
-
-// Sources for an offer in a country, aggregated across all flows.
-// Used by GEO dim → offer leaf when no flow scope is set.
-function getSourcesForGeoOffer(affId, country, offerKey) {
-  const da = DAILY_DATA[affId];
-  if (!da) return [];
-  const map = {};
-  for (const flowData of Object.values(da)) {
-    const offers = flowData[country];
-    if (!offers) continue;
-    const offerNode = offers[offerKey];
-    if (!offerNode) continue;
-    const sources = offerNode.__sources || {};
-    for (const [srcKey, bucket] of Object.entries(sources)) {
-      if (!map[srcKey]) {
-        map[srcKey] = {
-          key: srcKey,
-          name: srcKey === '__no_source__' ? '(no source)' : srcKey,
-          replaced_source: bucket.replaced_source || null,
-          is_no_source: srcKey === '__no_source__',
-          clicks: 0, revenue: 0, conversions: 0,
-        };
-      }
-      if (bucket.replaced_source && !map[srcKey].replaced_source) {
-        map[srcKey].replaced_source = bucket.replaced_source;
-      }
-      for (const d of Object.values(bucket.dates)) {
-        map[srcKey].clicks += d.clicks;
-        map[srcKey].conversions += d.conversions;
-        map[srcKey].revenue += d.revenue;
-      }
-    }
-  }
-  return Object.values(map)
-    .map(s => ({ ...s, sub: buildSubLabel({ revenue: s.revenue, clicks: s.clicks, sales: 0 }) }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
-// Landings for an offer in a country, aggregated across all flows.
-// Used by GEO dim → offer leaf when no flow scope is set and leaf mode is "landings".
-function getLandingsForGeoOffer(affId, country, offerKey) {
-  const da = DAILY_DATA[affId];
-  if (!da) return [];
-  const map = {};
-  // Per-page sales come from FULL_DATA (offers[].pages[].sales). Aggregate
-  // across all flows for the offer+country pair.
-  const fdAll = FULL_DATA[affId] || {};
-  const salesByPage = {};
-  for (const fd of Object.values(fdAll)) {
-    const gd = fd[country];
-    if (!gd) continue;
-    for (const o of gd.offers) {
-      const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-      if (k !== offerKey) continue;
-      for (const p of (o.pages || [])) {
-        salesByPage[p.page] = (salesByPage[p.page] || 0) + (p.sales || 0);
-      }
-    }
-  }
-  for (const flowData of Object.values(da)) {
-    const offers = flowData[country];
-    if (!offers) continue;
-    const offerNode = offers[offerKey];
-    if (!offerNode) continue;
-    const landings = offerNode.__landings || {};
-    for (const [page, bucket] of Object.entries(landings)) {
-      if (!map[page]) {
-        map[page] = { key: page, name: page, clicks: 0, revenue: 0, conversions: 0 };
-      }
-      for (const d of Object.values(bucket.dates)) {
-        map[page].clicks += d.clicks;
-        map[page].conversions += d.conversions;
-        map[page].revenue += d.revenue;
-      }
-    }
-  }
-  return Object.values(map)
-    .map(p => ({ ...p, sub: buildSubLabel({ revenue: p.revenue, clicks: p.clicks, sales: salesByPage[p.key] || 0 }) }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
-// GEOs that ran a given source, aggregated across flows + offers.
-// Used by Source dim → GEOs expansion, in "All Flows" mode.
-function getGeosForSource(affId, sourceKey) {
-  const da = DAILY_DATA[affId];
-  if (!da) return [];
-  const map = {};
-  for (const flowData of Object.values(da)) {
-    for (const [country, offers] of Object.entries(flowData)) {
-      for (const offerNode of Object.values(offers)) {
-        const bucket = offerNode.__sources && offerNode.__sources[sourceKey];
-        if (!bucket) continue;
-        if (!map[country]) map[country] = { clicks: 0, revenue: 0, conversions: 0 };
-        for (const d of Object.values(bucket.dates)) {
-          map[country].clicks += d.clicks;
-          map[country].conversions += d.conversions;
-          map[country].revenue += d.revenue;
-        }
-      }
-    }
-  }
-  return Object.entries(map)
-    .map(([c,d]) => ({
-      key: c, name: c, sub: buildSubLabel({ revenue: d.revenue, clicks: d.clicks, sales: 0 }),
-      clicks: d.clicks, revenue: d.revenue, conversions: d.conversions,
-    }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
-// Same as above, scoped to a single flow.
-function getGeosForFlowSource(affId, flowId, sourceKey) {
-  const da = DAILY_DATA[affId];
-  if (!da || !da[flowId]) return [];
-  const map = {};
-  for (const [country, offers] of Object.entries(da[flowId])) {
-    for (const offerNode of Object.values(offers)) {
-      const bucket = offerNode.__sources && offerNode.__sources[sourceKey];
-      if (!bucket) continue;
-      if (!map[country]) map[country] = { clicks: 0, revenue: 0, conversions: 0 };
-      for (const d of Object.values(bucket.dates)) {
-        map[country].clicks += d.clicks;
-        map[country].conversions += d.conversions;
-        map[country].revenue += d.revenue;
-      }
-    }
-  }
-  return Object.entries(map)
-    .map(([c,d]) => ({
-      key: c, name: c, sub: buildSubLabel({ revenue: d.revenue, clicks: d.clicks, sales: 0 }),
-      clicks: d.clicks, revenue: d.revenue, conversions: d.conversions,
-    }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
-// Offers that carried a given source, aggregated across flows + countries.
-function getOffersForSource(affId, sourceKey) {
-  const da = DAILY_DATA[affId];
-  if (!da) return [];
-  const map = {};
-  // Pull offer display names from FULL_DATA — DAILY_DATA only has the
-  // composite key, not the readable name. Build a lookup once.
-  const nameLookup = {};
-  const affData = FULL_DATA[affId] || {};
-  for (const fd of Object.values(affData)) {
-    for (const gd of Object.values(fd)) {
-      for (const o of gd.offers) {
-        const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        if (!nameLookup[k]) nameLookup[k] = o.offer_name;
-      }
-    }
-  }
-  for (const flowData of Object.values(da)) {
-    for (const offers of Object.values(flowData)) {
-      for (const [offerKey, offerNode] of Object.entries(offers)) {
-        const bucket = offerNode.__sources && offerNode.__sources[sourceKey];
-        if (!bucket) continue;
-        if (!map[offerKey]) map[offerKey] = { clicks: 0, revenue: 0, conversions: 0 };
-        for (const d of Object.values(bucket.dates)) {
-          map[offerKey].clicks += d.clicks;
-          map[offerKey].conversions += d.conversions;
-          map[offerKey].revenue += d.revenue;
-        }
-      }
-    }
-  }
-  return Object.entries(map)
-    .map(([k,d]) => ({
-      key: k,
-      name: offerDisplayName(k, nameLookup[k] || k),
-      sub: buildSubLabel({ revenue: d.revenue, clicks: d.clicks, sales: 0 }),
-      clicks: d.clicks, revenue: d.revenue, conversions: d.conversions,
-    }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
-// Same as above, scoped to a single flow.
-function getOffersForFlowSource(affId, flowId, sourceKey) {
-  const da = DAILY_DATA[affId];
-  if (!da || !da[flowId]) return [];
-  const map = {};
-  const nameLookup = {};
-  const flowFD = FULL_DATA[affId] && FULL_DATA[affId][flowId];
-  if (flowFD) {
-    for (const gd of Object.values(flowFD)) {
-      for (const o of gd.offers) {
-        const k = o.offer_id ? `${o.offer_id}::${o.offer_name}` : o.offer_name;
-        if (!nameLookup[k]) nameLookup[k] = o.offer_name;
-      }
-    }
-  }
-  for (const offers of Object.values(da[flowId])) {
-    for (const [offerKey, offerNode] of Object.entries(offers)) {
-      const bucket = offerNode.__sources && offerNode.__sources[sourceKey];
-      if (!bucket) continue;
-      if (!map[offerKey]) map[offerKey] = { clicks: 0, revenue: 0, conversions: 0 };
-      for (const d of Object.values(bucket.dates)) {
-        map[offerKey].clicks += d.clicks;
-        map[offerKey].conversions += d.conversions;
-        map[offerKey].revenue += d.revenue;
-      }
-    }
-  }
-  return Object.entries(map)
-    .map(([k,d]) => ({
-      key: k,
-      name: offerDisplayName(k, nameLookup[k] || k),
-      sub: buildSubLabel({ revenue: d.revenue, clicks: d.clicks, sales: 0 }),
-      clicks: d.clicks, revenue: d.revenue, conversions: d.conversions,
-    }))
-    .sort((a,b) => b.revenue - a.revenue);
-}
-
 function selectDimension(dim) {
   chartDimension = dim;
   chartSelectedKey = null;
@@ -4755,15 +4397,6 @@ function selectDimension(dim) {
   collapsedFlows = new Set();
   dimExpandedGeos = new Set();
   dimExpandedOffers = new Set();
-  dimExpandedGeoOffers = new Set();
-  dimExpandedOfferGeos = new Set();
-  dimExpandedSources = new Set();
-  // Per spec: GEO dim drills into sources by default if sources are present
-  // in the dataset, otherwise landings. Re-evaluate on every dim switch so
-  // this stays correct after data reloads.
-  if (dim === 'geo') {
-    geoLeafMode = HAS_SOURCES ? 'sources' : 'landings';
-  }
   ['geo','offer','source'].forEach(d => {
     const el = document.getElementById('dimTab'+d.charAt(0).toUpperCase()+d.slice(1));
     if (el) el.classList.toggle('active', d===dim);
@@ -4772,103 +4405,11 @@ function selectDimension(dim) {
   dimSearchQuery = '';
   const searchInput = document.getElementById('dimSearchInput');
   if (searchInput) searchInput.value = '';
-  renderDimFilterBar();
   renderDimList();
   // After switching dims, show a hint in the chart panel — the chart only
   // updates when the user picks a specific item from the sub-list.
   const chartsRight = document.getElementById('chartsRight');
   chartsRight.innerHTML = '<div class="empty-state" style="height:50%;"><div class="empty-icon">⟋</div><div class="empty-text">Select a '+dim+' from the list</div></div>';
-}
-
-// ── Daily Charts: per-dimension drill / expand filter bar ───────────────
-// Builds the small toggle bar that sits beneath the dimension tabs in the
-// .charts-left-hdr. Renders different controls depending on the active
-// dimension:
-//   • GEO    → "Drill into: Sources | Landings"  (4th level beneath offer)
-//   • Offer  → no filter (only one drill target — sources — per spec)
-//   • Source → "Expand into: GEOs | Offers"      (2nd level beneath source)
-// The bar's container is toggled on/off via the `.active` class so it only
-// occupies vertical space when there's actually a control to show.
-function renderDimFilterBar() {
-  const bar = document.getElementById('dimFilterBar');
-  if (!bar) return;
-  bar.innerHTML = '';
-  // Rebuild from scratch so we never leak buttons across dim switches.
-  let hasContent = false;
-
-  function makeBtn(label, isActive, modClass, onClick) {
-    const btn = document.createElement('button');
-    btn.className = 'dim-filter-btn'
-      + (isActive ? ' active' : '')
-      + (modClass ? ' ' + modClass : '');
-    btn.textContent = (isActive ? '▪ ' : '◦ ') + label;
-    btn.addEventListener('click', onClick);
-    return btn;
-  }
-
-  if (chartDimension === 'geo') {
-    // Sources / Landings drill choice.
-    const lbl = document.createElement('span');
-    lbl.className = 'dfb-label';
-    lbl.textContent = 'Drill into:';
-    bar.appendChild(lbl);
-    if (HAS_SOURCES) {
-      bar.appendChild(makeBtn('Sources', geoLeafMode === 'sources', null, () => {
-        if (geoLeafMode === 'sources') return;
-        geoLeafMode = 'sources';
-        // Drop any leaf selection that no longer matches the new mode so
-        // the chart doesn't keep pointing at a now-hidden landing/source.
-        if (chartSelectedKey && chartSelectedKey.startsWith('landing_')) {
-          chartSelectedKey = null;
-        }
-        renderDimFilterBar();
-        renderDimList();
-      }));
-    }
-    bar.appendChild(makeBtn('Landings', geoLeafMode === 'landings', 'lnd', () => {
-      if (geoLeafMode === 'landings') return;
-      geoLeafMode = 'landings';
-      if (chartSelectedKey && chartSelectedKey.startsWith('source_')) {
-        chartSelectedKey = null;
-      }
-      renderDimFilterBar();
-      renderDimList();
-    }));
-    hasContent = true;
-  } else if (chartDimension === 'source') {
-    // GEO / Offer expand choice (only meaningful when sources exist).
-    if (!HAS_SOURCES) { bar.classList.remove('active'); return; }
-    const lbl = document.createElement('span');
-    lbl.className = 'dfb-label';
-    lbl.textContent = 'Expand into:';
-    bar.appendChild(lbl);
-    bar.appendChild(makeBtn('GEOs', sourceExpandMode === 'geo', null, () => {
-      if (sourceExpandMode === 'geo') return;
-      sourceExpandMode = 'geo';
-      // Collapse any open source rows so the new child set is consistent.
-      dimExpandedSources = new Set();
-      // Clear a child-row selection if it no longer matches the new mode.
-      if (chartSelectedKey && chartSelectedKey.startsWith('source_offer::')) {
-        chartSelectedKey = null;
-      }
-      renderDimFilterBar();
-      renderDimList();
-    }));
-    bar.appendChild(makeBtn('Offers', sourceExpandMode === 'offer', null, () => {
-      if (sourceExpandMode === 'offer') return;
-      sourceExpandMode = 'offer';
-      dimExpandedSources = new Set();
-      if (chartSelectedKey && chartSelectedKey.startsWith('source_geo::')) {
-        chartSelectedKey = null;
-      }
-      renderDimFilterBar();
-      renderDimList();
-    }));
-    hasContent = true;
-  }
-  // Offer dim has no filter — only one drill target (sources) by spec.
-
-  bar.classList.toggle('active', hasContent);
 }
 
 // ── Offer display name helper ──
@@ -4943,12 +4484,7 @@ function renderDimList() {
   // .nested modifier adds indentation in place of the parent's twisty so
   // hierarchy still reads at a glance. `grouped` adds an extra step when
   // we're flow-scoped (under a flow header).
-  // expandConfig (optional) lets a child row become its own expandable parent
-  // for a 3rd / 4th level of drill (sources / landings beneath an offer):
-  //   { hasChildren: bool, isExpanded: bool, onToggle: fn }
-  // When expandConfig is omitted, the row is rendered as a plain leaf-style
-  // child (matches the existing GEO-dim → offer / Offer-dim → geo behaviour).
-  function appendChildRow(child, selKey, onSelect, grouped, parentKind, expandConfig) {
+  function appendChildRow(child, selKey, onSelect, grouped, parentKind) {
     // Child of a geo is an offer (longer name); child of an offer is a geo
     // (short country code). parentKind tells us which renderer to use.
     const childIsOffer = (parentKind === 'geo');
@@ -4962,24 +4498,11 @@ function renderDimList() {
       onSelect();
     });
 
-    // Twisty slot — empty for plain leaves; clickable when this child can
-    // open into a 3rd / 4th level (expandConfig provided).
-    if (expandConfig && expandConfig.hasChildren) {
-      const tw = document.createElement('span');
-      tw.className = 'dim-item-twisty dim-geo-twisty';
-      tw.textContent = expandConfig.isExpanded ? '▼' : '▶';
-      tw.title = expandConfig.isExpanded ? 'Collapse' : 'Expand';
-      tw.addEventListener('click', (e) => {
-        e.stopPropagation();
-        expandConfig.onToggle();
-      });
-      cdiv.appendChild(tw);
-    } else {
-      const sp = document.createElement('span');
-      sp.className = 'dim-item-twisty dim-geo-twisty';
-      sp.textContent = '';
-      cdiv.appendChild(sp);
-    }
+    // Empty twisty slot — keeps the 3-column grid alignment with parent rows.
+    const sp = document.createElement('span');
+    sp.className = 'dim-item-twisty dim-geo-twisty';
+    sp.textContent = '';
+    cdiv.appendChild(sp);
 
     // Same scaling baseline as parent rows (set on list._geoMaxRev/Clk).
     const maxRev = list._geoMaxRev || 1;
@@ -5015,103 +4538,22 @@ function renderDimList() {
       epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
       right.appendChild(epcEl);
     }
+    // Sales volume + CPS — only when the child has sales.
+    if ((child.sales || 0) > 0) {
+      const cSales = child.sales;
+      const cCps = (child.revenue || 0) / cSales;
+      const sEl = document.createElement('div'); sEl.className = 'csales';
+      sEl.textContent = cSales.toLocaleString() + ' sales';
+      const cpsSp = document.createElement('span'); cpsSp.className = 'csales-cps';
+      cpsSp.textContent = '$' + cCps.toFixed(2) + ' CPS';
+      sEl.appendChild(cpsSp);
+      right.appendChild(sEl);
+    }
 
     cdiv.appendChild(left);
     cdiv.appendChild(right);
 
     list.appendChild(cdiv);
-  }
-
-  // Helper: render a deep-nested leaf row (3rd / 4th level).
-  // Used for source / landing leaves beneath an offer (in GEO and Offer dims),
-  // and for geo / offer leaves beneath a source (in Source dim).
-  //   leaf      — { key, name, revenue, clicks, replaced_source?, is_no_source? }
-  //   selKey    — selection key for this leaf
-  //   onSelect  — invoked when the leaf is clicked
-  //   grouped   — true when sitting under a flow-scoped parent (extra indent)
-  //   leafKind  — 'source' | 'landing' | 'geo' | 'offer'
-  //               drives the small SRC/LND tag and name styling
-  function appendLeafRow(leaf, selKey, onSelect, grouped, leafKind) {
-    const ldiv = document.createElement('div');
-    ldiv.className = 'dim-geo-item nested-leaf'
-      + (grouped ? ' nested-grouped' : '')
-      + (selKey===chartSelectedKey ? ' selected' : '');
-    ldiv.addEventListener('click', (e) => {
-      e.stopPropagation();
-      onSelect();
-    });
-
-    // Leaves are terminal — no twisty, just a spacer to keep grid alignment.
-    const sp = document.createElement('span');
-    sp.className = 'dim-item-twisty dim-geo-twisty';
-    sp.textContent = '';
-    ldiv.appendChild(sp);
-
-    const maxRev = list._geoMaxRev || 1;
-    const maxClk = list._geoMaxClk || 1;
-    const sortVal = (leaf.revenue && leaf.revenue > 0) ? leaf.revenue : (leaf.clicks || 0);
-    const maxVal  = (leaf.revenue && leaf.revenue > 0) ? maxRev : maxClk;
-    const bw = Math.max(2, Math.round((sortVal / (maxVal || 1)) * 72));
-
-    const left = document.createElement('div');
-    left.className = 'dim-geo-left';
-
-    const codeEl = document.createElement('div');
-    let nameClass = 'country-code';
-    if (leafKind === 'source') nameClass += ' is-source-name' + (leaf.is_no_source ? ' is-no-source' : '');
-    else if (leafKind === 'landing') nameClass += ' is-landing-name';
-    else if (leafKind === 'offer') nameClass += ' is-offer-name';
-    codeEl.className = nameClass;
-    codeEl.textContent = (leafKind === 'source' && leaf.is_no_source) ? '(no source)' : leaf.name;
-    if (leafKind === 'landing' || leafKind === 'offer' || leafKind === 'source') {
-      codeEl.title = leaf.name;
-    }
-
-    // Small tag marking source vs landing leaves so users always know which
-    // axis the row drilled into. Skipped for geo / offer leaves under the
-    // Source dim — those are already visually distinct (country code vs
-    // offer name) and need no tag.
-    if (leafKind === 'source' || leafKind === 'landing') {
-      const tag = document.createElement('span');
-      tag.className = 'leaf-type-tag ' + (leafKind === 'landing' ? 'lnd' : 'src');
-      tag.textContent = leafKind === 'landing' ? 'LND' : 'SRC';
-      codeEl.appendChild(tag);
-    }
-    left.appendChild(codeEl);
-
-    // Optional replaced-source caption — only relevant for source leaves
-    // where the dataset includes a normalised "source ↳ replacement" pair.
-    if (leafKind === 'source' && leaf.replaced_source) {
-      const repl = document.createElement('div');
-      repl.className = 'leaf-replaced-src';
-      repl.textContent = '↳ ' + leaf.replaced_source;
-      repl.title = 'Replaced source: ' + leaf.replaced_source;
-      left.appendChild(repl);
-    }
-
-    const barRow = document.createElement('div'); barRow.className = 'bar-row';
-    const bar = document.createElement('div'); bar.className = 'cbar'; bar.style.width = bw + 'px';
-    barRow.appendChild(bar);
-    const clicksEl = document.createElement('span'); clicksEl.className = 'cclicks';
-    clicksEl.textContent = fmtNum(leaf.clicks || 0);
-    barRow.appendChild(clicksEl);
-    left.appendChild(barRow);
-
-    const right = document.createElement('div'); right.className = 'crev-stack';
-    const revEl = document.createElement('div'); revEl.className = 'crev';
-    revEl.textContent = (leaf.revenue && leaf.revenue > 0) ? fmtMoney(leaf.revenue) : '';
-    right.appendChild(revEl);
-    if ((leaf.clicks || 0) > 0) {
-      const epc = (leaf.revenue || 0) / leaf.clicks;
-      const epcEl = document.createElement('div'); epcEl.className = 'cepc';
-      epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
-      right.appendChild(epcEl);
-    }
-
-    ldiv.appendChild(left);
-    ldiv.appendChild(right);
-
-    list.appendChild(ldiv);
   }
 
   // Helper: render an expandable parent row for geo/offer dims.
@@ -5210,6 +4652,17 @@ function renderDimList() {
         epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
         right.appendChild(epcEl);
       }
+      // Sales volume + CPS — only when this row has at least one sale.
+      if ((item.sales || 0) > 0) {
+        const iSales = item.sales;
+        const iCps = (item.revenue || 0) / iSales;
+        const sEl = document.createElement('div'); sEl.className = 'csales';
+        sEl.textContent = iSales.toLocaleString() + ' sales';
+        const cpsSp = document.createElement('span'); cpsSp.className = 'csales-cps';
+        cpsSp.textContent = '$' + iCps.toFixed(2) + ' CPS';
+        sEl.appendChild(cpsSp);
+        right.appendChild(sEl);
+      }
 
       div.appendChild(left);
       div.appendChild(right);
@@ -5222,10 +4675,6 @@ function renderDimList() {
     if (isExpanded && filteredChildren.length) {
       filteredChildren.forEach(c => {
         let childScope, childTitle, childSelKey;
-        // Compute the (offerKey, country) pair the deep-leaf list will be
-        // scoped to. parent + child together always determine an offer in a
-        // country — both geo→offer and offer→geo end up at the same point.
-        let leafOfferKey, leafCountry;
         if (parentKind === 'geo') {
           // Child is an offer; scope depends on whether we're flow-scoped
           if (isFlowScoped) {
@@ -5237,7 +4686,6 @@ function renderDimList() {
             childTitle = c.name + ' · GEO: ' + item.key;
             childSelKey = 'offer_geo::' + item.key + '::' + c.key;
           }
-          leafOfferKey = c.key; leafCountry = item.key;
         } else {
           // Parent is offer, child is geo
           if (isFlowScoped) {
@@ -5249,121 +4697,13 @@ function renderDimList() {
             childTitle = item.name + ' · GEO: ' + c.key;
             childSelKey = 'offer_geo::' + c.key + '::' + item.key;
           }
-          leafOfferKey = item.key; leafCountry = c.key;
         }
-
-        // ── Deep-level (3rd / 4th) drill into sources or landings ─────────
-        // GEO dim → offer leaf:   leafMode = geoLeafMode  (Sources | Landings)
-        // Offer dim → geo leaf:   leafMode = offerLeafMode (always 'sources')
-        const leafMode = (parentKind === 'geo') ? geoLeafMode : offerLeafMode;
-        // Sources only make sense if the dataset has source data; if not,
-        // fall back to landings silently. Offer dim follows the same rule —
-        // when there are no sources to drill into, the row stays a leaf.
-        const effectiveLeafMode = (leafMode === 'sources' && !HAS_SOURCES)
-          ? (parentKind === 'geo' ? 'landings' : null)
-          : leafMode;
-
-        let leafItems = [];
-        if (effectiveLeafMode === 'sources') {
-          leafItems = isFlowScoped
-            ? getSourcesForFlowGeoOffer(selectedAffiliate, flowId, leafCountry, leafOfferKey)
-            : getSourcesForGeoOffer(selectedAffiliate, leafCountry, leafOfferKey);
-        } else if (effectiveLeafMode === 'landings') {
-          leafItems = isFlowScoped
-            ? getLandingsForFlowGeoOffer(selectedAffiliate, flowId, leafCountry, leafOfferKey)
-            : getLandingsForGeoOffer(selectedAffiliate, leafCountry, leafOfferKey);
-        }
-
-        // Filter leaves by search query so the deep level participates in
-        // the same search experience as parents/children. If the parent
-        // chain matches the query we keep all leaves; otherwise we narrow.
-        let filteredLeaves = leafItems;
-        if (q) {
-          const parentChainMatches = dimMatchesSearch(item, q) || dimMatchesSearch(c, q);
-          if (!parentChainMatches) {
-            filteredLeaves = leafItems.filter(l => {
-              const n = (l.name || '').toLowerCase();
-              const r = (l.replaced_source || '').toLowerCase();
-              return n.includes(q) || r.includes(q);
-            });
-          }
-        }
-        const hasLeaves = filteredLeaves.length > 0;
-
-        // Track which "child" rows have their leaves expanded. Keys mirror
-        // the parent expansion sets so flat / flow-scoped modes coexist.
-        const childExpandSet = (parentKind === 'geo') ? dimExpandedGeoOffers : dimExpandedOfferGeos;
-        const childExpandKey = isFlowScoped
-          ? (flowId + '::' + (parentKind === 'geo' ? item.key : item.key) + '::' + (parentKind === 'geo' ? c.key : c.key))
-          : ((parentKind === 'geo' ? item.key : item.key) + '::' + (parentKind === 'geo' ? c.key : c.key));
-        // Note: the keys above resolve to `${parent}::${child}` — for GEO
-        // dim that's `${country}::${offerKey}`; for Offer dim that's
-        // `${offerKey}::${country}`. Both forms are unambiguous within
-        // their own dim.
-
-        // Auto-expand when searching narrows down to specific leaves,
-        // matching the behaviour of the parent → child auto-expand above.
-        const userChildExpanded = childExpandSet.has(childExpandKey);
-        const childChainMatches = !q || dimMatchesSearch(item, q) || dimMatchesSearch(c, q);
-        const autoChildExpand = q && !childChainMatches && filteredLeaves.length > 0;
-        const isChildExpanded = hasLeaves && (autoChildExpand || userChildExpanded);
-
         appendChildRow(c, childSelKey, () => {
           chartSelectedKey = childSelKey;
           chartSelectedFlowId = flowId || null;
           renderDimList();
           renderChart(childScope, childTitle);
-        }, isFlowScoped, parentKind, hasLeaves ? {
-          hasChildren: true,
-          isExpanded: isChildExpanded,
-          onToggle: () => {
-            if (childExpandSet.has(childExpandKey)) childExpandSet.delete(childExpandKey);
-            else childExpandSet.add(childExpandKey);
-            renderDimList();
-          }
-        } : null);
-
-        // Render the deep-level leaves under this child
-        if (isChildExpanded) {
-          filteredLeaves.forEach(leaf => {
-            // Build the chart scope + selection key for this leaf. We reuse
-            // existing scope types where possible (source_tree / landing_tree
-            // for flow-scoped leaves) and add new ones for the all-flows case.
-            let leafScope, leafTitle, leafSelKey;
-            const leafName = (effectiveLeafMode === 'sources' && leaf.is_no_source) ? '(no source)' : leaf.name;
-            const offerNameForTitle = (parentKind === 'geo') ? c.name : item.name;
-            const ctxBits = ['GEO: ' + leafCountry];
-            if (isFlowScoped) ctxBits.push('Flow: ' + (flowId==='__no_flow__'?'No Flow':flowId));
-            const ctxStr = ' · ' + offerNameForTitle + ' · ' + ctxBits.join(' · ');
-            if (effectiveLeafMode === 'sources') {
-              if (isFlowScoped) {
-                leafScope = { type: 'source_tree', flowId, country: leafCountry, offerKey: leafOfferKey, source: leaf.key };
-                leafSelKey = 'source_tree::' + flowId + '::' + leafCountry + '::' + leafOfferKey + '::' + leaf.key;
-              } else {
-                leafScope = { type: 'source_offer_geo', country: leafCountry, offerKey: leafOfferKey, source: leaf.key };
-                leafSelKey = 'source_offer_geo::' + leafCountry + '::' + leafOfferKey + '::' + leaf.key;
-              }
-              leafTitle = 'Source: ' + leafName + (leaf.replaced_source ? ' ↳ ' + leaf.replaced_source : '') + ctxStr;
-            } else {
-              // landings
-              if (isFlowScoped) {
-                leafScope = { type: 'landing_tree', flowId, country: leafCountry, offerKey: leafOfferKey, landing: leaf.key };
-                leafSelKey = 'landing_tree::' + flowId + '::' + leafCountry + '::' + leafOfferKey + '::' + leaf.key;
-              } else {
-                leafScope = { type: 'landing_offer_geo', country: leafCountry, offerKey: leafOfferKey, landing: leaf.key };
-                leafSelKey = 'landing_offer_geo::' + leafCountry + '::' + leafOfferKey + '::' + leaf.key;
-              }
-              leafTitle = 'Landing: ' + leafName + ctxStr;
-            }
-
-            appendLeafRow(leaf, leafSelKey, () => {
-              chartSelectedKey = leafSelKey;
-              chartSelectedFlowId = flowId || null;
-              renderDimList();
-              renderChart(leafScope, leafTitle);
-            }, isFlowScoped, effectiveLeafMode === 'sources' ? 'source' : 'landing');
-          });
-        }
+        }, isFlowScoped, parentKind);
       });
     }
   }
@@ -5384,26 +4724,15 @@ function renderDimList() {
       : getDimList_source(selectedAffiliate);
   }
 
-  // For geo/offer/source we accept items that don't match directly but whose
-  // children would match. (Source dim only acquires children when sources can
-  // be expanded into GEOs / Offers — which requires HAS_SOURCES.)
-  const useChildMatching = (chartDimension==='geo' || chartDimension==='offer' || chartDimension==='source');
+  // For geo/offer we also accept items that don't match directly but whose children would match
+  const useChildMatching = (chartDimension==='geo' || chartDimension==='offer');
   if (q) items = items.filter(it => {
     if (dimMatchesSearch(it, q)) return true;
     if (chartDimension==='source' && it.replaced_source && it.replaced_source.toLowerCase().includes(q)) return true;
     if (useChildMatching) {
-      let children = [];
-      if (chartDimension==='geo') {
-        children = flowScope ? getOffersForFlowGeoFull(selectedAffiliate, flowScope, it.key) : getOffersForGeo(selectedAffiliate, it.key);
-      } else if (chartDimension==='offer') {
-        children = flowScope ? getGeosForFlowOffer(selectedAffiliate, flowScope, it.key) : getGeosForOffer(selectedAffiliate, it.key);
-      } else if (chartDimension==='source') {
-        if (sourceExpandMode === 'geo') {
-          children = flowScope ? getGeosForFlowSource(selectedAffiliate, flowScope, it.key) : getGeosForSource(selectedAffiliate, it.key);
-        } else {
-          children = flowScope ? getOffersForFlowSource(selectedAffiliate, flowScope, it.key) : getOffersForSource(selectedAffiliate, it.key);
-        }
-      }
+      const children = chartDimension==='geo'
+        ? (flowScope ? getOffersForFlowGeoFull(selectedAffiliate, flowScope, it.key) : getOffersForGeo(selectedAffiliate, it.key))
+        : (flowScope ? getGeosForFlowOffer(selectedAffiliate, flowScope, it.key) : getGeosForOffer(selectedAffiliate, it.key));
       if (children.some(c => dimMatchesSearch(c, q))) return true;
     }
     return false;
@@ -5448,163 +4777,34 @@ function renderDimList() {
     return;
   }
 
-  // ── Source dimension: expandable rows ─────────────────────────────────
-  // Each source row can open into either GEOs or Offers (controlled by
-  // sourceExpandMode via the filter button bar). The visual layout matches
-  // GEO/Offer dim rows so the three dims feel consistent. When sources
-  // can't be expanded (no source data → shouldn't happen here, but be safe)
-  // we fall back to a flat list.
-  {
-    let maxRev = 1, maxClk = 1;
-    for (const it of items) {
-      if ((it.revenue || 0) > maxRev) maxRev = it.revenue;
-      if ((it.clicks  || 0) > maxClk) maxClk = it.clicks;
+  // Source dimension: flat render
+  items.forEach(item => {
+    const isSelected = item.key===chartSelectedKey && (flowScope||null)===chartSelectedFlowId;
+    const div = document.createElement('div');
+    div.className = 'dim-item' + (isSelected ? ' selected' : '');
+    div.addEventListener('click', () => selectDimItem(item, flowScope));
+    const row = document.createElement('div'); row.className = 'dim-item-row';
+    const name = document.createElement('div'); name.className='dim-item-name';
+    if (item.is_no_source) {
+      name.textContent = '(no source)';
+      name.style.fontStyle = 'italic';
+      name.style.color = 'var(--dim)';
+    } else {
+      name.textContent = item.name;
     }
-    list._geoMaxRev = maxRev;
-    list._geoMaxClk = maxClk;
-
-    const isFlowScoped = !!flowScope;
-    items.forEach(item => {
-      // Compute children for this source under the active expand mode
-      let children = [];
-      if (sourceExpandMode === 'geo') {
-        children = isFlowScoped
-          ? getGeosForFlowSource(selectedAffiliate, flowScope, item.key)
-          : getGeosForSource(selectedAffiliate, item.key);
-      } else { // 'offer'
-        children = isFlowScoped
-          ? getOffersForFlowSource(selectedAffiliate, flowScope, item.key)
-          : getOffersForSource(selectedAffiliate, item.key);
-      }
-      // Search filter on children — same shape as GEO/Offer dims.
-      const filteredChildren = q ? children.filter(c => dimMatchesSearch(c, q)) : children;
-
-      const expandKey = isFlowScoped ? (flowScope + '::' + item.key) : item.key;
-      const userExpanded = dimExpandedSources.has(expandKey);
-      const parentMatches = !q || dimMatchesSearch(item, q)
-        || (item.replaced_source && item.replaced_source.toLowerCase().includes(q));
-      const autoExpand = q && !parentMatches && filteredChildren.length > 0;
-      const isExpanded = autoExpand || userExpanded;
-
-      // Build the parent row — analytics-style layout matching GEO/Offer rows.
-      const isSelected = item.key === chartSelectedKey && (flowScope || null) === chartSelectedFlowId;
-      const div = document.createElement('div');
-      div.className = 'dim-geo-item' + (isSelected ? ' selected' : '');
-
-      if (filteredChildren.length) {
-        const tw = document.createElement('span');
-        tw.className = 'dim-item-twisty dim-geo-twisty';
-        tw.textContent = isExpanded ? '▼' : '▶';
-        tw.title = isExpanded ? 'Collapse' : 'Expand';
-        tw.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (dimExpandedSources.has(expandKey)) dimExpandedSources.delete(expandKey);
-          else dimExpandedSources.add(expandKey);
-          renderDimList();
-        });
-        div.appendChild(tw);
-      } else {
-        const sp = document.createElement('span');
-        sp.className = 'dim-item-twisty dim-geo-twisty';
-        sp.textContent = '';
-        div.appendChild(sp);
-      }
-
-      const sortVal = (item.revenue && item.revenue > 0) ? item.revenue : (item.clicks || 0);
-      const maxVal  = (item.revenue && item.revenue > 0) ? maxRev : maxClk;
-      const bw = Math.max(2, Math.round((sortVal / (maxVal || 1)) * 72));
-
-      const left = document.createElement('div');
-      left.className = 'dim-geo-left';
-
-      const codeEl = document.createElement('div');
-      // Use is-source-name styling so the row reads as a source identifier
-      // (monospace, ellipsis-clipped) rather than a country code.
-      codeEl.className = 'country-code is-source-name'
-        + (item.is_no_source ? ' is-no-source' : '');
-      codeEl.textContent = item.is_no_source ? '(no source)' : item.name;
-      codeEl.title = item.name;
-      left.appendChild(codeEl);
-
-      // Replaced-source caption — small secondary line under the name.
-      if (item.replaced_source) {
-        const repl = document.createElement('div');
-        repl.className = 'leaf-replaced-src';
-        repl.textContent = '↳ ' + item.replaced_source;
-        repl.title = 'Replaced source: ' + item.replaced_source;
-        left.appendChild(repl);
-      }
-
-      const barRow = document.createElement('div'); barRow.className = 'bar-row';
-      const bar = document.createElement('div'); bar.className = 'cbar'; bar.style.width = bw + 'px';
-      barRow.appendChild(bar);
-      const clicksEl = document.createElement('span'); clicksEl.className = 'cclicks';
-      clicksEl.textContent = fmtNum(item.clicks || 0);
-      barRow.appendChild(clicksEl);
-      left.appendChild(barRow);
-
-      const right = document.createElement('div'); right.className = 'crev-stack';
-      const revEl = document.createElement('div'); revEl.className = 'crev';
-      revEl.textContent = (item.revenue && item.revenue > 0) ? fmtMoney(item.revenue) : '';
-      right.appendChild(revEl);
-      if ((item.clicks || 0) > 0) {
-        const epc = (item.revenue || 0) / item.clicks;
-        const epcEl = document.createElement('div'); epcEl.className = 'cepc';
-        epcEl.textContent = '$' + epc.toFixed(4) + ' EPC';
-        right.appendChild(epcEl);
-      }
-
-      div.appendChild(left);
-      div.appendChild(right);
-      div.addEventListener('click', () => selectDimItem(item, flowScope));
-      list.appendChild(div);
-
-      // Render expanded children — geos or offers under this source.
-      if (isExpanded && filteredChildren.length) {
-        filteredChildren.forEach(c => {
-          let leafScope, leafTitle, leafSelKey;
-          const sourceLabel = item.is_no_source ? '(no source)' : item.name;
-          const replSuffix = item.replaced_source ? ' ↳ ' + item.replaced_source : '';
-          const flowSuffix = isFlowScoped
-            ? ' · Flow: ' + (flowScope === '__no_flow__' ? 'No Flow' : flowScope)
-            : '';
-          if (sourceExpandMode === 'geo') {
-            // c is a geo
-            if (isFlowScoped) {
-              leafScope = { type: 'source_flow_geo', flowId: flowScope, source: item.key, country: c.key };
-              leafSelKey = 'source_flow_geo::' + flowScope + '::' + item.key + '::' + c.key;
-            } else {
-              leafScope = { type: 'source_geo', source: item.key, country: c.key };
-              leafSelKey = 'source_geo::' + item.key + '::' + c.key;
-            }
-            leafTitle = 'Source: ' + sourceLabel + replSuffix + ' · GEO: ' + c.key + flowSuffix;
-            appendLeafRow(c, leafSelKey, () => {
-              chartSelectedKey = leafSelKey;
-              chartSelectedFlowId = flowScope || null;
-              renderDimList();
-              renderChart(leafScope, leafTitle);
-            }, isFlowScoped, 'geo');
-          } else {
-            // c is an offer
-            if (isFlowScoped) {
-              leafScope = { type: 'source_flow_offer', flowId: flowScope, source: item.key, offerKey: c.key };
-              leafSelKey = 'source_flow_offer::' + flowScope + '::' + item.key + '::' + c.key;
-            } else {
-              leafScope = { type: 'source_offer', source: item.key, offerKey: c.key };
-              leafSelKey = 'source_offer::' + item.key + '::' + c.key;
-            }
-            leafTitle = 'Source: ' + sourceLabel + replSuffix + ' · ' + c.name + flowSuffix;
-            appendLeafRow(c, leafSelKey, () => {
-              chartSelectedKey = leafSelKey;
-              chartSelectedFlowId = flowScope || null;
-              renderDimList();
-              renderChart(leafScope, leafTitle);
-            }, isFlowScoped, 'offer');
-          }
-        });
-      }
-    });
-  }
+    row.appendChild(name);
+    div.appendChild(row);
+    // For source dim: if replaced source, show it as a secondary line above stats
+    if (item.replaced_source) {
+      const alt = document.createElement('div');
+      alt.style.cssText = 'font-size:9px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      alt.textContent = '↳ ' + item.replaced_source;
+      alt.title = 'Replaced source: ' + item.replaced_source;
+      div.appendChild(alt);
+    }
+    const sub = document.createElement('div'); sub.className='dim-item-sub'; sub.textContent=item.sub; div.appendChild(sub);
+    list.appendChild(div);
+  });
 }
 
 // ── Tree view renderer ──
@@ -6002,10 +5202,12 @@ function renderChartsView() {
   renderChartFlowList();
   selectDimension(chartDimension);
   // After re-rendering, decide what chart to show:
-  //   - "All Flows" + "Tree" dim → empty hint already shown by selectDimension
-  //   - "All Flows" + non-tree dim → empty hint shown by selectDimension
+  //   - "All Flows" → show the overall (cross-flow aggregate) chart by default
+  //     so the user lands on a real chart instead of an empty-state hint
   //   - Specific flow + any dim → if no item is selected, show that flow's overall chart
-  if (chartFlowScope !== '__ALL__' && !chartSelectedKey) {
+  if (chartFlowScope === '__ALL__' && !chartSelectedKey) {
+    renderChart({ type: 'overall' }, 'Overall — All Traffic');
+  } else if (chartFlowScope !== '__ALL__' && !chartSelectedKey) {
     const flowId = chartFlowScope;
     const title = 'Flow: ' + (flowId === '__no_flow__' ? 'No Flow' : flowId) + ' · Overall';
     renderChart({ type: 'flow', flowId }, title);
@@ -6035,13 +5237,14 @@ function renderChartFlowList() {
   // affiliate aggregate. Total stats roll up across every flow.
   const allClicks = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).clicks, 0);
   const allRevenue = flows.reduce((s, f) => s + getFlowStats(selectedAffiliate, f).revenue, 0);
+  const allSales = flows.reduce((s, f) => s + (getFlowStats(selectedAffiliate, f).sales || 0), 0);
   const allItem = document.createElement('div');
   allItem.className = 'flow-list-item all-flows-item' + (chartFlowScope === '__ALL__' ? ' active' : '');
   allItem.addEventListener('click', () => selectChartFlow('__ALL__'));
   const allRow = document.createElement('div'); allRow.className = 'flow-list-row';
   const allId = document.createElement('span');
   allId.className = 'flow-list-id';
-  allId.textContent = '★ All Flows';
+  allId.textContent = 'All Flows';
   allId.title = 'Aggregate across every flow for this affiliate';
   allRow.appendChild(allId);
   allItem.appendChild(allRow);
@@ -6050,6 +5253,12 @@ function renderChartFlowList() {
   if (allRevenue > 0) {
     const allRev = document.createElement('span'); allRev.className = 'fl-rev'; allRev.textContent = fmtMoney(allRevenue);
     allStats.appendChild(allRev);
+  }
+  if (allSales > 0) {
+    const allCps = allRevenue / allSales;
+    const allSalesEl = document.createElement('span'); allSalesEl.className = 'fl-sales';
+    allSalesEl.textContent = allSales.toLocaleString() + ' sales · $' + allCps.toFixed(2) + ' CPS';
+    allStats.appendChild(allSalesEl);
   }
   allItem.appendChild(allStats);
   container.appendChild(allItem);
@@ -6110,6 +5319,12 @@ function renderChartFlowList() {
       const rev = document.createElement('span'); rev.className = 'fl-rev'; rev.textContent = fmtMoney(s.revenue);
       stats.appendChild(rev);
     }
+    if ((s.sales || 0) > 0) {
+      const cps = s.revenue / s.sales;
+      const salesEl = document.createElement('span'); salesEl.className = 'fl-sales';
+      salesEl.textContent = s.sales.toLocaleString() + ' sales · $' + cps.toFixed(2) + ' CPS';
+      stats.appendChild(salesEl);
+    }
     item.appendChild(stats);
 
     container.appendChild(item);
@@ -6125,9 +5340,6 @@ function selectChartFlow(flowId) {
   collapsedFlows = new Set();
   dimExpandedGeos = new Set();
   dimExpandedOffers = new Set();
-  dimExpandedGeoOffers = new Set();
-  dimExpandedOfferGeos = new Set();
-  dimExpandedSources = new Set();
   // Reset search when switching flow scope
   dimSearchQuery = '';
   const searchInput = document.getElementById('dimSearchInput');
@@ -6221,6 +5433,37 @@ function renderChart(scope, title) {
     }
   } else {
     titleEl.textContent = title;
+  }
+  // ── "View Analytics" button — mirror of the analytics view's "View Chart"
+  // button. Jumps from a daily-chart back to the analytics view, pre-selecting
+  // the matching flow (and country, when the chart is GEO-scoped) so the user
+  // can keep their context while switching panels.
+  // Only shown when the chart is scoped to a specific flow — without a flow,
+  // analytics has no obvious country list to land on.
+  const flowIdForAnalytics = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
+  const countryForAnalytics = (scope && (scope.type==='geo_flow' || scope.type==='offer_flow_geo')) ? scope.country : null;
+  if (flowIdForAnalytics && FULL_DATA[affId] && FULL_DATA[affId][flowIdForAnalytics]) {
+    const vaBtn = document.createElement('button');
+    vaBtn.className = 'view-chart-btn';
+    vaBtn.title = countryForAnalytics
+      ? 'Open analytics for this flow + GEO'
+      : 'Open analytics for this flow';
+    const vaIco = document.createElement('span'); vaIco.className = 'vcb-icon'; vaIco.textContent = '◎';
+    vaBtn.appendChild(vaIco);
+    vaBtn.appendChild(document.createTextNode('View Analytics'));
+    vaBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchViewMode('analytics');
+      // selectFlow auto-picks the top country; if we have a specific country
+      // from the chart scope, override the selection after.
+      selectFlow(flowIdForAnalytics);
+      if (countryForAnalytics
+          && FULL_DATA[affId][flowIdForAnalytics]
+          && FULL_DATA[affId][flowIdForAnalytics][countryForAnalytics]) {
+        selectCountry(countryForAnalytics);
+      }
+    });
+    titleEl.appendChild(vaBtn);
   }
   // Add copy button for any scope involving a specific flow
   const flowIdForCopy = (scope && (scope.type==='flow' || scope.type==='geo_flow' || scope.type==='offer_flow' || scope.type==='offer_flow_geo')) ? scope.flowId : null;
