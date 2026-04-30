@@ -5641,16 +5641,42 @@ function renderChart(scope, title) {
   const ttitle = document.createElement('div'); ttitle.className='chart-card-title'; ttitle.textContent=chartGroupWeeks?'Week-by-Week Table':'Day-by-Day Table'; thdr.appendChild(ttitle);
   const toggleBtn = document.createElement('button');
   toggleBtn.style.cssText='padding:3px 10px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:10px;cursor:pointer;';
-  toggleBtn.textContent='Show'; let tableVisible=false;
-  const tableWrap = document.createElement('div'); tableWrap.style.display='none';
+  toggleBtn.textContent='Hide'; let tableVisible=true;
+  const tableWrap = document.createElement('div'); tableWrap.style.display='block';
   toggleBtn.onclick=()=>{ tableVisible=!tableVisible; tableWrap.style.display=tableVisible?'block':'none'; toggleBtn.textContent=tableVisible?'Hide':'Show'; };
   thdr.appendChild(toggleBtn); tableCard.appendChild(thdr);
   const table = document.createElement('table'); table.className='chart-data-table';
   const thead = document.createElement('thead'); const hrow = document.createElement('tr');
-  [chartGroupWeeks?'Week':'Date','Clicks','Conversions','Revenue','EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
+  [chartGroupWeeks?'Week':'Date','Clicks','Δ Clicks','Conversions','Revenue','Δ Revenue','EPC','Δ EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
   thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
-  displaySeries.forEach(d=>{ const tr=document.createElement('tr'); [d.date,fmtNum(d.clicks),Math.round(d.conversions),'$'+d.revenue.toFixed(2),'$'+d.epc.toFixed(4)].forEach((v,i)=>{ const td=document.createElement('td'); td.textContent=v; if(i===3) td.style.color='var(--green)'; if(i===4) td.style.color='var(--yellow)'; tr.appendChild(td); }); tbody.appendChild(tr); });
+  displaySeries.forEach((d, idx)=>{
+    const tr=document.createElement('tr');
+    const prev = idx>0 ? displaySeries[idx-1] : null;
+    function buildDelta(currVal, prevVal, formatFn) {
+      if (prevVal===null || prevVal===undefined) return { text:'—', color:'var(--muted)' };
+      const diff = currVal - prevVal;
+      if (diff === 0) return { text: formatFn(0), color:'var(--muted)' };
+      const color = diff > 0 ? 'var(--green)' : 'var(--red)';
+      const sign = diff > 0 ? '+' : '-';
+      return { text: sign + formatFn(Math.abs(diff)), color };
+    }
+    const dClicks  = buildDelta(d.clicks,  prev ? prev.clicks  : null, v => fmtNum(v));
+    const dRevenue = buildDelta(d.revenue, prev ? prev.revenue : null, v => '$' + v.toFixed(2));
+    const dEpc     = buildDelta(d.epc,     prev ? prev.epc     : null, v => '$' + v.toFixed(4));
+    const cells = [
+      { text: d.date,                              color: null },
+      { text: fmtNum(d.clicks),                    color: null },
+      dClicks,
+      { text: Math.round(d.conversions),           color: null },
+      { text: '$' + d.revenue.toFixed(2),          color: 'var(--green)' },
+      dRevenue,
+      { text: '$' + d.epc.toFixed(4),              color: 'var(--yellow)' },
+      dEpc,
+    ];
+    cells.forEach(c => { const td=document.createElement('td'); td.textContent=c.text; if(c.color) td.style.color=c.color; tr.appendChild(td); });
+    tbody.appendChild(tr);
+  });
   table.appendChild(tbody); tableWrap.appendChild(table); tableCard.appendChild(tableWrap);
   chartsRight.appendChild(tableCard);
 }
