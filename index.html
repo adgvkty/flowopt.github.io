@@ -5650,9 +5650,12 @@ function renderChart(scope, title) {
   [chartGroupWeeks?'Week':'Date','Clicks','Δ Clicks','Conversions','Revenue','Δ Revenue','EPC','Δ EPC'].forEach((h)=>{ const th=document.createElement('th'); th.textContent=h; hrow.appendChild(th); });
   thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement('tbody');
-  displaySeries.forEach((d, idx)=>{
+  const tableSeries = [...displaySeries].reverse();
+  tableSeries.forEach((d, idx)=>{
     const tr=document.createElement('tr');
-    const prev = idx>0 ? displaySeries[idx-1] : null;
+    // tableSeries is descending by date, so the previous day chronologically
+    // is at idx+1 (one row below in the table).
+    const prev = idx < tableSeries.length-1 ? tableSeries[idx+1] : null;
     function buildDelta(currVal, prevVal, formatFn) {
       if (prevVal===null || prevVal===undefined) return { text:'—', color:'var(--muted)' };
       const diff = currVal - prevVal;
